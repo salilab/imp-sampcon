@@ -185,7 +185,7 @@ class GoodScoringModelSelector(object):
         
                     rsf.close()
 
-        if extract.lower()=="yes":
+        if extract:
             self._extract_models_from_trajectories(output_dir) 
         
             self._split_good_scoring_models_into_two_subsets(split_type="divide_by_run_ids")

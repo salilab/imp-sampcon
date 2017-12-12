@@ -21,13 +21,12 @@ def parse_args():
     parser.add_argument("-mlt","--member_lower_thresholds",nargs='+',type=float,dest="member_lower_thresholds",help="member lower thresholds")
     parser.add_argument("-mut","--member_upper_thresholds",nargs='+',type=float,dest="member_upper_thresholds",help="member upper thresholds")
 
-    parser.add_argument("-e","--extract",default=False,dest="extract",help="Type -e to extract all good scoring model RMFs from the trajectory files")
+    parser.add_argument("-e","--extract",default=False,dest="extract",action='store_true',help="Type -e to extract all good scoring model RMFs from the trajectory files")
     result = parser.parse_args()
  
     return result
     
 def select_good_scoring_models():
-     # Authors: Shruthi Viswanath
      
     # process input
     arg=parse_args()
