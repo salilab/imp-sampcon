@@ -164,13 +164,19 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
 
 def get_sampling_precision(cutoffs_list, pvals, cvs, percents):
     sampling_precision=100000.0
+    pval_converged=0.0
+    cramersv_converged=1.0
+    percent_converged=0.0
 
     for i in range(len(cutoffs_list)):
         if percents[i]>80.0:
             if pvals[i]>0.05 or cvs[i]<0.10:
                 if sampling_precision>cutoffs_list[i]:
                     sampling_precision=cutoffs_list[i]
+                    pval_converged=pvals[i]
+                    cramersv_converged=cvs[i]
+                    percent_converged=percents[i]
         else:
             sampling_precision=100000.0
 
-    return sampling_precision
+    return sampling_precision,pval_converged,cramersv_converged,percent_converged
