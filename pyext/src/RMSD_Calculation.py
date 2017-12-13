@@ -77,10 +77,20 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B):
             
             p=IMP.core.XYZR(leaf)
             pts.append(p.get_coordinates())
+            
             if num == 0:
                 masses.append(IMP.atom.Mass(leaf).get_mass())
                 radii.append(p.get_radius())
-                ps_names.append(IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf)))
+                #ps_names.append(IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))) # only molecule name
+                mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
+                
+                if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
+                    residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
+                    ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead)))
+                else:
+                    residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
+                    ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead)
+
         conform.append(pts)
         pts = []
         num = num + 1

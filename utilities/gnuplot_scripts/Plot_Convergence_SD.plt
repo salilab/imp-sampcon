@@ -47,7 +47,7 @@ tcd=sprintf("%.2f", KV_mean)
 set label sprintf("K-S test D: %s\n K-S test p-value %s", tcd, tpv) at graph 0.50, 0.95 right font 'Arial-Bold, 40' front tc rgb "#484848"
 
 set key tc rgb "#484848"
-set output sprintf("%s.H.pdf", ARG1)
+set output sprintf("%s.Score_Dist.pdf", ARG1)
 plot sprintf("%s.Score_Hist_A.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#EB7262" title "Sample 1", \
      sprintf("%s.Score_Hist_B.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#000080" title "Sample 2"
 set output

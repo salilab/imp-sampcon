@@ -38,7 +38,8 @@ parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow s
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="Scores_A.txt")
 parser.add_argument('--scoreB', '-sb', dest="scoreB",help='name of the file having the good-scoring scores for sample B', default="Scores_B.txt")
 parser.add_argument('--gridsize', '-g', dest="gridsize", help='grid size for calculating sampling precision', default=10.0)
-parser.add_argument('--cluster_threshold','-ct',dest="cluster_threshold",help='final clustering threshold to visualize clusters. Assumes that the user has previously calculated sampling precision and wants clusters defined at a threshold higher than the sampling precision for ease of analysis (lesser number of clusters). This option will bypass the calculation of sampling precision. Otherwise, by default, sampling precision is calculated and the clustering threshold is the calculated sampling precision.',default=False,action='store_true')
+parser.add_argument('--skip','-s',dest="skip_sampling_precision",help="This option will bypass the calculation of sampling precision. This option needs to be used with the clustering threhsold option.Otherwise by default, sampling precision is calculated and the clustering threshold is the calculated sampling precision.",default=False,action='store_true')
+parser.add_argument('--cluster_threshold','-ct',dest="cluster_threshold",type=float,help='final clustering threshold to visualize clusters. Assumes that the user has previously calculated sampling precision and wants clusters defined at a threshold higher than the sampling precision for ease of analysis (lesser number of clusters).',default=30.0)
 parser.add_argument('--voxel', '-v', dest="voxel", help='voxel size for the localization densities', default=5.0)
 parser.add_argument('--density_threshold', '-dt', dest="density_threshold", help='threshold for localization densities', default=20.0)
 parser.add_argument('--density', '-d', dest="density", help='dictionary of density custom ranges', default=None)
@@ -48,6 +49,7 @@ args = parser.parse_args()
 
 idfile_A = "Identities_A.txt"
 idfile_B = "Identities_B.txt"
+
 
 #Step 0: Compute Score convergence
 score_A = []
@@ -76,8 +78,9 @@ else:
     ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B)
 print "Size of conformation matrix",conforms.shape
 
-inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
-print "Size of RMSD matrix (flattened):",inner_data.shape
+if not args.skip_sampling_precision:
+    inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
+    print "Size of RMSD matrix (flattened):",inner_data.shape
 
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
@@ -88,21 +91,20 @@ rmsd_matrix = mHandler.getMatrix()
 distmat = rmsd_matrix.get_data()
 
 distmat_full = sp.spatial.distance.squareform(distmat)
-print "Size of RMSD matrix (unpacked, NXN):",distmat_full.shape
+print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
 
-if not args.cluster_threshold:
+# Get model lists
+run1_all_models,run2_all_models=get_run_identity(idfile_A, idfile_B)
+total_num_models=len(run1_all_models)+len(run2_all_models)
+all_models=run1_all_models+run2_all_models
+print "Size of Sample A:",len(run1_all_models)," ; Size of Sample B: ",len(run2_all_models),"; Total", total_num_models
+    
+if not args.skip_sampling_precision:
     
     print "Calculating sampling precision"
     
     # Step 2: Cluster at intervals of grid size to get the sampling precision
     gridSize=args.gridsize
-
-    # Get model lists
-    run1_all_models,run2_all_models=get_run_identity(idfile_A, idfile_B)
-    total_num_models=len(run1_all_models)+len(run2_all_models)
-    all_models=run1_all_models+run2_all_models
-
-    print "Size of Sample A:",len(run1_all_models)," ; Size of Sample B: ",len(run2_all_models),"; Total", total_num_models
 
     # Get cutoffs for clustering
     cutoffs_list=get_cutoffs_list(distmat, gridSize)
@@ -124,6 +126,7 @@ else:
     final_clustering_threshold = args.cluster_threshold
     
 # Perform final clustering at the required precision 
+print "Clustering at ",final_clustering_threshold
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,run1_all_models,run2_all_models)
@@ -161,10 +164,9 @@ for i in range(len(retained_clusters)):
         os.mkdir("./cluster.%s/Sample_2/" % i)       
     
     # Create densities for all subunits for both sample A and sample B as well as separately. 
-    gmd1 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, molnames=ps_names)
-    gmd2 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, molnames=ps_names)
-    gmdt = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, molnames=ps_names)
-    
+    gmd1 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
+    gmd2 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
+    gmdt = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
     
     # Also output the identities of cluster members
     both_file=open('cluster.'+str(i)+'.all.txt','w')

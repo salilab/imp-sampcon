@@ -34,7 +34,7 @@ class GetModelDensity(object):
     particle coordinates to the existing density maps.
     """
 
-    def __init__(self, custom_ranges=None, resolution=20.0, voxel=5.0, molnames = None):
+    def __init__(self, custom_ranges=None, resolution=20.0, voxel=5.0, bead_names = None):
         """Constructor.
         @param list of particles decorated with mass, radius, and XYZ
            @param resolution The MRC resolution of the output map (in Angstrom unit)
@@ -45,8 +45,22 @@ class GetModelDensity(object):
         self.voxel = voxel
         self.count_models = 0.0
         self.densities={}
-        self.molnames = molnames
+        self.bead_names = bead_names
         self.custom_ranges=custom_ranges
+        
+        # for each custom range get the particle indices that will be added to the density for that custom range
+        self.particle_indices_in_custom_ranges={}
+        
+        for density_name in self.custom_ranges:
+            self.particle_indices_in_custom_ranges[density_name]=[]
+        
+        # go through each bead, put it in the appropriate custom range(s)
+        for index,beadname in enumerate(self.bead_names):
+            for density_name in self.custom_ranges:
+                for domain in self.custom_ranges[density_name]: # each domain in the list custom_ranges[density_name]
+                     if self.is_contained(beadname,domain):
+                        self.particle_indices_in_custom_ranges[density_name].append(index)
+                        break # already added particle to this custom range
     
     def normalize_density(self):
         pass
@@ -75,8 +89,26 @@ class GetModelDensity(object):
             dmap3.add(dmap)
             dmap3.add(self.densities[name])
             self.densities[name] = dmap3
-
+    
+    def _is_contained(self,bead_name,domain):
+        """ domain can be the name of a single protein or a tuple (protein_name,start_residue,end_residue)
+        bead is a string of type moleculeName_startResidue_endResidue
+        """
+        if type(domain) is tuple:
+            bead_protein,bead_res_start,bead_res_end = bead_name.split("_")
+            bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
+            domain_protein = domain[0]
+            domain_residues = set(range(int(domain[1]),int(domain[2])+1))
+            
+            if bead_protein == domain_protein and not domain_residues.isdisjoint(bead_residues):
+                return True
+            
+        else:
+            if domain in bead_name:
+                return True
         
+        return False
+                
     def add_subunits_density(self, ps):
         """Add a frame to the densities.
         @param ps List of particles decorated with XYZR and Mass.
@@ -88,11 +120,10 @@ class GetModelDensity(object):
             particles_custom_ranges[density_name]=[]
         
         # add each particle to the relevant custom list
-        for particle, molname in zip(ps, self.molnames):
-            for density_name in self.custom_ranges:
-                if molname in self.custom_ranges[density_name]: 
-                    particles_custom_ranges[density_name].append(particle)
-                    
+        for density_name in self.custom_ranges:
+            for particle_index in self.particle_indices_in_custom_ranges[density_name]:
+                particles_custom_ranges[density_name].append(ps[particle_index])
+                                    
         #finally, add each custom particle list to the density
         for density_name in self.custom_ranges:
             self._create_density_from_particles(particles_custom_ranges[density_name],density_name)
@@ -106,7 +137,6 @@ class GetModelDensity(object):
             return None
         else:
             return self.densities[name]
-
         
     def write_mrc(self, path="./",file_prefix=""):
         for density_name in self.densities:
