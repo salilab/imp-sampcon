@@ -116,14 +116,17 @@ class GoodScoringModelSelector(object):
             print >>outf,pkw,
         
         print >>outf
-      
+     
+        num_runs = 0 
+
         for each_run_dir in sorted(os.listdir(self.run_dir)):  
          
             if not each_run_dir.startswith(self.run_prefix):
                 continue
 
             runid=each_run_dir.split(self.run_prefix)[1]
-            
+        
+            num_runs+=1
             print "Analyzing",runid
            
             for each_replica_stat_file in sorted(glob.glob(os.path.join(self.run_dir,each_run_dir,"output")+"/stat.*.out")):
@@ -188,23 +191,24 @@ class GoodScoringModelSelector(object):
         if extract:
             self._extract_models_from_trajectories(output_dir) 
         
-            self._split_good_scoring_models_into_two_subsets(split_type="divide_by_run_ids")
+            self._split_good_scoring_models_into_two_subsets(output_dir,num_runs,split_type="divide_by_run_ids")
 
        
-    def _split_good_scoring_models_into_two_subsets(self,split_type="divide_by_run_ids"):
+    def _split_good_scoring_models_into_two_subsets(self,output_dir,num_runs,split_type="divide_by_run_ids"):
         ''' Get the listof good scoring models and split them into two samples, keeping the models in separate directories. 
         @param split_type how to split good scoring models into two samples. Current options are:
         (a) divide_by_run_ids : where the list of runids is divided into 2. e.g. if we have runs from 1-50, good scoring models from runs
-        1-25 is sample1 and those from runs 26-50 is sample 2. 
+        1-25 is sample A and those from runs 26-50 is sample B. 
         (b) random : split the set of good scoring models into two subsets at random.
         '''
         sampleA_indices=[]
         sampleB_indices=[]
         
-        if split_type=="divide_by_run_ids": # split into odd and even runs
+        if split_type=="divide_by_run_ids": # split based on run ids
             
+            half_num_runs= num_runs/2
             for i,gsm in enumerate(self.all_good_scoring_models):
-                if int(gsm[0])%2!=0:   # assume runs start from 1
+                if int(gsm[0])<=half_num_runs:   
                     sampleA_indices.append(i)
                 else: 
                     sampleB_indices.append(i)
