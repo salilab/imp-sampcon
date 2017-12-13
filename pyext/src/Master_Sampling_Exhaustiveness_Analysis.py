@@ -74,10 +74,10 @@ if args.extension == "pdb":
     conforms, masses, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B)
-print conforms.shape
+print "Size of conformation matrix",conforms.shape
 
 inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
-print inner_data.shape
+print "Size of RMSD matrix (flattened):",inner_data.shape
 
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
@@ -88,9 +88,11 @@ rmsd_matrix = mHandler.getMatrix()
 distmat = rmsd_matrix.get_data()
 
 distmat_full = sp.spatial.distance.squareform(distmat)
-print distmat_full.shape
+print "Size of RMSD matrix (unpacked, NXN):",distmat_full.shape
 
-if not args.cluster_precision:
+if not args.cluster_threshold:
+    
+    print "Calculating sampling precision"
     
     # Step 2: Cluster at intervals of grid size to get the sampling precision
     gridSize=args.gridsize
@@ -100,11 +102,11 @@ if not args.cluster_precision:
     total_num_models=len(run1_all_models)+len(run2_all_models)
     all_models=run1_all_models+run2_all_models
 
-    print len(run1_all_models), len(run2_all_models), total_num_models
+    print "Size of Sample A:",len(run1_all_models)," ; Size of Sample B: ",len(run2_all_models),"; Total", total_num_models
 
     # Get cutoffs for clustering
     cutoffs_list=get_cutoffs_list(distmat, gridSize)
-    print cutoffs_list
+    print "Clustering at thresholds:",cutoffs_list
 
     # Do clustering at each cutoff
     pvals, cvs, percents = get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_all_models, run2_all_models, args.sysname)
@@ -113,7 +115,7 @@ if not args.cluster_precision:
     sampling_precision,pval_converged,cramersv_converged,percent_converged = get_sampling_precision(cutoffs_list, pvals, cvs, percents)
         
     # Output test statistics 
-    fpv=open("%s.PV.txt" % args.sysname, 'w+')
+    fpv=open("%s.Sampling_Precision_Stats.txt" % args.sysname, 'w+')
     print >>fpv, sampling_precision, pval_converged, cramersv_converged, percent_converged
 
     final_clustering_threshold = sampling_precision
@@ -126,10 +128,10 @@ cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,run1_all_models,run2_all_models)
 
-print ctable
+print "Contingency table:",ctable
 
 # Output the number of models in each cluster and each sample 
-fcp=open("%s.CP.txt" % args.sysname, 'w+')
+fcp=open("%s.Cluster_Population.txt" % args.sysname, 'w+')
 for rows in range(len(ctable)):
     print >>fcp, rows, ctable[rows][0], ctable[rows][1]
 
@@ -140,7 +142,7 @@ exec(density_custom_ranges)
 fl.close()
 
 # Output cluster precisions
-fpc=open("%s.PC.txt" % args.sysname, 'w+')
+fpc=open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
 
 # For each cluster, output the models in the cluster
 # Also output the densities for the cluster models
@@ -194,9 +196,7 @@ for i in range(len(retained_clusters)):
 
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
-    print ""
     print >> fpc, "Cluster precision of cluster ", str(i), " is ", cluster_precision, "A"
-    print ""
             
     both_file.close()
     run1_file.close()

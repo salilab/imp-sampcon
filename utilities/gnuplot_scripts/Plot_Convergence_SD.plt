@@ -3,11 +3,11 @@ reset
 set terminal pdfcairo enhanced color font "Arial-Bold, 40" size 10,10
 set border lw 5 lc rgb "#484848"
 
-stats sprintf("%s.HA.txt", ARG1) usi 1 prefix "S1"
-stats sprintf("%s.HB.txt", ARG1) usi 1 prefix "S2"
+stats sprintf("%s.Score_Hist_A.txt", ARG1) usi 1 prefix "S1"
+stats sprintf("%s.Score_Hist_B.txt", ARG1) usi 1 prefix "S2"
 
-stats sprintf("%s.HA.txt", ARG1) usi 2 prefix "C1"
-stats sprintf("%s.HB.txt", ARG1) usi 2 prefix "C2"
+stats sprintf("%s.Score_Hist_A.txt", ARG1) usi 2 prefix "C1"
+stats sprintf("%s.Score_Hist_B.txt", ARG1) usi 2 prefix "C2"
 
 max(a, b) = (a > b ? a : b)
 min(a, b) = (a <= b ? a : b)
@@ -38,8 +38,8 @@ set xtics minx,(maxx-minx)/4,maxx border in scale 0,0 mirror norotate  offset ch
 set format x "%.2f"
 set ytics 0, maxy/4, maxy nomirror tc rgb "#484848"
 
-stats sprintf("%s.KS.txt", ARG1) usi 2 prefix "PV"
-stats sprintf("%s.KS.txt", ARG1) usi 1 prefix "KV"
+stats sprintf("%s.KS_Test.txt", ARG1) usi 2 prefix "PV"
+stats sprintf("%s.KS_Test.txt", ARG1) usi 1 prefix "KV"
 
 tpv=sprintf("%.2f", PV_mean)
 tcd=sprintf("%.2f", KV_mean)
@@ -48,6 +48,6 @@ set label sprintf("K-S test D: %s\n K-S test p-value %s", tcd, tpv) at graph 0.5
 
 set key tc rgb "#484848"
 set output sprintf("%s.H.pdf", ARG1)
-plot sprintf("%s.HA.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#EB7262" title "Sample 1", \
-     sprintf("%s.HB.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#000080" title "Sample 2"
+plot sprintf("%s.Score_Hist_A.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#EB7262" title "Sample 1", \
+     sprintf("%s.Score_Hist_B.txt", ARG1) usi 1:2 w histeps lw 10 lc rgb "#000080" title "Sample 2"
 set output

@@ -33,7 +33,7 @@ def get_cutoffs_list(distmat, gridSize):
     mindist = distmat.min()
     maxdist = distmat.max()
 
-    print mindist, maxdist
+    print "Minimum and maximum pairwise model distances:",mindist, maxdist
     cutoffs=numpy.arange(mindist,maxdist,gridSize)
     return cutoffs
 
@@ -142,7 +142,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
     cvs=[]
     percents=[]
 
-    f1=open("%s.CT.txt" % sysname, 'w+')
+    f1=open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+')
 
     for c in cutoffs_list:
         cluster_centers,cluster_members=precision_cluster(distmat_full,

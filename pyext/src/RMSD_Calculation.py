@@ -68,7 +68,6 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B):
         m = IMP.Model()
         inf = RMF.open_rmf_file_read_only(str_file)
         h = IMP.rmf.create_hierarchies(inf, m)[0]
-        particle2s = IMP.core.get_leaves(h)
         IMP.rmf.load_frame(inf, 0)
         
         pts = []
@@ -92,7 +91,6 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B):
         m = IMP.Model()
         inf = RMF.open_rmf_file_read_only(str_file)
         h = IMP.rmf.create_hierarchies(inf, m)[0]
-        particle2s = IMP.core.get_leaves(h)
         IMP.rmf.load_frame(inf, 0)
 
         pts = []
@@ -152,13 +150,12 @@ def get_rmfs_subunit_coordinates(path, subunit_name):
 
 
 def get_rmsds_matrix(conforms, mode, sup, cores):
-    print mode, sup, cores
+    print "Mode:",mode,"Superposition:",sup,"Number of cores:",cores
 
     if(mode=="cpu_serial" and not sup):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
 
     elif(mode=="cpu_omp" and not sup):
-        print "NOSUP", "ILAN"
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
         calculator.setNumberOfOpenMPThreads(int(cores))
 
@@ -170,7 +167,7 @@ def get_rmsds_matrix(conforms, mode, sup, cores):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_CUDA_MEM_CALCULATOR", conforms)  
 
     else:
-        print "Wrong values! Please Fix"
+        print "Wrong values to pyRMSD ! Please Fix"
         exit()
 
     rmsd = calculator.pairwiseRMSDMatrix()

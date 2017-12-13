@@ -16,8 +16,8 @@ def get_top_scorings_statistics(scores, scorecolumn, systemname):
 
     list_threshold = []
     [list_threshold.append( int((factor / 10.0) *len(scores))) for factor in range(1, 11)]
-    f1=open("%s.TS.txt" % systemname, 'w+')
-    print list_threshold
+    f1=open("%s.Top_Score_Conv.txt" % systemname, 'w+')
+    print "Getting top scoring models at subsets of size:",list_threshold
 
     for t in list_threshold:
         samples = np.array([np.random.choice(scores, t, replace=False).min() for i in range(150)])
@@ -30,10 +30,10 @@ def get_scores_distributions_KS_Stats(score_A, score_B, nbins, systemname):
     from scipy.stats import mannwhitneyu, ks_2samp
     d_stat, p_value = ks_2samp(score_A, score_B)
 
-    get_scores_distribution(score_A, nbins, 0, "%s.HA.txt" % systemname)
-    get_scores_distribution(score_B, nbins, 0, "%s.HB.txt" % systemname) 
+    get_scores_distribution(score_A, nbins, 0, "%s.Score_Hist_A.txt" % systemname)
+    get_scores_distribution(score_B, nbins, 0, "%s.Score_Hist_B.txt" % systemname) 
     
-    f1=open("%s.KS.txt" % systemname, 'w+')
+    f1=open("%s.KS_Test.txt" % systemname, 'w+')
     print >>f1, d_stat, p_value
     return d_stat, p_value
 
