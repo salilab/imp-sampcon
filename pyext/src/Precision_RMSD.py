@@ -58,8 +58,9 @@ class GetModelDensity(object):
         for index,beadname in enumerate(self.bead_names):
             for density_name in self.custom_ranges:
                 for domain in self.custom_ranges[density_name]: # each domain in the list custom_ranges[density_name]
-                     if self.is_contained(beadname,domain):
+                     if self._is_contained(beadname,domain):
                         self.particle_indices_in_custom_ranges[density_name].append(index)
+                        #print beadname,"is in",domain
                         break # already added particle to this custom range
     
     def normalize_density(self):

@@ -37,12 +37,12 @@ parser.add_argument('--cores', '-c', dest="cores", help='number of cores for RMS
 parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow superposition of models', default=False, action='store_true')
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="Scores_A.txt")
 parser.add_argument('--scoreB', '-sb', dest="scoreB",help='name of the file having the good-scoring scores for sample B', default="Scores_B.txt")
-parser.add_argument('--gridsize', '-g', dest="gridsize", help='grid size for calculating sampling precision', default=10.0)
+parser.add_argument('--gridsize', '-g', dest="gridsize", type=float,help='grid size for calculating sampling precision', default=10.0)
 parser.add_argument('--skip','-s',dest="skip_sampling_precision",help="This option will bypass the calculation of sampling precision. This option needs to be used with the clustering threhsold option.Otherwise by default, sampling precision is calculated and the clustering threshold is the calculated sampling precision.",default=False,action='store_true')
 parser.add_argument('--cluster_threshold','-ct',dest="cluster_threshold",type=float,help='final clustering threshold to visualize clusters. Assumes that the user has previously calculated sampling precision and wants clusters defined at a threshold higher than the sampling precision for ease of analysis (lesser number of clusters).',default=30.0)
-parser.add_argument('--voxel', '-v', dest="voxel", help='voxel size for the localization densities', default=5.0)
-parser.add_argument('--density_threshold', '-dt', dest="density_threshold", help='threshold for localization densities', default=20.0)
-parser.add_argument('--density', '-d', dest="density", help='dictionary of density custom ranges', default=None)
+parser.add_argument('--voxel', '-v', dest="voxel", type=float,help='voxel size for the localization densities', default=5.0)
+parser.add_argument('--density_threshold', '-dt', type=float,dest="density_threshold", help='threshold for localization densities', default=20.0)
+parser.add_argument('--density', '-d', dest="density", help='file containing dictionary of density custom ranges', default=None)
 
 parser.add_argument('--gnuplot', '-gp', dest="gnuplot", help="plotting automatically with gnuplot", default=False, action='store_true')
 args = parser.parse_args()
@@ -155,13 +155,13 @@ for i in range(len(retained_clusters)):
     # create a directory for the cluster 
     if not os.path.exists("./cluster.%s" %i):
         os.mkdir("./cluster.%s" %i)
-        os.mkdir("./cluster.%s/Sample_1/" % i)
-        os.mkdir("./cluster.%s/Sample_2/" % i)
+        os.mkdir("./cluster.%s/Sample_A/" % i)
+        os.mkdir("./cluster.%s/Sample_B/" % i)
     else:
         shutil.rmtree("./cluster.%s" %i)
         os.mkdir("./cluster.%s" %i)
-        os.mkdir("./cluster.%s/Sample_1/" % i)
-        os.mkdir("./cluster.%s/Sample_2/" % i)       
+        os.mkdir("./cluster.%s/Sample_A/" % i)
+        os.mkdir("./cluster.%s/Sample_B/" % i)       
     
     # Create densities for all subunits for both sample A and sample B as well as separately. 
     gmd1 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
@@ -170,8 +170,8 @@ for i in range(len(retained_clusters)):
     
     # Also output the identities of cluster members
     both_file=open('cluster.'+str(i)+'.all.txt','w')
-    run1_file=open('cluster.'+str(i)+'.run1.txt','w')
-    run2_file=open('cluster.'+str(i)+'.run2.txt','w')
+    run1_file=open('cluster.'+str(i)+'.sample_A.txt','w')
+    run2_file=open('cluster.'+str(i)+'.sample_B.txt','w')
     
     # Obtain cluster precision by obtaining average RMSD of each model to the cluster center
     cluster_precision = 0.0
@@ -195,7 +195,7 @@ for i in range(len(retained_clusters)):
         else:
             gmd2.add_subunits_density(superposed_ps) # density map for sample B
             print >>run2_file, model_index
-
+            
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
     print >> fpc, "Cluster precision of cluster ", str(i), " is ", cluster_precision, "A"
@@ -206,8 +206,8 @@ for i in range(len(retained_clusters)):
 
     # Finally, output density files for the cluster
     gmdt.write_mrc(path="./cluster.%s" %i, file_prefix = "LPD")
-    gmd1.write_mrc(path="./cluster.%s/Sample_1/" % i, file_prefix = "LPD")
-    gmd2.write_mrc(path="./cluster.%s/Sample_2/" % i, file_prefix = "LPD")
+    gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix = "LPD")
+    gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix = "LPD")
 
 # generate plots for the score and structure tests
 if args.gnuplot:

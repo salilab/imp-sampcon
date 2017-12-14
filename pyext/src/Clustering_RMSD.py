@@ -163,7 +163,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
     return pvals, cvs, percents
 
 def get_sampling_precision(cutoffs_list, pvals, cvs, percents):
-    sampling_precision=100000.0
+    sampling_precision=max(cutoffs_list)
     pval_converged=0.0
     cramersv_converged=1.0
     percent_converged=0.0
@@ -177,6 +177,6 @@ def get_sampling_precision(cutoffs_list, pvals, cvs, percents):
                     cramersv_converged=cvs[i]
                     percent_converged=percents[i]
         else:
-            sampling_precision=100000.0
+            sampling_precision=max(cutoffs_list)
 
     return sampling_precision,pval_converged,cramersv_converged,percent_converged
