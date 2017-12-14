@@ -17,6 +17,8 @@ import IMP
 import IMP.rmf
 import RMF
 
+import IMP.pmi.analysis
+
 import argparse
 
 
@@ -49,7 +51,6 @@ args = parser.parse_args()
 
 idfile_A = "Identities_A.txt"
 idfile_B = "Identities_B.txt"
-
 
 #Step 0: Compute Score convergence
 score_A = []
@@ -92,6 +93,7 @@ distmat = rmsd_matrix.get_data()
 
 distmat_full = sp.spatial.distance.squareform(distmat)
 print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
+
 
 # Get model lists
 run1_all_models,run2_all_models=get_run_identity(idfile_A, idfile_B)
@@ -139,10 +141,7 @@ for rows in range(len(ctable)):
     print >>fcp, rows, ctable[rows][0], ctable[rows][1]
 
 # Obtain the subunits for which we need to calculate densities
-fl = open(args.path + args.density, 'r')
-density_custom_ranges= fl.readlines()[0].strip()
-exec(density_custom_ranges)
-fl.close()
+density_custom_ranges = parse_custom_ranges(args.path + args.density) 
 
 # Output cluster precisions
 fpc=open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
@@ -163,15 +162,15 @@ for i in range(len(retained_clusters)):
         os.mkdir("./cluster.%s/Sample_A/" % i)
         os.mkdir("./cluster.%s/Sample_B/" % i)       
     
-    # Create densities for all subunits for both sample A and sample B as well as separately. 
+    # Create densities for all subunits for both sample A and sample B as well as separately.
     gmd1 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
     gmd2 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
     gmdt = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
-    
+ 
     # Also output the identities of cluster members
     both_file=open('cluster.'+str(i)+'.all.txt','w')
-    run1_file=open('cluster.'+str(i)+'.sample_A.txt','w')
-    run2_file=open('cluster.'+str(i)+'.sample_B.txt','w')
+    sampleA_file=open('cluster.'+str(i)+'.sample_A.txt','w')
+    sampleB_file=open('cluster.'+str(i)+'.sample_B.txt','w')
     
     # Obtain cluster precision by obtaining average RMSD of each model to the cluster center
     cluster_precision = 0.0
@@ -181,6 +180,7 @@ for i in range(len(retained_clusters)):
     for mem in cluster_members[clus]:
             
         model_index=all_models[mem]
+        
         # get superposition of each model to cluster center and the RMSD between the two
         rmsd, model, superposed_ps = get_particles_from_superposed(conforms[model_index], conform_0, masses, radii, args.align)        
         cluster_precision+=rmsd
@@ -195,19 +195,19 @@ for i in range(len(retained_clusters)):
         else:
             gmd2.add_subunits_density(superposed_ps) # density map for sample B
             print >>run2_file, model_index
-            
+         
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
     print >> fpc, "Cluster precision of cluster ", str(i), " is ", cluster_precision, "A"
             
     both_file.close()
-    run1_file.close()
-    run2_file.close()
+    sampleA_file.close()
+    sampleB_file.close()
 
     # Finally, output density files for the cluster
-    gmdt.write_mrc(path="./cluster.%s" %i, file_prefix = "LPD")
-    gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix = "LPD")
-    gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix = "LPD")
+    gmdt.write_mrc(path="./cluster.%s" %i)
+    gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i)
+    gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i)
 
 # generate plots for the score and structure tests
 if args.gnuplot:

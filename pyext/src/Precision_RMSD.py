@@ -5,6 +5,16 @@ import IMP
 import IMP.em
 import pyRMSD.RMSDCalculator
 
+def parse_custom_ranges(ranges_file):
+    fl = open(ranges_file, 'r')
+    density_custom_ranges = fl.readlines()[0].strip()
+    exec(density_custom_ranges)
+       
+    fl.close()
+    
+    return density_custom_ranges
+    
+    
 def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, masses, radii, align): 
 
     m=IMP.Model()
@@ -95,8 +105,8 @@ class GetModelDensity(object):
         """ domain can be the name of a single protein or a tuple (protein_name,start_residue,end_residue)
         bead is a string of type moleculeName_startResidue_endResidue
         """
-        if type(domain) is tuple:
-            bead_protein,bead_res_start,bead_res_end = bead_name.split("_")
+        if type(domain)==tuple:
+            bead_res_start,bead_res_end,bead_protein = bead_name.split("_")
             bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
             domain_protein = domain[0]
             domain_residues = set(range(int(domain[1]),int(domain[2])+1))
