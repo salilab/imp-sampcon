@@ -1,4 +1,3 @@
-
 import IMP
 import IMP.atom
 import IMP.rmf
@@ -92,7 +91,7 @@ class GoodScoringModelSelector(object):
             
 
     def get_good_scoring_models(self,selection_keywords_list=[],printing_keywords_list=[],aggregate_lower_thresholds=[],
-                                        aggregate_upper_thresholds=[],member_lower_thresholds=[],member_upper_thresholds=[],extract="no"): 
+                                        aggregate_upper_thresholds=[],member_lower_thresholds=[],member_upper_thresholds=[],extract): 
         ''' Loops over all stat files in the run directory and populates the list of good-scoring models.
         @param selection_keywords_list is the list of keywords in the PMI stat file that need to be checked for each datatype/score in the criteria list
         @param printing_keywords_list is the list of keywords in the PMI stat file whose values needs to be printed for selected models
@@ -101,7 +100,6 @@ class GoodScoringModelSelector(object):
         @param member_lower_thresholds The list of lower bounds for values of subcomponents of an aggregate term. E.g. for crosslink satisfaction the thresholds are on distances for each individual crosslink. For score terms this can be ignored since thresholds are mentioned in the aggregate fields.
         @param member_upper_thresholds The list of upper bounds for values of subcomponents of an aggregate term. E.g. for crosslink satisfaction the thresholds are on distances for each individual crosslink. For score terms this can be ignored since thresholds are mentioned in the aggregate fields.
         '''
-
         output_dir=os.path.join(self.run_dir,"good_scoring_models")
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir, ignore_errors=True)
@@ -127,6 +125,7 @@ class GoodScoringModelSelector(object):
             runid=each_run_dir.split(self.run_prefix)[1]
         
             num_runs+=1
+            
             print "Analyzing",runid
            
             for each_replica_stat_file in sorted(glob.glob(os.path.join(self.run_dir,each_run_dir,"output")+"/stat.*.out")):

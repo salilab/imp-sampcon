@@ -21,7 +21,6 @@ import IMP.pmi.analysis
 
 import argparse
 
-
 ###########################################################
 #Scripts written by Shruthi Viswanath and Ilan E. Chemmama#
 #             in Andrej Sali Lab at UCSF.                 #
@@ -76,6 +75,7 @@ get_scores_distributions_KS_Stats(score_A, score_B, 100, args.sysname)
 if args.extension == "pdb":
     conforms, masses, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
+    args.extension = "rmf3"
     ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B)
 print "Size of conformation matrix",conforms.shape
 
@@ -176,6 +176,15 @@ for i in range(len(retained_clusters)):
     cluster_precision = 0.0
     conform_0 = conforms[all_models[cluster_members[clus][0]]]
 
+    # Add the cluster center model RMF to the cluster directory
+    cluster_center_index = cluster_members[clus][0]
+    cluster_center_model_id = all_models[cluster_center_index]
+    
+    if cluster_center_model_id in run1_all_models:
+        shutil.copy(os.path.join(args.path,"sample_A",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+    else:
+        shutil.copy(os.path.join(args.path,"sample_B",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+        
     # for each model in the cluster
     for mem in cluster_members[clus]:
             
@@ -205,9 +214,9 @@ for i in range(len(retained_clusters)):
     sampleB_file.close()
 
     # Finally, output density files for the cluster
-    gmdt.write_mrc(path="./cluster.%s" %i)
-    gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i)
-    gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i)
+    gmdt.write_mrc(path="./cluster.%s" %i,file_prefix = "LPD")
+    gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i,file_prefix = "LPD")
+    gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i,file_prefix = "LPD")
 
 # generate plots for the score and structure tests
 if args.gnuplot:
