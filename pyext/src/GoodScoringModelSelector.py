@@ -100,7 +100,10 @@ class GoodScoringModelSelector(object):
         @param member_lower_thresholds The list of lower bounds for values of subcomponents of an aggregate term. E.g. for crosslink satisfaction the thresholds are on distances for each individual crosslink. For score terms this can be ignored since thresholds are mentioned in the aggregate fields.
         @param member_upper_thresholds The list of upper bounds for values of subcomponents of an aggregate term. E.g. for crosslink satisfaction the thresholds are on distances for each individual crosslink. For score terms this can be ignored since thresholds are mentioned in the aggregate fields.
         '''
-        output_dir=os.path.join(self.run_dir,"good_scoring_models")
+        if extract:
+            output_dir=os.path.join(self.run_dir,"good_scoring_models")
+        else:
+            output_dir=os.path.join(self.run_dir,"filter")
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir, ignore_errors=True)
         os.mkdir(output_dir)
