@@ -50,7 +50,7 @@ args = parser.parse_args()
 
 idfile_A = "Identities_A.txt"
 idfile_B = "Identities_B.txt"
-
+'''
 #Step 0: Compute Score convergence
 score_A = []
 score_B = []
@@ -70,7 +70,7 @@ get_top_scorings_statistics(scores, 0, args.sysname)
 
 # Check if the two score distributions are similar
 get_scores_distributions_KS_Stats(score_A, score_B, 100, args.sysname)
-
+'''
 #Step 1: Compute RMSD matrix
 if args.extension == "pdb":
     conforms, masses, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
@@ -96,10 +96,10 @@ print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
 
 
 # Get model lists
-sampleA_all_models,sampleB_all_models=get_run_identity(idfile_A, idfile_B)
-total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
-all_models=sampleA_all_models+sampleB_all_models
-print "Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models
+run1_all_models,run2_all_models=get_run_identity(idfile_A, idfile_B)
+total_num_models=len(run1_all_models)+len(run2_all_models)
+all_models=run1_all_models+run2_all_models
+print "Size of Sample A:",len(run1_all_models)," ; Size of Sample B: ",len(run2_all_models),"; Total", total_num_models
     
 if not args.skip_sampling_precision:
     
@@ -113,7 +113,7 @@ if not args.skip_sampling_precision:
     print "Clustering at thresholds:",cutoffs_list
 
     # Do clustering at each cutoff
-    pvals, cvs, percents = get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, sampleA_all_models, sampleB_all_models, args.sysname)
+    pvals, cvs, percents = get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_all_models, run2_all_models, args.sysname)
 
     # Now apply the rule for selecting the right precision based on population of contingency table, pvalue and cramersv
     sampling_precision,pval_converged,cramersv_converged,percent_converged = get_sampling_precision(cutoffs_list, pvals, cvs, percents)
@@ -131,7 +131,7 @@ else:
 print "Clustering at ",final_clustering_threshold
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
-ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,sampleA_all_models,sampleB_all_models)
+ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,run1_all_models,run2_all_models)
 
 print "Contingency table:",ctable
 
@@ -180,7 +180,7 @@ for i in range(len(retained_clusters)):
     cluster_center_index = cluster_members[clus][0]
     cluster_center_model_id = all_models[cluster_center_index]
     
-    if cluster_center_model_id in sampleA_all_models:
+    if cluster_center_model_id in run1_all_models:
         shutil.copy(os.path.join(args.path,"sample_A",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
     else:
         shutil.copy(os.path.join(args.path,"sample_B",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
@@ -198,12 +198,12 @@ for i in range(len(retained_clusters)):
         gmdt.add_subunits_density(superposed_ps) # total density map
         print >>both_file,model_index
 
-        if model_index in sampleA_all_models:
+        if model_index in run1_all_models:
             gmd1.add_subunits_density(superposed_ps) # density map for sample A
-            print >>sampleA_file, model_index
+            print >>run1_file, model_index
         else:
             gmd2.add_subunits_density(superposed_ps) # density map for sample B
-            print >>sampleB_file, model_index
+            print >>run2_file, model_index
          
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
