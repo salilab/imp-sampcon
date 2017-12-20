@@ -91,7 +91,7 @@ class GoodScoringModelSelector(object):
             
 
     def get_good_scoring_models(self,selection_keywords_list=[],printing_keywords_list=[],aggregate_lower_thresholds=[],
-                                        aggregate_upper_thresholds=[],member_lower_thresholds=[],member_upper_thresholds=[],extract): 
+                                        aggregate_upper_thresholds=[],member_lower_thresholds=[],member_upper_thresholds=[],extract=False): 
         ''' Loops over all stat files in the run directory and populates the list of good-scoring models.
         @param selection_keywords_list is the list of keywords in the PMI stat file that need to be checked for each datatype/score in the criteria list
         @param printing_keywords_list is the list of keywords in the PMI stat file whose values needs to be printed for selected models
