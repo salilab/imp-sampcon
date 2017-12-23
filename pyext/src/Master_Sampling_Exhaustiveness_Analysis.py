@@ -181,9 +181,9 @@ for i in range(len(retained_clusters)):
     cluster_center_model_id = all_models[cluster_center_index]
     
     if cluster_center_model_id in sampleA_all_models:
-        shutil.copy(os.path.join(args.path,"sample_A",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+        shutil.copy(os.path.join(args.path,"Sample_A",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
     else:
-        shutil.copy(os.path.join(args.path,"sample_B",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+        shutil.copy(os.path.join(args.path,"Sample_B",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
         
     # for each model in the cluster
     for mem in cluster_members[clus]:
