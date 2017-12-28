@@ -10,22 +10,22 @@ from pyRMSD.matrixHandler import MatrixHandler
 from pyRMSD.condensedMatrix import CondensedMatrix
 
 
-def get_run_identity(idfile_A, idfile_B):
+def get_sample_identity(idfile_A, idfile_B):
     # whether a run belongs to run1 or run2
-    run1_models=[]
-    run2_models=[]
+    sampleA_models=[]
+    sampleB_models=[]
 
     with open(idfile_A, 'r') as f:
         for line in f:
             mod = line.split("/")[-1]
-            run1_models.append(int(mod.strip("\n").split(" ")[1]))
+            sampleA_models.append(int(mod.strip("\n").split(" ")[1]))
     f.close()
     
     with open(idfile_B, 'r') as f:
         for line in f:
             mod = line.split("/")[-1]
-            run2_models.append(int(mod.strip("\n").split(" ")[1]))
-    return run1_models, run2_models
+            sampleB_models.append(int(mod.strip("\n").split(" ")[1]))
+    return sampleA_models, sampleB_models
 
 
 def get_cutoffs_list(distmat, gridSize):
