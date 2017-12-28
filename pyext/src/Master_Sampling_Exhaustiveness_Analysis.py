@@ -73,7 +73,7 @@ get_scores_distributions_KS_Stats(score_A, score_B, 100, args.sysname)
 
 #Step 1: Compute RMSD matrix
 if args.extension == "pdb":
-    conforms, masses, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
+    conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
     ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B)
@@ -96,7 +96,7 @@ print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
 
 
 # Get model lists
-sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
+sampleA_all_models,sampleB_all_models=get_run_identity(idfile_A, idfile_B)
 total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
 all_models=sampleA_all_models+sampleB_all_models
 print "Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models
@@ -178,13 +178,10 @@ for i in range(len(retained_clusters)):
 
     # Add the cluster center model RMF to the cluster directory
     cluster_center_index = cluster_members[clus][0]
-    cluster_center_model_id = all_models[cluster_center_index]
+    cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
     
-    if cluster_center_model_id in sampleA_all_models:
-        shutil.copy(os.path.join(args.path,"sample_A",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
-    else:
-        shutil.copy(os.path.join(args.path,"sample_B",str(cluster_center_model_id)+"."+args.extension),os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
-        
+    shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+   
     # for each model in the cluster
     for mem in cluster_members[clus]:
             
