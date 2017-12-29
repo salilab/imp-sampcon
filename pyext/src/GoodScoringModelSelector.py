@@ -120,18 +120,15 @@ class GoodScoringModelSelector(object):
      
         num_runs = 0 
 
-        for each_run_dir in sorted(os.listdir(self.run_dir)):  
+        for each_run_dir in sorted(glob.glob(os.path.join(self.run_dir,self.run_prefix+"*")),key=lambda x:int(x.split(run_prefix)[1])):  
          
-            if not each_run_dir.startswith(self.run_prefix):
-                continue
-
             runid=each_run_dir.split(self.run_prefix)[1]
         
             num_runs+=1
             
             print "Analyzing",runid
            
-            for each_replica_stat_file in sorted(glob.glob(os.path.join(self.run_dir,each_run_dir,"output")+"/stat.*.out")):
+            for each_replica_stat_file in sorted(glob.glob(os.path.join(each_run_dir,"output")+"/stat.*.out"),key=lambda x:int(x.strip('.out').split('.')[-1])):
                             
                     replicaid=each_replica_stat_file.strip(".out").split(".")[-1]
 

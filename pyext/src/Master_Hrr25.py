@@ -76,7 +76,7 @@ if args.extension == "pdb":
     conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
-    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B)
+    ps_names, masses, radii, conforms, models_name = get_rmfs_subunit_coordinates(args.path, idfile_A, idfile_B,"G")
 print "Size of conformation matrix",conforms.shape
 
 if not args.skip_sampling_precision:
@@ -120,19 +120,15 @@ if not args.skip_sampling_precision:
         
     # Output test statistics 
     fpv=open("%s.Sampling_Precision_Stats.txt" % args.sysname, 'w+')
-    print >>fpv, "The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a ",args.sysname,"model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our ",args.sysname," modeling is",sampling_precision," A."
-
-    print >>fpv, "Sampling precision, P-value, Cramer's V and percentage of clustered models below:"
     print >>fpv, sampling_precision, pval_converged, cramersv_converged, percent_converged
-    print >>fpv, ""
-    
+
     final_clustering_threshold = sampling_precision
     
 else:
     final_clustering_threshold = args.cluster_threshold
     
 # Perform final clustering at the required precision 
-print "Clustering at threshold ",final_clustering_threshold
+print "Clustering at ",final_clustering_threshold
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,sampleA_all_models,sampleB_all_models)
@@ -208,7 +204,7 @@ for i in range(len(retained_clusters)):
          
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
-    print >> fpc, "Cluster precision (average distance to cluster centroid) of cluster ", str(i), " is ", cluster_precision, "A"
+    print >> fpc, "Cluster precision of cluster ", str(i), " is ", cluster_precision, "A"
             
     both_file.close()
     sampleA_file.close()

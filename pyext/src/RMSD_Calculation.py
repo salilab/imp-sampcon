@@ -23,7 +23,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     f1=open(idfile_A, 'w+')
     f2=open(idfile_B, 'w+')
 
-    for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path)):
+    for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f1, str_file, num
         models_name.append(str_file)
         
@@ -40,7 +40,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
         num = num + 1
 
         
-    for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path)):
+    for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f2, str_file, num
         models_name.append(str_file)
         
@@ -67,7 +67,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B):
 
     models_name = []
     
-    for str_file in sorted(glob.glob("%s/sample_A/*.rmf3" % path)):
+    for str_file in sorted(glob.glob("%s/sample_A/*.rmf3" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f1, str_file, num
         models_name.append(str_file)
 
@@ -101,7 +101,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B):
         pts = []
         num = num + 1
         
-    for str_file in sorted(glob.glob("%s/sample_B/*.rmf3" % path)):
+    for str_file in sorted(glob.glob("%s/sample_B/*.rmf3" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f2, str_file, num
         models_name.append(str_file)
         m = IMP.Model()
@@ -133,7 +133,7 @@ def get_rmfs_subunit_coordinates(path, idfile_A, idfile_B, subunit_name):
 
     models_name = []
     
-    for str_file in sorted(glob.glob("%s/sample_A/*.rmf3" % path)):
+    for str_file in sorted(glob.glob("%s/sample_A/*.rmf3" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f1, str_file, num
         models_name.append(str_file)
 
@@ -167,7 +167,7 @@ def get_rmfs_subunit_coordinates(path, idfile_A, idfile_B, subunit_name):
         pts = []
         num = num + 1
         
-    for str_file in sorted(glob.glob("%s/sample_B/*.rmf3" % path)):
+    for str_file in sorted(glob.glob("%s/sample_B/*.rmf3" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
         print >>f2, str_file, num
         models_name.append(str_file)
         m = IMP.Model()
