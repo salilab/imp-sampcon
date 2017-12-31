@@ -120,7 +120,7 @@ class GoodScoringModelSelector(object):
      
         num_runs = 0 
 
-        for each_run_dir in sorted(glob.glob(os.path.join(self.run_dir,self.run_prefix+"*")),key=lambda x:int(x.split(run_prefix)[1])):  
+        for each_run_dir in sorted(glob.glob(os.path.join(self.run_dir,self.run_prefix+"*")),key=lambda x:int(x.split(self.run_prefix)[1])):  
          
             runid=each_run_dir.split(self.run_prefix)[1]
         

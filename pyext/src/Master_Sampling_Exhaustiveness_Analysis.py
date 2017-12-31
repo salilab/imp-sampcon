@@ -96,7 +96,7 @@ print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
 
 
 # Get model lists
-sampleA_all_models,sampleB_all_models=get_run_identity(idfile_A, idfile_B)
+sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
 total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
 all_models=sampleA_all_models+sampleB_all_models
 print "Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models

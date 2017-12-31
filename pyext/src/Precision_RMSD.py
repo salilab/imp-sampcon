@@ -105,11 +105,12 @@ class GetModelDensity(object):
         """ domain can be the name of a single protein or a tuple (protein_name,start_residue,end_residue)
         bead is a string of type moleculeName_startResidue_endResidue
         """
+       
         if type(domain)==tuple:
-            bead_res_start,bead_res_end,bead_protein = bead_name.split("_")
+            bead_protein, bead_res_start,bead_res_end = bead_name.split("_")
             bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
-            domain_protein = domain[0]
-            domain_residues = set(range(int(domain[1]),int(domain[2])+1))
+            domain_protein = domain[2]
+            domain_residues = set(range(int(domain[0]),int(domain[1])+1))
             
             if bead_protein == domain_protein and not domain_residues.isdisjoint(bead_residues):
                 return True
