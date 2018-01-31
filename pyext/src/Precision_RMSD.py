@@ -102,7 +102,7 @@ class GetModelDensity(object):
             self.densities[name] = dmap3
     
     def _is_contained(self,bead_name,domain):
-        """ domain can be the name of a single protein or a tuple (protein_name,start_residue,end_residue)
+        """ domain can be the name of a single protein or a tuple (start_residue,end_residue,protein_name)
         bead is a string of type moleculeName_startResidue_endResidue
         """
        
