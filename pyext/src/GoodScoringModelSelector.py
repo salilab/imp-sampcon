@@ -75,18 +75,27 @@ class GoodScoringModelSelector(object):
     def _extract_models_from_trajectories(self,output_dir): 
         ''' Given the list of all good-scoring model indices, extract their frames and store them ordered by the list index.
         '''
-        
+        FNULL = open(os.devnull, 'w')
+        num_gsm = sum(1 for e in self.all_good_scoring_models)
+        print "Extracting",num_gsm,"good scoring models."
+        model_num=1
+
         for i,gsm in enumerate(self.all_good_scoring_models):
+            if model_num % (num_gsm/10) == 0:
+		print str(model_num / (num_gsm/10)*10)+"% Complete"
+            model_num+=1
+            
             (runid,replicaid,frameid)=gsm 
             
             trajfile=os.path.join(self.run_dir,self.run_prefix+runid,'output','rmfs',replicaid+'.rmf3')
 
-            slice_location=os.path.join(os.environ['IMP_BIN_DIR'],'rmf_slice')
+            #slice_location=os.path.join(os.environ['IMP_BIN_DIR'],'rmf_slice')
+            slice_location='rmf_slice'
             
             #rmf_slice=Popen([slice_location,trajfile,"-f",str(frameid),os.path.join(output_dir,str(i)+'.rmf3')])
             #out,err=rmf_slice.communicate()
             
-            rmf_slice = subprocess.call([slice_location,trajfile,"-f",str(frameid),os.path.join(output_dir,str(i)+'.rmf3')])
+            rmf_slice = subprocess.call([slice_location,trajfile,"-f",str(frameid),os.path.join(output_dir,str(i)+'.rmf3')], stdout=FNULL, stderr=subprocess.STDOUT)
             
             
 
@@ -129,7 +138,7 @@ class GoodScoringModelSelector(object):
             print "Analyzing",runid
            
             for each_replica_stat_file in sorted(glob.glob(os.path.join(each_run_dir,"output")+"/stat.*.out"),key=lambda x:int(x.strip('.out').split('.')[-1])):
-                            
+              
                     replicaid=each_replica_stat_file.strip(".out").split(".")[-1]
 
                     rsf=open(each_replica_stat_file,'r')
