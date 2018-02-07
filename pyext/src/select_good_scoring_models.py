@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument("-mut","--member_upper_thresholds",nargs='+',type=float,dest="member_upper_thresholds",help="member upper thresholds")
 
     parser.add_argument("-e","--extract",default=False,dest="extract",action='store_true',help="Type -e to extract all good scoring model RMFs from the trajectory files")
-    parser.add_argument("-sf","--score_file",default="scores", type=str, dest="score_file_prefix",help="Score file prefix for samples A and B")
+    parser.add_argument("-sf","--score_file",default="scores", type=str, dest="score_file_prefix",help="Score file prefix for samples A and B. Default is 'scores'")
     result = parser.parse_args()
  
     return result
