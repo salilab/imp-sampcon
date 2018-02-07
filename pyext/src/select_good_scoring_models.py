@@ -72,7 +72,7 @@ def create_score_files(field="Total_Score"):
     
  
 if __name__ == "__main__" :
-    #select_good_scoring_models()
+    select_good_scoring_models()
 
     # Create Score Files
     create_score_files()
