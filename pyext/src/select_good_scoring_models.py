@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument("-mut","--member_upper_thresholds",nargs='+',type=float,dest="member_upper_thresholds",help="member upper thresholds")
 
     parser.add_argument("-e","--extract",default=False,dest="extract",action='store_true',help="Type -e to extract all good scoring model RMFs from the trajectory files")
+    parser.add_argument("-sf","--score_file",default="scores", type=str, dest="score_file_prefix",help="Score file prefix for samples A and B. Default is 'scores'")
     result = parser.parse_args()
  
     return result
@@ -37,6 +38,43 @@ def select_good_scoring_models():
     aggregate_lower_thresholds=arg.aggregate_lower_thresholds,aggregate_upper_thresholds=arg.aggregate_upper_thresholds,
     member_lower_thresholds=arg.member_lower_thresholds,member_upper_thresholds=arg.member_upper_thresholds,extract=arg.extract)
         
-        
+def create_score_files(field="Total_Score"):
+    arg=parse_args()
+    scoreA = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "A.txt","w")
+    scoreB = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "B.txt","w")     
+    model_file = open(arg.run_dir +"good_scoring_models/model_ids_scores.txt","r")
+
+    print "Creating input files for Total_Score convergence test"
+
+    for line_index,each_model_line in enumerate(model_file.readlines()):
+
+        # Find index of the field we want to use for model score convergence
+        if line_index==0:
+            field_headers = each_model_line.strip().split()
+            ts_ix = field_headers.index(field)
+            run_ix = field_headers.index("Run_id")
+
+
+        else:
+            fields = each_model_line.strip().split()
+            score=fields[ts_ix]
+            if int(fields[run_ix])==1:
+                print >> scoreA,score
+            elif int(fields[run_ix])==2:
+                print >> scoreB,score
+            else:
+                print "create_scores_file: model_ids_scores.txt file has an incorrect format."
+                exit()
+    scoreA.close()
+    scoreB.close()
+    
+
+    
+ 
 if __name__ == "__main__" :
     select_good_scoring_models()
+
+    # Create Score Files
+    create_score_files()
+
+    print "Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py"
