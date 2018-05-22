@@ -27,18 +27,34 @@ class GoodScoringModelSelector(object):
     def _get_subfields_for_criteria(self,field_headers,selection_keywords_list,printing_keywords_list):
         ''' Given the list of keywords, get all the stat file entries corresponding to each keyword.'''
 
-        selection_fields=[[] for j in range(len(selection_keywords_list))] # list of lists corresponding to field indices for each keyword
+        selection_fields=[{} for kw in selection_keywords_list] # list of dicts corresponding to field indices for each keyword
+        # for ambiguous crosslink distances, it will store all restraints corresponding to the ambivalence in one dict. 
 
         printing_fields = [-1 for j in range(len(printing_keywords_list))] #just a placeholder
 
         for fh_index in field_headers:
-            
-            for ki,kw in enumerate(selection_keywords_list):
-                if kw in field_headers[fh_index]:
-                    selection_fields[ki].append(fh_index)
+           
+            for ki,kw in enumerate(selection_keywords_list): # need exact name of field unless it is a xlink distance 
+                if kw == field_headers[fh_index]:
+                    #selection_fields[ki].append(fh_index)
+                    selection_fields[ki][kw]=fh_index
+                 
+                
+                elif kw in field_headers[fh_index] and field_headers[fh_index].startswith("CrossLinkingMassSpectrometryRestraint_Distance_"): # handle ambiguous restraints
+                    (prot1,res1,prot2,res2) = field_headers[fh_index].split("|")[3:7]
+                    prot1 = prot1.split('.')[0]
+                    prot2 = prot2.split('.')[0]
+
+                    if (prot1,res1,prot2,res2) in selection_fields[ki]:
+                        selection_fields[ki][(prot1,res1,prot2,res2)].append(fh_index)
+                    else:
+                        selection_fields[ki][(prot1,res1,prot2,res2)]=[fh_index]  #list of indices corresponding to all combinations of protein copies
+
+                    # print field_headers[fh_index],prot1,res1,prot2,res2,ki,qselection_fields[ki][(prot1,res1,prot2,res2)]
+
                     
             for ki,kw in enumerate(printing_keywords_list):
-                if kw in field_headers[fh_index]:
+                if kw==field_headers[fh_index]:
                     printing_fields[ki] = fh_index
             
         return selection_fields,printing_fields
@@ -82,7 +98,7 @@ class GoodScoringModelSelector(object):
 
         for i,gsm in enumerate(self.all_good_scoring_models):
             if model_num % (num_gsm/10) == 0:
-		print str(model_num / (num_gsm/10)*10)+"% Complete"
+                print str(model_num / (num_gsm/10)*10)+"% Complete"
             model_num+=1
             
             (runid,replicaid,frameid)=gsm 
@@ -159,14 +175,20 @@ class GoodScoringModelSelector(object):
                                                 
                         for si,score_type in enumerate(selection_keywords_list):
                             if "crosslink" in score_type.lower() and "distance" in score_type.lower():
-                                crosslink_distance_values=[float(dat[j]) for j in fields_for_selection[si]] # TODO : consider ambiguity
-                      
+                                
+                                crosslink_distance_values=[]
+
+                                for xltype in fields_for_selection[si]:
+                                    crosslink_distance_values.append(min([float(dat[j]) for j in fields_for_selection[si][xltype]]))
+                                    
+                                #crosslink_distance_values=[float(dat[j]) for j in fields_for_selection[si]] # earlier version without ambiguity
+                               
                                 satisfied_percent,model_satisfies=self._get_crosslink_satisfaction(crosslink_distance_values,aggregate_lower_thresholds[si],aggregate_upper_thresholds[si],member_lower_thresholds[si],member_upper_thresholds[si])
                                 
                                 selection_criteria_values.append(satisfied_percent)
 
                             else:
-                                score_value=float(dat[fields_for_selection[si][0]])
+                                score_value=float(dat[fields_for_selection[si][score_type]])
 
                                 model_satisfies=self._get_score_satisfaction(score_value,aggregate_lower_thresholds[si],aggregate_upper_thresholds[si])
                                 selection_criteria_values.append(score_value)
