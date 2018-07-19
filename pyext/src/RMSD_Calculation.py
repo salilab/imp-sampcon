@@ -4,6 +4,7 @@ from pyRMSD.condensedMatrix import CondensedMatrix
 
 import numpy as np
 import sys, os, glob
+import random
 
 import IMP
 import IMP.atom
@@ -54,7 +55,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
         
     return np.array(conform), masses, radii, models_name
 
-def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
+def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name,  subsample, rmfs_lists = None):
 
     conform = []
     num = 0
@@ -66,10 +67,48 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
     f2=open(idfile_B, 'w+')
 
     models_name = []
+
+    rmfs = {}
+    print('-----------------', rmfs_lists, subsample)
+    if rmfs_lists:
+        rmfs_A = []
+        rmfs_B = []
+        for line in open(rmfs_lists[0], 'r'):
+            vals = line.split()
+            #rmfs_A.append(vals[0].split('/')[-1].split('.')[0])
+            rmfs_A.append(path+"/sample_A/"+vals[0])
+        for line in open(rmfs_lists[1], 'r'):
+            vals = line.split()
+            #rmfs_B.append(vals[0].split('/')[-1].split('.')[0])
+            rmfs_B.append(path+"/sample_B/"+vals[0])
+        
+        # Sort rmfs
+        rmfs_A = sorted(rmfs_A, key=lambda x:x.split('/')[-1].split('.')[0])
+        rmfs_B = sorted(rmfs_B, key=lambda x:x.split('/')[-1].split('.')[0])
+        rmfs['A'] = rmfs_A
+        rmfs['B'] = rmfs_B
+            
+    else:
+        rmfs_A = sorted(glob.glob("%s/sample_A/*.rmf3" % path),key=lambda x:x.split('/')[-1].split('.')[0])
+        rmfs_B = sorted(glob.glob("%s/sample_B/*.rmf3" % path),key=lambda x:x.split('/')[-1].split('.')[0])
+        rmfs['A'] = rmfs_A
+        rmfs['B'] = rmfs_B
+
+    if subsample:
+        
+        tot = len(rmfs_A)+len(rmfs_B)
+        p_A = float(len(rmfs_A))/tot
+        p_B = float(len(rmfs_B))/tot
+        s_A = int(subsample * p_A)
+        s_B = int(subsample * p_B)
+        rmfs_A = random.sample(rmfs_A,s_A)
+        rmfs_B = random.sample(rmfs_B,s_B)
+        rmfs['A'] = rmfs_A
+        rmfs['B'] = rmfs_B
     
     for sample_name,sample_id_file in zip(['A','B'],[f1,f2]):
         
-        for str_file in sorted(glob.glob("%s/sample_%s/*.rmf3" % (path,sample_name)),key=lambda x:int(x.split('/')[-1].split('.')[0])):
+        for str_file in rmfs[sample_name]:
             print >>sample_id_file, str_file, num
             models_name.append(str_file)
 

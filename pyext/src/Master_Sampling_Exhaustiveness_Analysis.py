@@ -47,10 +47,22 @@ parser.add_argument('--density_threshold', '-dt', type=float,dest="density_thres
 parser.add_argument('--density', '-d', dest="density", help='file containing dictionary of density custom ranges', default=None)
 
 parser.add_argument('--gnuplot', '-gp', dest="gnuplot", help="plotting automatically with gnuplot", default=False, action='store_true')
+parser.add_argument('--subsample', '-ss', dest="subsample", help="selected random subsample of model", default=False)
+parser.add_argument('--rmfs_A', '--sA', dest = "rmfs_A", help="list of rmfs in sample A", default=False)
+parser.add_argument('--rmfs_B', '--sB', dest = "rmfs_B", help="list of rmfs in sample B", default=False)
+
 args = parser.parse_args()
 
 idfile_A = "Identities_A.txt"
 idfile_B = "Identities_B.txt"
+
+# Check that lists are given for both samples
+if (args.rmfs_A and not args.rmfs_B) or (not args.rmfs_A and args.rmfs_B):
+    print('Include file with models for sample A and B')
+elif args.rmfs_A and args.rmfs_B:
+    rmfs_lists = (args.rmfs_A, args.rmfs_B)
+else:
+    rmfs_lists = False
 
 #Step 0: Compute Score convergence
 score_A = []
@@ -77,12 +89,12 @@ if args.extension == "pdb":
     conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
-    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B,args.subunit)
-print "Size of conformation matrix",conforms.shape
+    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B, args.subunit, int(args.subsample), rmfs_lists = rmfs_lists)
+print("Size of conformation matrix",conforms.shape)
 
 if not args.skip_sampling_precision:
     inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
-    print "Size of RMSD matrix (flattened):",inner_data.shape
+    print("Size of RMSD matrix (flattened):",inner_data.shape)
 
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
@@ -93,25 +105,25 @@ rmsd_matrix = mHandler.getMatrix()
 distmat = rmsd_matrix.get_data()
 
 distmat_full = sp.spatial.distance.squareform(distmat)
-print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
+print("Size of RMSD matrix (unpacked, N x N):",distmat_full.shape)
 
 
 # Get model lists
 sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
 total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
 all_models=sampleA_all_models+sampleB_all_models
-print "Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models
+print("Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models)
     
 if not args.skip_sampling_precision:
     
-    print "Calculating sampling precision"
+    print("Calculating sampling precision")
     
     # Step 2: Cluster at intervals of grid size to get the sampling precision
     gridSize=args.gridsize
 
     # Get cutoffs for clustering
     cutoffs_list=get_cutoffs_list(distmat, gridSize)
-    print "Clustering at thresholds:",cutoffs_list
+    print("Clustering at thresholds:",cutoffs_list)
 
     # Do clustering at each cutoff
     pvals, cvs, percents = get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, sampleA_all_models, sampleB_all_models, args.sysname)
@@ -133,12 +145,12 @@ else:
     final_clustering_threshold = args.cluster_threshold
     
 # Perform final clustering at the required precision 
-print "Clustering at threshold %.3f" %(final_clustering_threshold)
+print("Clustering at threshold %.3f" %(final_clustering_threshold))
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,sampleA_all_models,sampleB_all_models)
 
-print "Contingency table:",ctable
+print("Contingency table:",ctable)
 
 # Output the number of models in each cluster and each sample 
 fcp=open("%s.Cluster_Population.txt" % args.sysname, 'w+')
