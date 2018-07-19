@@ -69,7 +69,6 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name,  subsample, rmf
     models_name = []
 
     rmfs = {}
-    print('-----------------', rmfs_lists, subsample)
     if rmfs_lists:
         rmfs_A = []
         rmfs_B = []
