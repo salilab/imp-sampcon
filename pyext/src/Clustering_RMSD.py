@@ -4,7 +4,7 @@ import pickle
 import scipy as sp
 from scipy import spatial
 import scipy.stats
-
+import time
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
 from pyRMSD.condensedMatrix import CondensedMatrix
@@ -38,18 +38,63 @@ def get_cutoffs_list(distmat, gridSize):
     return cutoffs
 
 
+def precision_cluster_test(distmat,numModels,rmsd_cutoff):
+    #STEP 2. Populate the neighbors ofa given model
+    print "The new way"
+    stime = time.time()
+    neighbors=[]
+    for count in range(numModels):
+        neighbors.append([count])  # model is a neighbor of itself
+    inds = numpy.argwhere(distmat <= rmsd_cutoff) # set of i,j indices that pass
+    print("There are",len(inds),"neighbors")
+    for x in inds:
+        i = x[0]
+        j = x[1]
+        if i>j:
+            neighbors[i].append(j)
+            neighbors[j].append(i)
+    print "Done the new way in",time.time()-stime
+
+    print "Now the old way"
+    stime = time.time()
+    neighbors2=[]
+    for count in range(numModels):
+        neighbors2.append([count])  # model is a neighbor of itself
+
+    for i in range(numModels-1):
+        if i%1000 == 0:
+            print "On model", i, "of", numModels
+        for j in range(i+1,numModels):
+            if distmat[i][j]<=rmsd_cutoff:
+                neighbors2[i].append(j)
+                neighbors2[j].append(i)
+
+    print "Done the old way in",time.time()-stime
+
+    print "Now check similarity"
+    for i in range(numModels):
+         if set(neighbors[i]) != set(neighbors2[i]):
+             print "Uh oh!!", i, neighbors[i], neighbors2[i]
+             print "New way dists", [distmat[i][j] for j in neighbors[i]]
+             print "Old way dists", [distmat[i][j] for j in neighbors2[i]]
+             print "Clustering cutoff", rmsd_cutoff
+             exit()
+    exit()
+
 def precision_cluster(distmat,numModels,rmsd_cutoff):
     #STEP 2. Populate the neighbors ofa given model
     neighbors=[]
     for count in range(numModels):
         neighbors.append([count])  # model is a neighbor of itself
- 
-    for i in range(numModels-1):
-        for j in range(i+1,numModels):    
-            if distmat[i][j]<=rmsd_cutoff:
-                neighbors[i].append(j)
-                neighbors[j].append(i)
-    
+
+    inds = numpy.argwhere(distmat <= rmsd_cutoff) # set of i,j indices that pass
+    for x in inds:
+        i = x[0]
+        j = x[1]
+        # Only count each contribution once
+        if i>j:
+            neighbors[i].append(j)
+            neighbors[j].append(i)
 
     #STEP 3. Get the weightiest cluster, and iterate
     unclustered=[]
@@ -141,16 +186,12 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
     pvals=[]
     cvs=[]
     percents=[]
-
     f1=open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+')
-
     for c in cutoffs_list:
         cluster_centers,cluster_members=precision_cluster(distmat_full,
                                                           total_num_models, c)
-
         ctable,retained_clusters=get_contingency_table(len(cluster_centers), cluster_members, all_models,
                                                        run1_all_models,run2_all_models)
-
         (pval,cramersv)=test_sampling_convergence(ctable, total_num_models)
         percent_explained= percent_ensemble_explained(ctable, total_num_models)
 
