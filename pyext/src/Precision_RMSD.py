@@ -107,12 +107,20 @@ class GetModelDensity(object):
         """
        
         if type(domain)==tuple:
-            bead_protein, bead_res_start,bead_res_end = bead_name.split("_")
+            bead_protein, bead_res_start,bead_res_end,bead_copy = bead_name.split("_")
             bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
-            domain_protein = domain[2]
+            # A period indicates that we have a copy number
+            if "." in domain[2]:
+                domain_protein = domain[2].split(".")[0]
+                domain_copy = int(domain[2].split(".")[1])
+            else:
+                domain_protein = domain[2]
+                bead_copy = -1
+                domain_copy = -1
+
             domain_residues = set(range(int(domain[0]),int(domain[1])+1))
             
-            if bead_protein == domain_protein and not domain_residues.isdisjoint(bead_residues):
+            if (bead_protein == domain_protein and int(bead_copy) == domain_copy) and not domain_residues.isdisjoint(bead_residues):
                 return True
             
         else:

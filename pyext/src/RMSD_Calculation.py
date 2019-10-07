@@ -95,19 +95,23 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
                     masses.append(IMP.atom.Mass(leaf).get_mass())
                     radii.append(p.get_radius())
                     mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
-                    
+                    copy_number = "X"
+                    # Need to find the copy number from the molecule
+                    # In PMI, this is three levels above the individual residues/beads
+                    mol_p = IMP.atom.Hierarchy(p).get_parent().get_parent().get_parent()
+                    if IMP.atom.Copy().get_is_setup(mol_p):
+                        copy_number = str(IMP.atom.Copy(mol_p).get_copy_index())
                     
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
                         
-                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead)))
+                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+copy_number)
                             
                     else:
                         residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
                         
-                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead)
+                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+copy_number)
             
-   
             conform.append(pts)
             pts = []
             num = num + 1
