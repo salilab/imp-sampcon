@@ -231,8 +231,12 @@ for i in range(len(retained_clusters)):
 
 # generate plots for the score and structure tests
 if args.gnuplot:
-    from os import system
+    import subprocess
     import glob
     
-    for filename in sorted(glob.glob("./gnuplot_scripts/*.plt")): 
-        system('gnuplot -c %s %s' % (filename, args.sysname))
+    thisdir = os.path.dirname(__file__)
+    gnuplotdir = os.path.join(thisdir, "utilities", "gnuplot_scripts")
+    for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
+        cmd = ['gnuplot', '-c', filename, args.sysname]
+        print(" ".join(cmd))
+        subprocess.check_call(cmd)
