@@ -237,6 +237,6 @@ if args.gnuplot:
     thisdir = os.path.dirname(__file__)
     gnuplotdir = os.path.join(thisdir, "utilities", "gnuplot_scripts")
     for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
-        cmd = ['gnuplot', '-c', filename, args.sysname]
+        cmd = ['gnuplot', '-e', 'ARG1="%s"' % args.sysname, filename]
         print(" ".join(cmd))
         subprocess.check_call(cmd)
