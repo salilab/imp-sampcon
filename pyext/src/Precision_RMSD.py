@@ -13,7 +13,11 @@ def parse_custom_ranges(ranges_file):
     return d['density_custom_ranges']
     
     
-def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, masses, radii, align): 
+def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, masses, radii, align, trans):
+    def _to_vector3ds(numpy_array):
+        # No need to fit the whole array - we only need 4 non-coplanar points,
+        # so 100 should be plenty
+        return [IMP.algebra.Vector3D(c) for c in numpy_array[:100]]
 
     m=IMP.Model()
     ps = []
@@ -23,17 +27,26 @@ def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, masses, 
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, cluster_conform_i]))
 
     rmsd, superposed_fit = calculator.pairwise(0, 1, get_superposed_coordinates = True)
+    # Get transformation from pyRMSD reference on the first call.
+    # This is somewhat inefficient (since we are essentially repeating
+    # the pyRMSD calculation) but pyRMSD doesn't appear to make its
+    # reference orientation available.
+    if trans is None:
+        trans = IMP.algebra.get_transformation_aligning_first_to_second(
+            _to_vector3ds(superposed_fit[0]), _to_vector3ds(cluster_conform_0))
 
     for particle_index in range(len(superposed_fit[1])): 
         p = IMP.Particle(m, "%s" % str(particle_index))
     
-        IMP.core.XYZ.setup_particle(p, superposed_fit[1][particle_index])
+        # Transform from pyRMSD back to original reference
+        IMP.core.XYZ.setup_particle(
+            p, trans * IMP.algebra.Vector3D(superposed_fit[1][particle_index]))
         IMP.core.XYZR.setup_particle(p, float(radii[particle_index]))
         IMP.atom.Mass.setup_particle(p, float(masses[particle_index]))
         m.update()
         ps.append(p)
 
-    return rmsd, m, ps
+    return rmsd, m, ps, trans
 
 class GetModelDensity(object):
     """Compute mean density maps from structures.

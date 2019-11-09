@@ -82,8 +82,14 @@ else:
 print("Size of conformation matrix",conforms.shape)
 
 if not args.skip_sampling_precision:
+    # get_rmsds_matrix modifies conforms, so save it to a file and restore
+    # afterwards (so that we retain the original IMP orientation)
+    numpy.save("conforms", conforms)
     inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
     print("Size of RMSD matrix (flattened):",inner_data.shape)
+    del conforms
+    conforms = numpy.load("conforms.npy")
+    os.unlink('conforms.npy')
 
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
@@ -188,13 +194,15 @@ for i in range(len(retained_clusters)):
     
     shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
    
+    # transformation from internal pyRMSD orientation
+    trans = None
     # for each model in the cluster
     for mem in cluster_members[clus]:
             
         model_index=all_models[mem]
         
         # get superposition of each model to cluster center and the RMSD between the two
-        rmsd, model, superposed_ps = get_particles_from_superposed(conforms[model_index], conform_0, masses, radii, args.align)        
+        rmsd, model, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, masses, radii, args.align, trans)
         cluster_precision+=rmsd
 
         # Add the superposed particles to the respective density maps
