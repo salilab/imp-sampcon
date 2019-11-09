@@ -7,13 +7,10 @@ import IMP.em
 import pyRMSD.RMSDCalculator
 
 def parse_custom_ranges(ranges_file):
-    fl = open(ranges_file, 'r')
-    density_custom_ranges = fl.readlines()[0].strip()
-    exec(density_custom_ranges)
-       
-    fl.close()
-    
-    return density_custom_ranges
+    with open(ranges_file) as fh:
+        d = {}
+        exec(fh.read(), d)
+    return d['density_custom_ranges']
     
     
 def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, masses, radii, align): 
