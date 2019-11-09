@@ -127,12 +127,12 @@ if not args.skip_sampling_precision:
     sampling_precision,pval_converged,cramersv_converged,percent_converged = get_sampling_precision(cutoffs_list, pvals, cvs, percents)
         
     # Output test statistics 
-    fpv=open("%s.Sampling_Precision_Stats.txt" % args.sysname, 'w+')
-    print("The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a ",args.sysname,"model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our ",args.sysname," modeling is %.3f" %(sampling_precision)," A.", file=fpv)
+    with open("%s.Sampling_Precision_Stats.txt" % args.sysname, 'w+') as fpv:
+        print("The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a ",args.sysname,"model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our ",args.sysname," modeling is %.3f" %(sampling_precision)," A.", file=fpv)
 
-    print("Sampling precision, P-value, Cramer's V and percentage of clustered models below:", file=fpv)
-    print("%.3f\t%.3f\t%.3f\t%.3f" %(sampling_precision, pval_converged, cramersv_converged, percent_converged), file=fpv)
-    print("", file=fpv)
+        print("Sampling precision, P-value, Cramer's V and percentage of clustered models below:", file=fpv)
+        print("%.3f\t%.3f\t%.3f\t%.3f" %(sampling_precision, pval_converged, cramersv_converged, percent_converged), file=fpv)
+        print("", file=fpv)
     
     final_clustering_threshold = sampling_precision
     
@@ -148,9 +148,9 @@ ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_memb
 print("Contingency table:",ctable)
 
 # Output the number of models in each cluster and each sample 
-fcp=open("%s.Cluster_Population.txt" % args.sysname, 'w+')
-for rows in range(len(ctable)):
-    print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
+with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
+    for rows in range(len(ctable)):
+        print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
 
 # Obtain the subunits for which we need to calculate densities
 density_custom_ranges = parse_custom_ranges(args.path + args.density) 
@@ -228,6 +228,7 @@ for i in range(len(retained_clusters)):
     gmdt.write_mrc(path="./cluster.%s" %i,file_prefix = "LPD")
     gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i,file_prefix = "LPD")
     gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i,file_prefix = "LPD")
+fpc.close()
 
 # generate plots for the score and structure tests
 if args.gnuplot:
