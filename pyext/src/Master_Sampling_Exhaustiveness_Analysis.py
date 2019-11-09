@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys, shutil
 import random
 import numpy
@@ -78,11 +79,11 @@ if args.extension == "pdb":
 else:
     args.extension = "rmf3"
     ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B,args.subunit)
-print "Size of conformation matrix",conforms.shape
+print("Size of conformation matrix",conforms.shape)
 
 if not args.skip_sampling_precision:
     inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
-    print "Size of RMSD matrix (flattened):",inner_data.shape
+    print("Size of RMSD matrix (flattened):",inner_data.shape)
 
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
@@ -93,25 +94,25 @@ rmsd_matrix = mHandler.getMatrix()
 distmat = rmsd_matrix.get_data()
 
 distmat_full = sp.spatial.distance.squareform(distmat)
-print "Size of RMSD matrix (unpacked, N x N):",distmat_full.shape
+print("Size of RMSD matrix (unpacked, N x N):",distmat_full.shape)
 
 
 # Get model lists
 sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
 total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
 all_models=sampleA_all_models+sampleB_all_models
-print "Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models
+print("Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models)
     
 if not args.skip_sampling_precision:
     
-    print "Calculating sampling precision"
+    print("Calculating sampling precision")
     
     # Step 2: Cluster at intervals of grid size to get the sampling precision
     gridSize=args.gridsize
 
     # Get cutoffs for clustering
     cutoffs_list=get_cutoffs_list(distmat, gridSize)
-    print "Clustering at thresholds:",cutoffs_list
+    print("Clustering at thresholds:",cutoffs_list)
 
     # Do clustering at each cutoff
     pvals, cvs, percents = get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, sampleA_all_models, sampleB_all_models, args.sysname)
@@ -121,11 +122,11 @@ if not args.skip_sampling_precision:
         
     # Output test statistics 
     fpv=open("%s.Sampling_Precision_Stats.txt" % args.sysname, 'w+')
-    print >>fpv, "The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a ",args.sysname,"model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our ",args.sysname," modeling is %.3f" %(sampling_precision)," A."
+    print("The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a ",args.sysname,"model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our ",args.sysname," modeling is %.3f" %(sampling_precision)," A.", file=fpv)
 
-    print >>fpv, "Sampling precision, P-value, Cramer's V and percentage of clustered models below:"
-    print >>fpv, "%.3f\t%.3f\t%.3f\t%.3f" %(sampling_precision, pval_converged, cramersv_converged, percent_converged)
-    print >>fpv, ""
+    print("Sampling precision, P-value, Cramer's V and percentage of clustered models below:", file=fpv)
+    print("%.3f\t%.3f\t%.3f\t%.3f" %(sampling_precision, pval_converged, cramersv_converged, percent_converged), file=fpv)
+    print("", file=fpv)
     
     final_clustering_threshold = sampling_precision
     
@@ -133,17 +134,17 @@ else:
     final_clustering_threshold = args.cluster_threshold
     
 # Perform final clustering at the required precision 
-print "Clustering at threshold %.3f" %(final_clustering_threshold)
+print("Clustering at threshold %.3f" %(final_clustering_threshold))
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,sampleA_all_models,sampleB_all_models)
 
-print "Contingency table:",ctable
+print("Contingency table:",ctable)
 
 # Output the number of models in each cluster and each sample 
 fcp=open("%s.Cluster_Population.txt" % args.sysname, 'w+')
 for rows in range(len(ctable)):
-    print >>fcp, rows, ctable[rows][0], ctable[rows][1]
+    print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
 
 # Obtain the subunits for which we need to calculate densities
 density_custom_ranges = parse_custom_ranges(args.path + args.density) 
@@ -198,18 +199,18 @@ for i in range(len(retained_clusters)):
 
         # Add the superposed particles to the respective density maps
         gmdt.add_subunits_density(superposed_ps) # total density map
-        print >>both_file,model_index
+        print(model_index, file=both_file)
 
         if model_index in sampleA_all_models:
             gmd1.add_subunits_density(superposed_ps) # density map for sample A
-            print >>sampleA_file, model_index
+            print(model_index, file=sampleA_file)
         else:
             gmd2.add_subunits_density(superposed_ps) # density map for sample B
-            print >>sampleB_file, model_index
+            print(model_index, file=sampleB_file)
          
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
-    print >> fpc, "Cluster precision (average distance to cluster centroid) of cluster ", str(i), " is %.3f" %(cluster_precision), "A"
+    print("Cluster precision (average distance to cluster centroid) of cluster ", str(i), " is %.3f" %(cluster_precision), "A", file=fpc)
             
     both_file.close()
     sampleA_file.close()

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import IMP
 import IMP.atom
 import IMP.rmf
@@ -50,7 +51,7 @@ class GoodScoringModelSelector(object):
                     else:
                         selection_fields[ki][(prot1,res1,prot2,res2)]=[fh_index]  #list of indices corresponding to all combinations of protein copies
 
-                    # print field_headers[fh_index],prot1,res1,prot2,res2,ki,qselection_fields[ki][(prot1,res1,prot2,res2)]
+                    # print(field_headers[fh_index],prot1,res1,prot2,res2,ki,qselection_fields[ki][(prot1,res1,prot2,res2)])
 
                     
             for ki,kw in enumerate(printing_keywords_list):
@@ -93,12 +94,12 @@ class GoodScoringModelSelector(object):
         '''
         FNULL = open(os.devnull, 'w')
         num_gsm = sum(1 for e in self.all_good_scoring_models)
-        print "Extracting",num_gsm,"good scoring models."
+        print("Extracting",num_gsm,"good scoring models.")
         model_num=1
 
         for i,gsm in enumerate(self.all_good_scoring_models):
             if model_num % (num_gsm/10) == 0:
-                print str(model_num / (num_gsm/10)*10)+"% Complete"
+                print(str(model_num / (num_gsm/10)*10)+"% Complete")
             model_num+=1
             
             (runid,replicaid,frameid)=gsm 
@@ -135,13 +136,14 @@ class GoodScoringModelSelector(object):
         
         outf=open(os.path.join(output_dir,"model_ids_scores.txt"),'w')
         # Header line first
-        print >>outf,"Model_index","Run_id", "Replica_id","Frame_id",
+        print("Model_index","Run_id", "Replica_id","Frame_id",
+              file=outf, end=' ')
         for skw in selection_keywords_list:
-            print >>outf,skw,
+            print(skw, file=outf, end=' ')
         for pkw in printing_keywords_list:
-            print >>outf,pkw,
+            print(pkw, file=outf, end=' ')
         
-        print >>outf
+        print('', file=outf)
      
         num_runs = 0 
 
@@ -151,7 +153,7 @@ class GoodScoringModelSelector(object):
         
             num_runs+=1
             
-            print "Analyzing",runid
+            print("Analyzing",runid)
            
             for each_replica_stat_file in sorted(glob.glob(os.path.join(each_run_dir,"output")+"/stat.*.out"),key=lambda x:int(x.strip('.out').split('.')[-1])):
               
@@ -208,13 +210,13 @@ class GoodScoringModelSelector(object):
                             
                             # Print out the scores finally
                             
-                            print >>outf,len(self.all_good_scoring_models)-1,runid,replicaid,frameid,
+                            print(len(self.all_good_scoring_models)-1,runid,replicaid,frameid, file=outf, end=' ')
                             
                             for scv in selection_criteria_values:
-                                print >>outf,"%.2f" %(scv),
+                                print("%.2f" %(scv), file=outf, end=' ')
                             for pcv in printing_criteria_values:    
-                                print >>outf,"%.2f" %(pcv),
-                            print >>outf
+                                print("%.2f" %(pcv), file=outf, end=' ')
+                            print('', file=outf)
         
                     rsf.close()
 
@@ -258,10 +260,10 @@ class GoodScoringModelSelector(object):
         os.mkdir(sampleB_dir)
         
         for i in sampleA_indices:
-            print >>f,i,"A"
+            print(i,"A", file=f)
             shutil.move(os.path.join(output_dir,str(i)+'.rmf3'),os.path.join(sampleA_dir,str(i)+'.rmf3'))
         for i in sampleB_indices:
-            print >>f,i,"B"
+            print(i,"B", file=f)
             shutil.move(os.path.join(output_dir,str(i)+'.rmf3'),os.path.join(sampleB_dir,str(i)+'.rmf3'))
         f.close()
         

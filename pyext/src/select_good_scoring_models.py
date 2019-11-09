@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import IMP
 import GoodScoringModelSelector
 import os,sys,string,math
@@ -44,7 +44,7 @@ def create_score_files(field="Total_Score"):
     scoreB = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "B.txt","w")     
     model_file = open(arg.run_dir +"good_scoring_models/model_ids_scores.txt","r")
 
-    print "Creating input files for Total_Score convergence test"
+    print("Creating input files for Total_Score convergence test")
 
     for line_index,each_model_line in enumerate(model_file.readlines()):
 
@@ -59,11 +59,11 @@ def create_score_files(field="Total_Score"):
             fields = each_model_line.strip().split()
             score=fields[ts_ix]
             if int(fields[run_ix])==1:
-                print >> scoreA,score
+                print(score, file=scoreA)
             elif int(fields[run_ix])==2:
-                print >> scoreB,score
+                print(score, file=scoreB)
             else:
-                print "create_scores_file: model_ids_scores.txt file has an incorrect format."
+                print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
                 exit()
     scoreA.close()
     scoreB.close()
@@ -77,4 +77,4 @@ if __name__ == "__main__" :
     # Create Score Files
     create_score_files()
 
-    print "Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py"
+    print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")

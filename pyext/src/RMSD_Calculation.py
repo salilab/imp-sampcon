@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
 from pyRMSD.condensedMatrix import CondensedMatrix
@@ -24,7 +25,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     f2=open(idfile_B, 'w+')
 
     for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print >>f1, str_file, num
+        print(str_file, num, file=f1)
         models_name.append(str_file)
         
         m = IMP.Model()
@@ -41,7 +42,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
 
         
     for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print >>f2, str_file, num
+        print(str_file, num, file=f2)
         models_name.append(str_file)
         
         m = IMP.Model()
@@ -70,7 +71,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
     for sample_name,sample_id_file in zip(['A','B'],[f1,f2]):
         
         for str_file in sorted(glob.glob("%s/sample_%s/*.rmf3" % (path,sample_name)),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-            print >>sample_id_file, str_file, num
+            print(str_file, num, file=sample_id_file)
             models_name.append(str_file)
 
             m = IMP.Model()
@@ -119,7 +120,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
     return ps_names, masses, radii, np.array(conform), models_name
 
 def get_rmsds_matrix(conforms, mode, sup, cores):
-    print "Mode:",mode,"Superposition:",sup,"Number of cores:",cores
+    print("Mode:",mode,"Superposition:",sup,"Number of cores:",cores)
 
     if(mode=="cpu_serial" and not sup):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
@@ -136,7 +137,7 @@ def get_rmsds_matrix(conforms, mode, sup, cores):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_CUDA_MEM_CALCULATOR", conforms)  
 
     else:
-        print "Wrong values to pyRMSD ! Please Fix"
+        print("Wrong values to pyRMSD ! Please Fix")
         exit()
 
     rmsd = calculator.pairwiseRMSDMatrix()

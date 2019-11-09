@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys,random,numpy,math
 import pickle
 
@@ -33,14 +34,14 @@ def get_cutoffs_list(distmat, gridSize):
     mindist = distmat.min()
     maxdist = distmat.max()
 
-    print "Minimum and maximum pairwise model distances:",mindist, maxdist
+    print("Minimum and maximum pairwise model distances:",mindist, maxdist)
     cutoffs=numpy.arange(mindist,maxdist,gridSize)
     return cutoffs
 
 
 def precision_cluster_test(distmat,numModels,rmsd_cutoff):
     #STEP 2. Populate the neighbors ofa given model
-    print "The new way"
+    print("The new way")
     stime = time.time()
     neighbors=[]
     for count in range(numModels):
@@ -53,9 +54,9 @@ def precision_cluster_test(distmat,numModels,rmsd_cutoff):
         if i>j:
             neighbors[i].append(j)
             neighbors[j].append(i)
-    print "Done the new way in",time.time()-stime
+    print("Done the new way in",time.time()-stime)
 
-    print "Now the old way"
+    print("Now the old way")
     stime = time.time()
     neighbors2=[]
     for count in range(numModels):
@@ -63,21 +64,21 @@ def precision_cluster_test(distmat,numModels,rmsd_cutoff):
 
     for i in range(numModels-1):
         if i%1000 == 0:
-            print "On model", i, "of", numModels
+            print("On model", i, "of", numModels)
         for j in range(i+1,numModels):
             if distmat[i][j]<=rmsd_cutoff:
                 neighbors2[i].append(j)
                 neighbors2[j].append(i)
 
-    print "Done the old way in",time.time()-stime
+    print("Done the old way in",time.time()-stime)
 
-    print "Now check similarity"
+    print("Now check similarity")
     for i in range(numModels):
          if set(neighbors[i]) != set(neighbors2[i]):
-             print "Uh oh!!", i, neighbors[i], neighbors2[i]
-             print "New way dists", [distmat[i][j] for j in neighbors[i]]
-             print "Old way dists", [distmat[i][j] for j in neighbors2[i]]
-             print "Clustering cutoff", rmsd_cutoff
+             print("Uh oh!!", i, neighbors[i], neighbors2[i])
+             print("New way dists", [distmat[i][j] for j in neighbors[i]])
+             print("Old way dists", [distmat[i][j] for j in neighbors2[i]])
+             print("Clustering cutoff", rmsd_cutoff)
              exit()
     exit()
 
@@ -141,10 +142,10 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
             model_index=all_models[member]
 
             if model_index in run1_models:
-                #print "run1", model_index
+                #print("run1", model_index)
                 full_ctable[ic][0]+=1.0
 	    elif model_index in run2_models:
-		#print "run2", model_index
+		#print("run2", model_index)
                 full_ctable[ic][1]+=1.0
 
     ## now normalize by number of models in each run
@@ -199,7 +200,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
         cvs.append(cramersv)
         percents.append(percent_explained)
         
-        print >>f1, c, pval, cramersv, percent_explained
+        print(c, pval, cramersv, percent_explained, file=f1) 
 
     return pvals, cvs, percents
 
