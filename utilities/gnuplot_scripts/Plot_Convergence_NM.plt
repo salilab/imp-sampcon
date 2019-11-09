@@ -2,8 +2,8 @@ reset
 set terminal pdfcairo enhanced color font "Arial-Bold, 40" size 10,10
 set border lw 5 lc rgb "#484848"
 
-stats sprintf("%s.ChiSquare_Grid_Stats.txt", ARG1) usi 1 prefix "R"
-stats sprintf("%s.Sampling_Precision_Stats.txt", ARG1) usi 1 prefix "B"
+stats sprintf("%s.ChiSquare_Grid_Stats.txt", sysname) usi 1 prefix "R"
+stats sprintf("%s.Sampling_Precision_Stats.txt", sysname) usi 1 prefix "B"
 
 maxx = (int(R_max) - 0  - (10 + int(R_max))%10)
 max(a, b) = (a > b ? a : b)
@@ -29,8 +29,8 @@ set arrow nohead from 0,0.80 to maxx,0.80 lt 5 lw 10 lc rgb "#61B329" back fille
 
 set arrow nohead from B_min,0 to B_max,1.1 lt 5 lw 10 lc rgb "#484848" back filled
 
-set output sprintf("%s.ChiSquare.pdf" , ARG1)
-plot sprintf("%s.ChiSquare_Grid_Stats.txt", ARG1) usi 1:2 w p pt 7 ps 2.5 lc rgb "#FF4500" title "{/Symbol c}^2-test p-value", \
+set output sprintf("%s.ChiSquare.pdf" , sysname)
+plot sprintf("%s.ChiSquare_Grid_Stats.txt", sysname) usi 1:2 w p pt 7 ps 2.5 lc rgb "#FF4500" title "{/Symbol c}^2-test p-value", \
      "" 	            	usi 1:3 w p pt 5 ps 2.5 lc rgb "#5B6FB5" title "Cramer's V", \
      ""				usi 1:($4/100) w p pt 9 ps 2.5 lc rgb "#61B329" title "Clustered population"
 

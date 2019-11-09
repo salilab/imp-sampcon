@@ -3,8 +3,8 @@ reset
 set terminal pdfcairo enhanced color font "Arial-Bold, 40" size 10,10
 set border lw 5 lc rgb "#484848"
 
-stats sprintf("%s.Top_Score_Conv.txt", ARG1) usi 1 prefix "A"
-stats sprintf("%s.Top_Score_Conv.txt", ARG1) usi 2 prefix "B"
+stats sprintf("%s.Top_Score_Conv.txt", sysname) usi 1 prefix "A"
+stats sprintf("%s.Top_Score_Conv.txt", sysname) usi 2 prefix "B"
 
 minx = (int(A_max/5) - 0   - (500 + int(A_max/5))%500)
 maxx = (int(A_max) + 500 + (500 - int(A_max))%500)
@@ -27,7 +27,7 @@ set key tc rgb "#484848"
 set linetype 5 dashtype 2 lw 10
 set arrow nohead from  minx,B_max to maxx,B_max  lt 5 lc rgb "red"
 
-set output sprintf("%s.Top_Score_Conv.pdf", ARG1)
-plot sprintf("%s.Top_Score_Conv.txt", ARG1) usi 1:2:3 w errorbars lw 2 pt 7 ps 2.5 lc rgb "#484848" notitle
+set output sprintf("%s.Top_Score_Conv.pdf", sysname)
+plot sprintf("%s.Top_Score_Conv.txt", sysname) usi 1:2:3 w errorbars lw 2 pt 7 ps 2.5 lc rgb "#484848" notitle
 set output
 
