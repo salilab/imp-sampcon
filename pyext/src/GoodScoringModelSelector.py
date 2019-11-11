@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, division
 import IMP
 import IMP.atom
 import IMP.rmf
@@ -223,11 +223,12 @@ class GoodScoringModelSelector(object):
         if extract:
             self._extract_models_from_trajectories(output_dir) 
         
-            self._split_good_scoring_models_into_two_subsets(output_dir,num_runs,split_type="divide_by_run_ids")
+            return self._split_good_scoring_models_into_two_subsets(output_dir,num_runs,
+                    split_type="divide_by_run_ids" if num_runs > 1 else "random")
 
        
     def _split_good_scoring_models_into_two_subsets(self,output_dir,num_runs,split_type="divide_by_run_ids"):
-        ''' Get the listof good scoring models and split them into two samples, keeping the models in separate directories. 
+        ''' Get the listof good scoring models and split them into two samples, keeping the models in separate directories. Return the two subsets.
         @param split_type how to split good scoring models into two samples. Current options are:
         (a) divide_by_run_ids : where the list of runids is divided into 2. e.g. if we have runs from 1-50, good scoring models from runs
         1-25 is sample A and those from runs 26-50 is sample B. 
@@ -246,9 +247,8 @@ class GoodScoringModelSelector(object):
                     sampleB_indices.append(i)
 
         elif split_type=="random":
-            # not implemented!
-            sampleA_indices=[i for i in range(random.sample(len(self.all_good_scoring_models),len(self.all_good_scoring_models)/2))]
-            sampleB_indices=[i for i in range(self.all_good_scoring_models) if i not in sampleA_indices]
+            sampleA_indices=random.sample(range(len(self.all_good_scoring_models)),len(self.all_good_scoring_models)//2)
+            sampleB_indices=[i for i in range(len(self.all_good_scoring_models)) if i not in sampleA_indices]
 
         # write model and sample IDs to a file
         f=open(os.path.join(self.run_dir,'good_scoring_models','model_sample_ids.txt'),'w')
@@ -266,4 +266,5 @@ class GoodScoringModelSelector(object):
             print(i,"B", file=f)
             shutil.move(os.path.join(output_dir,str(i)+'.rmf3'),os.path.join(sampleB_dir,str(i)+'.rmf3'))
         f.close()
+        return sampleA_indices, sampleB_indices
         

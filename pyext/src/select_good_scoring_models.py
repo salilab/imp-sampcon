@@ -34,11 +34,12 @@ def select_good_scoring_models():
     
     gsms=GoodScoringModelSelector.GoodScoringModelSelector(arg.run_dir,arg.run_prefix)
                
-    gsms.get_good_scoring_models(selection_keywords_list=arg.selection_keywords_list,printing_keywords_list=arg.printing_keywords_list,
+   subsets = gsms.get_good_scoring_models(selection_keywords_list=arg.selection_keywords_list,printing_keywords_list=arg.printing_keywords_list,
     aggregate_lower_thresholds=arg.aggregate_lower_thresholds,aggregate_upper_thresholds=arg.aggregate_upper_thresholds,
     member_lower_thresholds=arg.member_lower_thresholds,member_upper_thresholds=arg.member_upper_thresholds,extract=arg.extract)
+    return subsets
         
-def create_score_files(field="Total_Score"):
+def create_score_files(subsets, field="Total_Score"):
     arg=parse_args()
     scoreA = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "A.txt","w")
     scoreB = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "B.txt","w")     
@@ -53,18 +54,23 @@ def create_score_files(field="Total_Score"):
             field_headers = each_model_line.strip().split()
             ts_ix = field_headers.index(field)
             run_ix = field_headers.index("Run_id")
+            model_ix = field_headers.index("Model_index")
 
 
         else:
             fields = each_model_line.strip().split()
             score=fields[ts_ix]
-            if int(fields[run_ix])==1:
-                print(score, file=scoreA)
-            elif int(fields[run_ix])==2:
-                print(score, file=scoreB)
+            if arg.extract:
+                model = int(fields[model_ix])
+                print(score, file=scoreA if model in subsets[0] else scoreB)
             else:
-                print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
-                exit()
+                if int(fields[run_ix])==1:
+                    print(score, file=scoreA)
+                elif int(fields[run_ix])==2:
+                    print(score, file=scoreB)
+                else:
+                    print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
+                    exit()
     scoreA.close()
     scoreB.close()
     
@@ -72,9 +78,9 @@ def create_score_files(field="Total_Score"):
     
  
 if __name__ == "__main__" :
-    select_good_scoring_models()
+    subsets = select_good_scoring_models()
 
     # Create Score Files
-    create_score_files()
+    create_score_files(subsets)
 
     print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")
