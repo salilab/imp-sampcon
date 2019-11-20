@@ -35,7 +35,7 @@ def get_cutoffs_list(distmat, gridSize):
     maxdist = distmat.max()
 
     print("Minimum and maximum pairwise model distances:",mindist, maxdist)
-    cutoffs=numpy.arange(mindist,maxdist,gridSize)
+    cutoffs=numpy.arange(mindist+gridSize,maxdist,gridSize)
     return cutoffs
 
 
