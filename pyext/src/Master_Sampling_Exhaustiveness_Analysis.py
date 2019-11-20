@@ -78,7 +78,7 @@ if args.extension == "pdb":
     conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
-    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B,args.subunit)
+    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B, args.subunit)
 print("Size of conformation matrix",conforms.shape)
 
 if not args.skip_sampling_precision:
@@ -90,7 +90,6 @@ if not args.skip_sampling_precision:
     del conforms
     conforms = numpy.load("conforms.npy")
     os.unlink('conforms.npy')
-
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
 mHandler = MatrixHandler()
@@ -144,9 +143,7 @@ print("Clustering at threshold %.3f" %(final_clustering_threshold))
 cluster_centers,cluster_members=precision_cluster(distmat_full, total_num_models, final_clustering_threshold)
 
 ctable,retained_clusters=get_contingency_table(len(cluster_centers),cluster_members,all_models,sampleA_all_models,sampleB_all_models)
-
 print("Contingency table:",ctable)
-
 # Output the number of models in each cluster and each sample 
 with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
     for rows in range(len(ctable)):
@@ -193,7 +190,17 @@ for i in range(len(retained_clusters)):
     cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
     
     shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
-   
+  
+    # Create a model with just the cluster_member particles
+    model = IMP.Model()
+    ps = [] # particle list to be updated by each RMF frame
+    for pi in range(len(conform_0)):
+        p = IMP.Particle(model, "%s" % str(pi))
+        IMP.core.XYZ.setup_particle(p, (0,0,0))
+        IMP.core.XYZR.setup_particle(p, float(radii[pi]))
+        IMP.atom.Mass.setup_particle(p, float(masses[pi]))
+        ps.append(p)
+
     # transformation from internal pyRMSD orientation
     trans = None
     # for each model in the cluster
@@ -202,7 +209,10 @@ for i in range(len(retained_clusters)):
         model_index=all_models[mem]
         
         # get superposition of each model to cluster center and the RMSD between the two
-        rmsd, model, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, masses, radii, args.align, trans)
+        rmsd, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, args.align, ps, trans)
+
+        model.update() # why not?
+
         cluster_precision+=rmsd
 
         # Add the superposed particles to the respective density maps
