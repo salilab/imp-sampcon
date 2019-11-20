@@ -90,7 +90,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
             for leaf in s0.get_selected_particles():
                 
                 p=IMP.core.XYZR(leaf)
-                pts.append(p.get_coordinates())
+                pts.append([p.get_coordinates()[i] for i in range(3)])
                 
                 if num == 0 and sample_name=='A':
                     masses.append(IMP.atom.Mass(leaf).get_mass())
