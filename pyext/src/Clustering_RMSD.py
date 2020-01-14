@@ -138,14 +138,14 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
     full_ctable=numpy.zeros((num_clusters,2))
 
     for ic,cluster in enumerate(cluster_members):
-	for member in cluster:
+        for member in cluster:
             model_index=all_models[member]
 
             if model_index in run1_models:
                 #print("run1", model_index)
                 full_ctable[ic][0]+=1.0
-	    elif model_index in run2_models:
-		#print("run2", model_index)
+            elif model_index in run2_models:
+                #print("run2", model_index)
                 full_ctable[ic][1]+=1.0
 
     ## now normalize by number of models in each run
@@ -156,11 +156,11 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
     retained_clusters=[]
     
     for i in range(num_clusters):
-	if full_ctable[i][0]<=10.0 or full_ctable[i][1]<=10.0:
+        if full_ctable[i][0]<=10.0 or full_ctable[i][1]<=10.0:
         #if full_ctable[i][0]<=0.10*numModelsRun1 and full_ctable[i][1] <= 0.10*numModelsRun2:
-	    continue
-	reduced_ctable.append([full_ctable[i][0],full_ctable[i][1]])
-	retained_clusters.append(i)
+            continue
+        reduced_ctable.append([full_ctable[i][0],full_ctable[i][1]])
+        retained_clusters.append(i)
     return numpy.array(reduced_ctable),retained_clusters
 
 def test_sampling_convergence(contingency_table,total_num_models):
