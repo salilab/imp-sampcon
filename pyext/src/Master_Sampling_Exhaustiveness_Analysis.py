@@ -246,7 +246,8 @@ if args.gnuplot:
     import glob
     
     thisdir = os.path.dirname(__file__)
-    gnuplotdir = os.path.join(thisdir, "utilities", "gnuplot_scripts")
+    gnuplotdir = os.path.join(thisdir, "..", "..", "utilities",
+                              "gnuplot_scripts")
     for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
         cmd = ['gnuplot', '-e', 'sysname="%s"' % args.sysname, filename]
         print(" ".join(cmd))
