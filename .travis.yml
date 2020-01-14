@@ -12,6 +12,6 @@ install:
   - source $HOME/conda/bin/activate python$TRAVIS_PYTHON_VERSION
   - python -V
 script:
-  - nosetests --exe test
+  - nosetests --exe --with-coverage --cover-branches test
 after_script:
   - bash <(curl -s https://codecov.io/bash)
