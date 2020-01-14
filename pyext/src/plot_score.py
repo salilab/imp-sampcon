@@ -35,7 +35,5 @@ if column=="all":
 elif column in scores.columns.values:
     plot_column(scores, column, show=show)
 else:
-    print(column, "is not a valid score parameter. Use one of:")
-    print(scores.columns.values)
-
-
+    print(column, "is not a valid score parameter. Use 'all' or one of: "
+          + ", ".join(scores.columns.values))
