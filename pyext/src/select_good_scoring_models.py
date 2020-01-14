@@ -41,9 +41,13 @@ def select_good_scoring_models():
         
 def create_score_files(subsets, field="Total_Score"):
     arg=parse_args()
-    scoreA = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "A.txt","w")
-    scoreB = open(arg.run_dir +"good_scoring_models/" + arg.score_file_prefix + "B.txt","w")     
-    model_file = open(arg.run_dir +"good_scoring_models/model_ids_scores.txt","r")
+    gsm_dir = os.path.join(arg.run_dir, "good_scoring_models")
+    if not os.path.exists(gsm_dir):
+        os.mkdir(gsm_dir)
+    scoreA = open(os.path.join(gsm_dir, arg.score_file_prefix + "A.txt"), "w")
+    scoreB = open(os.path.join(gsm_dir, arg.score_file_prefix + "B.txt"), "w")
+    model_file = open(os.path.join(arg.run_dir, "filter",
+                                   "model_ids_scores.txt"), "r")
 
     print("Creating input files for Total_Score convergence test")
 
