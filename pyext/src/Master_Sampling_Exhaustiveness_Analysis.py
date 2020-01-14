@@ -57,11 +57,11 @@ idfile_B = "Identities_B.txt"
 score_A = []
 score_B = []
 
-with open(args.path + args.scoreA, 'r') as f:
+with open(os.path.join(args.path, args.scoreA), 'r') as f:
     for line in f:
         score_A.append(float(line.strip("\n")))
 
-with open(args.path + args.scoreB, 'r') as f:
+with open(os.path.join(args.path, args.scoreB), 'r') as f:
     for line in f:
         score_B.append(float(line.strip("\n")))
 
