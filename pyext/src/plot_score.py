@@ -2,23 +2,38 @@ from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import os,sys,string,numpy
+import os,sys,string,pandas
 
 score_file=sys.argv[1]
-score_name=sys.argv[2]
+column=sys.argv[2]
 
-scores=numpy.loadtxt(score_file)
-print("Mean",score_name,numpy.mean(scores))
-print("Standard deviation",score_name,numpy.std(scores))
+scores=pandas.read_csv(score_file, sep=' ')
+show = (len(sys.argv) >= 4 and sys.argv[3] == "True")
 
-print("Mean minus std_dev", score_name, numpy.mean(scores) - numpy.std(scores))
-print("Mean minus half std_dev", score_name, numpy.mean(scores) - 0.5*numpy.std(scores))
+if column=="all":
+    print("Plotting all columns")
+    for k in scores.columns:
+        print(k, "|| Mean:", scores[k].mean(), "| SD:", scores[k].std())
+        plt.hist(scores[k],bins=100)
+        plt.xlabel(k)
+        plt.ylabel('P')
+        plt.title(k)
 
-plt.hist(scores,bins=100)
-plt.xlabel(score_name)
-plt.ylabel('P')
-plt.title('Histogram of scores')
+        plt.savefig(k+'.jpg',dpi=300)
+        plt.clf()
+elif column in list(scores.columns.values):
 
-plt.savefig(score_name+'.jpg',dpi=300)
+    print(column, "|| Mean:", scores[column].mean(), "| SD:", scores[column].std())
+    plt.hist(scores[column], bins=100)
+    plt.xlabel(column)
+    plt.ylabel('P')
+    plt.title(column)
+    if show:
+        plt.show()
+    else:
+        plt.savefig(column+".jpg", dpi=300)
+else:
+    print(column, "is not a valid score parameter. Use one of:")
+    print(scores.columns.values)
 
 
