@@ -150,7 +150,7 @@ with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
         print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
 
 # Obtain the subunits for which we need to calculate densities
-density_custom_ranges = parse_custom_ranges(args.path + args.density) 
+density_custom_ranges = parse_custom_ranges(args.density)
 
 # Output cluster precisions
 fpc=open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
