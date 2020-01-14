@@ -18,7 +18,7 @@ class Tests(unittest.TestCase):
             [sys.executable, script,
              os.path.join(inp_dir, 'model_ids_scores.txt'),
              'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen'])
-        os.unlink('CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.jpg')
+        os.unlink('CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png')
 
 
 if __name__ == '__main__':

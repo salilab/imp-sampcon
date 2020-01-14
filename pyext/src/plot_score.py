@@ -31,7 +31,7 @@ elif column in list(scores.columns.values):
     if show:
         plt.show()
     else:
-        plt.savefig(column+".jpg", dpi=300)
+        plt.savefig(column+".png", dpi=300)
 else:
     print(column, "is not a valid score parameter. Use one of:")
     print(scores.columns.values)
