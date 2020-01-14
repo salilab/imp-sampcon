@@ -136,14 +136,9 @@ class GoodScoringModelSelector(object):
         
         outf=open(os.path.join(output_dir,"model_ids_scores.txt"),'w')
         # Header line first
-        print("Model_index","Run_id", "Replica_id","Frame_id",
-              file=outf, end=' ')
-        for skw in selection_keywords_list:
-            print(skw, file=outf, end=' ')
-        for pkw in printing_keywords_list:
-            print(pkw, file=outf, end=' ')
-        
-        print('', file=outf)
+        print(' '.join(["Model_index", "Run_id", "Replica_id", "Frame_id"]
+                       + selection_keywords_list + printing_keywords_list),
+              file=outf)
      
         num_runs = 0 
 
@@ -210,14 +205,16 @@ class GoodScoringModelSelector(object):
                             
                             # Print out the scores finally
                             
-                            print(len(self.all_good_scoring_models)-1,runid,replicaid,frameid, file=outf, end=' ')
-                            
-                            for scv in selection_criteria_values:
-                                print("%.2f" %(scv), file=outf, end=' ')
-                            for pcv in printing_criteria_values:    
-                                print("%.2f" %(pcv), file=outf, end=' ')
-                            print('', file=outf)
-        
+                            print(' '.join(
+                                [str(x) for x in
+                                    [len(self.all_good_scoring_models) - 1,
+                                     runid, replicaid, frameid]] +
+                                ["%.2f" % s
+                                     for s in selection_criteria_values] +
+                                ["%.2f" % s
+                                     for s in printing_criteria_values]),
+                                file=outf)
+
                     rsf.close()
 
         if extract:
