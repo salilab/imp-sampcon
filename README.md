@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/salilab/imp-sampcon.svg?branch=master)](https://travis-ci.org/salilab/imp-sampcon)
+[![codecov](https://codecov.io/gh/salilab/imp-sampcon/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/imp-sampcon)
 
 # imp-sampcon
 
