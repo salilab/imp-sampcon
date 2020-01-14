@@ -14,24 +14,33 @@ class Tests(unittest.TestCase):
         """Test plot_score.py with one score"""
         script = utils.get_script(TOPDIR, 'plot_score.py')
         inp_dir = os.path.join(TESTDIR, 'input')
-        subprocess.check_call(
-            [sys.executable, script,
-             os.path.join(inp_dir, 'model_ids_scores.txt'),
-             'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen'])
-        os.unlink('CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png')
+        with utils.temporary_directory() as tmpdir:
+            subprocess.check_call(
+                [sys.executable, script,
+                 os.path.join(inp_dir, 'model_ids_scores.txt'),
+                 'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen'],
+                cwd=tmpdir)
+            os.unlink(os.path.join(
+                tmpdir,
+                'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png'))
 
     def test_plot_score_all(self):
         """Test plot_score.py with all scores"""
         script = utils.get_script(TOPDIR, 'plot_score.py')
         inp_dir = os.path.join(TESTDIR, 'input')
-        subprocess.check_call(
-            [sys.executable, script,
-             os.path.join(inp_dir, 'model_ids_scores.txt'), 'all'])
-        os.unlink('ConnectivityRestraint_Rpb1.png')
-        os.unlink('CrossLinkingMassSpectrometryRestraint_Distance_.png')
-        os.unlink('CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png')
-        os.unlink('Total_Score.png')
-        os.unlink('ExcludedVolumeSphere_None.png')
+        expected = [
+            'ConnectivityRestraint_Rpb1.png',
+            'CrossLinkingMassSpectrometryRestraint_Distance_.png',
+            'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png',
+            'Total_Score.png',
+            'ExcludedVolumeSphere_None.png']
+        with utils.temporary_directory() as tmpdir:
+            subprocess.check_call(
+                [sys.executable, script,
+                 os.path.join(inp_dir, 'model_ids_scores.txt'), 'all'],
+                cwd=tmpdir)
+            for e in expected:
+                os.unlink(os.path.join(tmpdir, e))
 
     def test_plot_score_bad(self):
         """Test plot_score.py with bad score"""

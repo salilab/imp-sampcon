@@ -2,11 +2,19 @@ import sys
 import tempfile
 import os
 import shutil
+import contextlib
 
 
 def get_script(topdir, script):
     """Return the full path to a Python script"""
     return os.path.join(topdir, 'pyext', 'src', script)
+
+
+@contextlib.contextmanager
+def temporary_directory(dir=None):
+    _tmpdir = tempfile.mkdtemp(dir=dir)
+    yield _tmpdir
+    shutil.rmtree(_tmpdir, ignore_errors=True)
 
 
 if 'coverage' in sys.modules:
