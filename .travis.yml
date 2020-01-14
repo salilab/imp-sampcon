@@ -4,6 +4,10 @@ dist: xenial
 python:
   - 2.7
   - 3.7
+addons:
+  apt:
+    packages:
+    - gnuplot
 env:
   - IMP_BRANCH=develop
   - IMP_BRANCH=master
