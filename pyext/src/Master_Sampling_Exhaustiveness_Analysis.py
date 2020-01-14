@@ -33,9 +33,14 @@ import argparse
 parser = argparse.ArgumentParser(description="First stages of analysis for assessing sampling convergence")
 parser.add_argument('--sysname', '-n', dest="sysname", help='name of the system', default="")
 parser.add_argument('--path', '-p', dest="path", help='path to the good-scoring models', default="./")
-parser.add_argument('--extension', '-e', dest="extension", help='extension of the file; rmf or pdb', default="rmf")
-parser.add_argument('--mode', '-m', dest="mode", help='cuda, cpu_omp, or cpu_serial', default="cuda")
-parser.add_argument('--cores', '-c', dest="cores", help='number of cores for RMSD matrix calculations; only for  cpu_omp', default="1")
+parser.add_argument('--extension', '-e', dest="extension",
+                    help='extension of the file', choices=['rmf', 'pdb'],
+                    default="rmf")
+parser.add_argument('--mode', '-m', dest="mode", help='pyRMSD calculator',
+                    choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
+parser.add_argument('--cores', '-c', dest="cores", type=int,
+                    help='number of cores for RMSD matrix calculations; '
+                         'only for  cpu_omp', default=1)
 parser.add_argument('--subunit','-su',dest="subunit",help='calculate RMSD/sampling and cluster precision/densities etc over this subunit only',default=None)
 parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow superposition of models', default=False, action='store_true')
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="scoresA.txt")

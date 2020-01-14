@@ -127,11 +127,11 @@ def get_rmsds_matrix(conforms, mode, sup, cores):
 
     elif(mode=="cpu_omp" and not sup):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
-        calculator.setNumberOfOpenMPThreads(int(cores))
+        calculator.setNumberOfOpenMPThreads(cores)
 
     elif(mode=="cpu_omp" and sup):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_OMP_CALCULATOR", conforms)
-        calculator.setNumberOfOpenMPThreads(int(cores))
+        calculator.setNumberOfOpenMPThreads(cores)
 
     elif(mode=="cuda" and sup):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_CUDA_MEM_CALCULATOR", conforms)  
