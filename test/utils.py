@@ -1,6 +1,12 @@
 import sys
 import tempfile
+import os
 import shutil
+
+
+def get_script(topdir, script):
+    """Return the full path to a Python script"""
+    return os.path.join(topdir, 'pyext', 'src', script)
 
 
 if 'coverage' in sys.modules:
