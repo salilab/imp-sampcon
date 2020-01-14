@@ -29,7 +29,8 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
         models_name.append(str_file)
         
         m = IMP.Model()
-        mh = IMP.atom.read_pdb(file, m,IMP.atom.NonWaterNonHydrogenPDBSelector())
+        mh = IMP.atom.read_pdb(str_file, m,
+                               IMP.atom.NonWaterNonHydrogenPDBSelector())
         mps = IMP.core.get_leaves(mh) 
         pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
         if num == 0:
@@ -46,7 +47,8 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
         models_name.append(str_file)
         
         m = IMP.Model()
-        mh = IMP.atom.read_pdb(file, m,IMP.atom.NonWaterNonHydrogenPDBSelector())
+        mh = IMP.atom.read_pdb(str_file, m,
+                               IMP.atom.NonWaterNonHydrogenPDBSelector())
         mps = IMP.core.get_leaves(mh)
         pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
         conform.append(pts)

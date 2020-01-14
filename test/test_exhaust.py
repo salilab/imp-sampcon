@@ -3,6 +3,9 @@ import subprocess
 import sys
 import os
 import shutil
+import IMP.atom
+import IMP.rmf
+import RMF
 import utils
 
 
@@ -26,6 +29,19 @@ def make_models(tmpdir):
          'ExcludedVolumeSphere_None', 'Total_Score',
          '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '15.0',
          '-e'])
+
+
+def make_pdbs_from_rmfs(tmpdir):
+    for sample in ('sample_A', 'sample_B'):
+        sdir = os.path.join(tmpdir, 'modeling', 'good_scoring_models', sample)
+        for rmf in os.listdir(sdir):
+            if not rmf.endswith('rmf3'):
+                continue
+            m = IMP.Model()
+            r = RMF.open_rmf_file_read_only(os.path.join(sdir, rmf))
+            mhs = IMP.rmf.create_hierarchies(r, m)
+            m.update()
+            IMP.atom.write_pdb(mhs[0], os.path.join(sdir, rmf[:-4] + 'pdb'))
 
 
 class Tests(unittest.TestCase):
@@ -64,6 +80,20 @@ class Tests(unittest.TestCase):
             os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_A'))
             os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_B'))
             os.rmdir(os.path.join(tmpdir, 'cluster.0'))
+
+    def test_exhaust_pdb(self):
+        """Test the master sampling exhaustiveness script with PDBs"""
+        with utils.temporary_directory() as tmpdir:
+            make_models(tmpdir)
+            make_pdbs_from_rmfs(tmpdir)
+            gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            script = utils.get_script(
+                        TOPDIR, 'Master_Sampling_Exhaustiveness_Analysis.py')
+            subprocess.check_call(
+                [sys.executable, script, '-n', 'test', '-p', gsm_dir,
+                 '-d', os.path.join(TESTDIR, 'input', 'density_ranges.txt'),
+                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-e', 'pdb'],
+                cwd=tmpdir)
 
 
 if __name__ == '__main__':

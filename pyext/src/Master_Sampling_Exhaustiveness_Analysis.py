@@ -80,6 +80,7 @@ get_scores_distributions_KS_Stats(score_A, score_B, 100, args.sysname)
 
 #Step 1: Compute RMSD matrix
 if args.extension == "pdb":
+    ps_names = [] # bead names are not stored in PDB files
     conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
