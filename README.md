@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/salilab/imp-sampcon.svg?branch=master)](https://travis-ci.org/salilab/imp-sampcon)
+
 # imp-sampcon
 
 These scripts implement the sampling exhaustiveness test described in
