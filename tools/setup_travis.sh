@@ -33,6 +33,6 @@ fi
 bash miniconda.sh -b -p ${conda_dir}
 export PATH=${conda_dir}/bin:$PATH
 conda update --yes -q conda
-conda create --yes -q -n python${python_version} -c salilab python=${python_version} scipy matplotlib nose ${IMP_CONDA}
+conda create --yes -q -n python${python_version} -c salilab python=${python_version} scipy matplotlib nose coverage ${IMP_CONDA}
 
 rm -rf ${temp_dir}
