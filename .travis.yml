@@ -1,0 +1,17 @@
+sudo: false
+language: python
+dist: xenial
+python:
+  - 2.7
+  - 3.7
+env:
+  - IMP_BRANCH=develop
+  - IMP_BRANCH=master
+install:
+  - tools/setup_travis.sh $HOME/conda $IMP_BRANCH $TRAVIS_PYTHON_VERSION
+  - source $HOME/conda/bin/activate python$TRAVIS_PYTHON_VERSION
+  - python -V
+script:
+  - nosetests --exe test
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
