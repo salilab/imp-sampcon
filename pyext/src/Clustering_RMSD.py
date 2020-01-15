@@ -39,49 +39,6 @@ def get_cutoffs_list(distmat, gridSize):
     return cutoffs
 
 
-def precision_cluster_test(distmat,numModels,rmsd_cutoff):
-    #STEP 2. Populate the neighbors ofa given model
-    print("The new way")
-    stime = time.time()
-    neighbors=[]
-    for count in range(numModels):
-        neighbors.append([count])  # model is a neighbor of itself
-    inds = numpy.argwhere(distmat <= rmsd_cutoff) # set of i,j indices that pass
-    print("There are",len(inds),"neighbors")
-    for x in inds:
-        i = x[0]
-        j = x[1]
-        if i>j:
-            neighbors[i].append(j)
-            neighbors[j].append(i)
-    print("Done the new way in",time.time()-stime)
-
-    print("Now the old way")
-    stime = time.time()
-    neighbors2=[]
-    for count in range(numModels):
-        neighbors2.append([count])  # model is a neighbor of itself
-
-    for i in range(numModels-1):
-        if i%1000 == 0:
-            print("On model", i, "of", numModels)
-        for j in range(i+1,numModels):
-            if distmat[i][j]<=rmsd_cutoff:
-                neighbors2[i].append(j)
-                neighbors2[j].append(i)
-
-    print("Done the old way in",time.time()-stime)
-
-    print("Now check similarity")
-    for i in range(numModels):
-         if set(neighbors[i]) != set(neighbors2[i]):
-             print("Uh oh!!", i, neighbors[i], neighbors2[i])
-             print("New way dists", [distmat[i][j] for j in neighbors[i]])
-             print("Old way dists", [distmat[i][j] for j in neighbors2[i]])
-             print("Clustering cutoff", rmsd_cutoff)
-             exit()
-    exit()
-
 def precision_cluster(distmat,numModels,rmsd_cutoff):
     #STEP 2. Populate the neighbors ofa given model
     neighbors=[]
