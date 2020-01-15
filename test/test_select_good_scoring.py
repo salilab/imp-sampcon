@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
                  'ExcludedVolumeSphere_None', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
             for score in ('A', 'B'):
-                score_file = os.path.join(mod_dir, 'good_scoring_models',
+                score_file = os.path.join(mod_dir, 'filter',
                                           'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -37,7 +37,6 @@ class Tests(unittest.TestCase):
                 wc = len(fh.readlines())
             self.assertEqual(wc, 97)
             os.unlink(model_ids)
-            os.rmdir(os.path.join(mod_dir, 'good_scoring_models'))
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
     def test_select_good_scoring_models_one_run(self):
@@ -58,7 +57,7 @@ class Tests(unittest.TestCase):
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
             # With only a single run, everything goes into sample A
             for score, exp_wc in (('A', 48), ('B', 0)):
-                score_file = os.path.join(mod_dir, 'good_scoring_models',
+                score_file = os.path.join(mod_dir, 'filter',
                                           'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -69,7 +68,6 @@ class Tests(unittest.TestCase):
                 wc = len(fh.readlines())
             self.assertEqual(wc, 49)
             os.unlink(model_ids)
-            os.rmdir(os.path.join(mod_dir, 'good_scoring_models'))
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
     def test_select_good_scoring_models_extract(self):
