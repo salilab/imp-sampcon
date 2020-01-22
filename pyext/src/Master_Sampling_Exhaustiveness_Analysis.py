@@ -45,6 +45,8 @@ parser.add_argument('--subunit','-su',dest="subunit",help='calculate RMSD/sampli
 parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow superposition of models', default=False, action='store_true')
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="scoresA.txt")
 parser.add_argument('--scoreB', '-sb', dest="scoreB",help='name of the file having the good-scoring scores for sample B', default="scoresB.txt")
+parser.add_argument('--rmfA', '-ra', dest="rmf_A", help='RMF file with conformations from Sample A', default=None)
+parser.add_argument('--rmfB', '-rb', dest="rmf_B",help='RMF file with conformations from Sample B', default=None)
 parser.add_argument('--gridsize', '-g', dest="gridsize", type=float,help='grid size for calculating sampling precision', default=10.0)
 parser.add_argument('--skip','-s',dest="skip_sampling_precision",help="This option will bypass the calculation of sampling precision. This option needs to be used with the clustering threhsold option.Otherwise by default, sampling precision is calculated and the clustering threshold is the calculated sampling precision.",default=False,action='store_true')
 parser.add_argument('--cluster_threshold','-ct',dest="cluster_threshold",type=float,help='final clustering threshold to visualize clusters. Assumes that the user has previously calculated sampling precision and wants clusters defined at a threshold higher than the sampling precision for ease of analysis (lesser number of clusters).',default=30.0)
@@ -84,7 +86,13 @@ if args.extension == "pdb":
     conforms, masses, radii, models_name = get_pdbs_coordinates(args.path, idfile_A, idfile_B)
 else:
     args.extension = "rmf3"
-    ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B, args.subunit)
+    # If we have a single RMF file, read conformations from that
+    if args.rmf_A is not None:
+        ps_names, masses, radii, conforms, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit)
+    # If not, default to the Identities.txt file
+    else:
+        ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B, args.subunit)
+
 print("Size of conformation matrix",conforms.shape)
 
 if not args.skip_sampling_precision:
@@ -107,10 +115,14 @@ distmat = rmsd_matrix.get_data()
 distmat_full = sp.spatial.distance.squareform(distmat)
 print("Size of RMSD matrix (unpacked, N x N):",distmat_full.shape)
 
-
 # Get model lists
-sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
-total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
+if args.rmf_A is not None:
+    sampleA_all_models=range(n_models[0])
+    sampleB_all_models=range(n_models[0],n_models[1]+n_models[0])
+    total_num_models = n_models[1]+n_models[0]
+else:
+    sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
+    total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
 all_models=sampleA_all_models+sampleB_all_models
 print("Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models)
     
@@ -166,6 +178,10 @@ fpc=open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
 for i in range(len(retained_clusters)):
     clus=retained_clusters[i]
 
+    # The cluster centroid is the first conformation.
+    # We use this as to align and compute RMSD/precision
+    conform_0 = conforms[all_models[cluster_members[clus][0]]]
+
     # create a directory for the cluster 
     if not os.path.exists("./cluster.%s" %i):
         os.mkdir("./cluster.%s" %i)
@@ -176,26 +192,28 @@ for i in range(len(retained_clusters)):
         os.mkdir("./cluster.%s" %i)
         os.mkdir("./cluster.%s/Sample_A/" % i)
         os.mkdir("./cluster.%s/Sample_B/" % i)       
-    
+
     # Create densities for all subunits for both sample A and sample B as well as separately.
     gmd1 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
     gmd2 = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
     gmdt = GetModelDensity(custom_ranges=density_custom_ranges,resolution=args.density_threshold, voxel=args.voxel, bead_names=ps_names)
- 
+
     # Also output the identities of cluster members
     both_file=open('cluster.'+str(i)+'.all.txt','w')
     sampleA_file=open('cluster.'+str(i)+'.sample_A.txt','w')
     sampleB_file=open('cluster.'+str(i)+'.sample_B.txt','w')
-    
-    # Obtain cluster precision by obtaining average RMSD of each model to the cluster center
-    cluster_precision = 0.0
-    conform_0 = conforms[all_models[cluster_members[clus][0]]]
 
     # Add the cluster center model RMF to the cluster directory
     cluster_center_index = cluster_members[clus][0]
-    cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
-    
-    shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
+    if args.rmf_A is not None:
+        cluster_center_model_id = cluster_center_index
+        if cluster_center_index < n_models[0]:
+            os.system('rmf_slice -q '+args.rmf_A+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index) )
+        else:
+            os.system('rmf_slice -q '+args.rmf_B+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index-n_models[0]) )
+    else:
+        cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
+        shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
   
     # Create a model with just the cluster_member particles
     model = IMP.Model()
@@ -206,6 +224,9 @@ for i in range(len(retained_clusters)):
         IMP.core.XYZR.setup_particle(p, float(radii[pi]))
         IMP.atom.Mass.setup_particle(p, float(masses[pi]))
         ps.append(p)
+
+    # Obtain cluster precision by obtaining average RMSD of each model to the cluster center
+    cluster_precision = 0.0
 
     # transformation from internal pyRMSD orientation
     trans = None
@@ -235,7 +256,7 @@ for i in range(len(retained_clusters)):
     cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
     print("Cluster precision (average distance to cluster centroid) of cluster ", str(i), " is %.3f" %(cluster_precision), "A", file=fpc)
-            
+
     both_file.close()
     sampleA_file.close()
     sampleB_file.close()
