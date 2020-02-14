@@ -107,30 +107,34 @@ class GetModelDensity(object):
         """ domain can be the name of a single protein or a tuple (start_residue,end_residue,protein_name)
         bead is a string of type moleculeName_startResidue_endResidue
         """
-       
-        if type(domain)==tuple:
-            bead_protein, bead_res_start,bead_res_end,bead_copy = bead_name.split("_")
-            bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
-            # A period indicates that we have a copy number
-            if "." in domain[2]:
-                domain_protein = domain[2].split(".")[0]
-                domain_copy = int(domain[2].split(".")[1])
-            else:
-                domain_protein = domain[2]
-                bead_copy = -1
-                domain_copy = -1
 
-            domain_residues = set(range(int(domain[0]),int(domain[1])+1))
-            
-            if (bead_protein == domain_protein and int(bead_copy) == domain_copy) and not domain_residues.isdisjoint(bead_residues):
-                return True
-            
+        (bead_protein, bead_res_start,
+         bead_res_end, bead_copy) = bead_name.split("_")
+
+        # protein name and copy number check
+        if isinstance(domain, tuple):
+            domain_protein = domain[2]
         else:
-            if domain in bead_name:
-                return True
-        
-        return False
-                
+            domain_protein = domain
+        # A period indicates that we have a copy number
+        if "." in domain_protein:
+            spl = domain_protein.split(".")
+            domain_protein = spl[0]
+            domain_copy = int(spl[1])
+        else:
+            domain_copy = bead_copy = -1
+
+        if bead_protein != domain_protein or int(bead_copy) != domain_copy:
+            return False
+
+        # residue range check
+        if isinstance(domain, tuple):
+            bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
+            domain_residues = set(range(int(domain[0]),int(domain[1])+1))
+            return domain_residues.isdisjoint(bead_residues)
+        else:
+            return True
+
     def add_subunits_density(self, ps):
         """Add a frame to the densities.
         @param ps List of particles decorated with XYZR and Mass.
