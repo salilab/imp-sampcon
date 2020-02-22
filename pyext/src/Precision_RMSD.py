@@ -39,7 +39,10 @@ def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, p
 
     return rmsd, ps, trans
 
-def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, align, ps, trans, symm_groups): 
+def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, align, ps, trans, symm_groups):
+
+    '''Modified superposed function to work with symmetric copies'''
+
     def _to_vector3ds(numpy_array):
         # No need to fit the whole array - we only need 4 non-coplanar points,
         # so 100 should be plenty
@@ -196,7 +199,7 @@ class GetModelDensity(object):
             for particle_index in self.particle_indices_in_custom_ranges[density_name]:
                 particles_custom_ranges[density_name].append(ps[particle_index])
                                     
-        #finally, add each custom particle list to the density
+        # finally, add each custom particle list to the density
         for density_name in self.custom_ranges:
             self._create_density_from_particles(particles_custom_ranges[density_name],density_name)
      
