@@ -39,6 +39,52 @@ def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, p
 
     return rmsd, ps, trans
 
+def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, align, ps, trans, symm_groups): 
+    def _to_vector3ds(numpy_array):
+        # No need to fit the whole array - we only need 4 non-coplanar points,
+        # so 100 should be plenty
+        return [IMP.algebra.Vector3D(c) for c in numpy_array[:100]]
+ 
+    min_rmsd = 10000.0
+    
+    superposed_final_coords=[]
+   
+    for perm in pyRMSD.symmTools.symm_permutations(symm_groups): # for each permutation 
+        
+        new_cluster_conform_i = cluster_conform_i
+        
+        for sg in perm: # for each symmetric group in perm
+            
+            for [particle0, particle1] in sg: # swap the particles if they are in non-standard order in this permutation
+                
+                if particle0 > particle1:
+                   
+                    pyRMSD.symmTools.swap_atoms(new_cluster_conform_i, particle0, particle1) 
+        
+        if align:
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, new_cluster_conform_i]))
+        else:
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, new_cluster_conform_i]))
+
+        rmsd, superposed_fit = calculator.pairwise(0, 1, get_superposed_coordinates = True)
+
+        if rmsd < min_rmsd:
+            min_rmsd = rmsd
+            superposed_final_coords = superposed_fit
+
+        # Get transformation from pyRMSD reference on the first call.
+        # This is somewhat inefficient (since we are essentially repeating
+        # the pyRMSD calculation) but pyRMSD doesn't appear to make its
+        # reference orientation available.
+        if trans is None:
+            trans = IMP.algebra.get_transformation_aligning_first_to_second(_to_vector3ds(superposed_final_coords[0]), _to_vector3ds(cluster_conform_0))
+
+        for particle_index in range(len(superposed_final_coords[1])):
+        # Transform from pyRMSD back to original reference
+            IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_final_coords[1][particle_index]))
+
+    return min_rmsd, ps, trans
+
 class GetModelDensity(object):
     """Compute mean density maps from structures.
     Keeps a dictionary of density maps,
