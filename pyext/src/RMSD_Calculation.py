@@ -101,12 +101,12 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
                         
-                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+copy_number)
+                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
                             
                     else:
                         residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
                         
-                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+copy_number)
+                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
             
             conform.append(pts)
             pts = []
@@ -191,10 +191,10 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name):
                     copy_number=IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
-                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+copy_number)
+                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
                     else:
                         residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
-                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+copy_number)
+                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
             mod_id+=1
 
     return ps_names, masses, radii, conform, models_name, n_models
