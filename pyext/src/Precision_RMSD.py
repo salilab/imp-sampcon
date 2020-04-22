@@ -131,7 +131,7 @@ class GetModelDensity(object):
         if isinstance(domain, tuple):
             bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
             domain_residues = set(range(int(domain[0]),int(domain[1])+1))
-            return domain_residues.isdisjoint(bead_residues)
+            return not domain_residues.isdisjoint(bead_residues)
         else:
             return True
 
