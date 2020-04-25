@@ -110,11 +110,18 @@ class Tests(unittest.TestCase):
                 if hasattr(RMF.NodeHandle, 'replace_child'):
                     r = RMF.open_rmf_file_read_only(rmf)
                     cpf = RMF.CombineProvenanceConstFactory(r)
+                    fpf = RMF.FilterProvenanceConstFactory(r)
                     rn = r.get_root_node().get_children()[0]
                     # Should be one Provenance node
                     prov, = [n for n in rn.get_children()
                              if n.get_type() == RMF.PROVENANCE]
-                    # Top-level provenance should be CombineProvenance
+                    # Top-level provenance should be FilterProvenance
+                    self.assertTrue(fpf.get_is(prov))
+                    fp = fpf.get(prov)
+                    self.assertEqual(fp.get_method(), "Best scoring")
+                    self.assertEqual(fp.get_frames(), 9)
+                    # Next provenance should be CombineProvenance
+                    prov, = prov.get_children()
                     self.assertTrue(cpf.get_is(prov))
                     cp = cpf.get(prov)
                     self.assertEqual(cp.get_runs(), 2)

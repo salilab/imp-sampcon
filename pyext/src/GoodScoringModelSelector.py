@@ -13,10 +13,12 @@ import glob
 
 # If we have new enough IMP/RMF, do our own RMF slicing with provenance
 if hasattr(RMF.NodeHandle, 'replace_child'):
-    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames):
+    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames,
+                  num_good_scoring):
         inr = RMF.open_rmf_file_read_only(infile)
         outr = RMF.create_rmf_file(outfile)
         cpf = RMF.CombineProvenanceFactory(outr)
+        fpf = RMF.FilterProvenanceFactory(outr)
         RMF.clone_file_info(inr, outr)
         RMF.clone_hierarchy(inr, outr)
         RMF.clone_static_frame(inr, outr)
@@ -37,10 +39,16 @@ if hasattr(RMF.NodeHandle, 'replace_child'):
         cp = cpf.get(newp)
         cp.set_frames(total_num_frames)
         cp.set_runs(num_runs)
+        # Add filter-provenance info
+        newp = rn.replace_child(newp, "filter", RMF.PROVENANCE)
+        fp = fpf.get(newp)
+        fp.set_frames(num_good_scoring)
+        fp.set_method("Best scoring")
 
 # Otherwise, fall back to the rmf_slice command line tool
 else:
-    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames):
+    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames,
+                  num_good_scoring):
         FNULL = open(os.devnull, 'w')
         subprocess.call(['rmf_slice', infile, "-f", str(frameid), outfile],
                         stdout=FNULL, stderr=subprocess.STDOUT)
@@ -150,7 +158,8 @@ class GoodScoringModelSelector(object):
 
             rmf_slice(trajfile, frameid,
                       os.path.join(output_dir,str(i)+'.rmf3'),
-                      num_runs, total_num_frames)
+                      num_runs, total_num_frames,
+                      len(self.all_good_scoring_models))
             
 
     def get_good_scoring_models(self,selection_keywords_list=[],printing_keywords_list=[],aggregate_lower_thresholds=[],
