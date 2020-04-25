@@ -2,12 +2,49 @@ from __future__ import print_function, division
 import IMP
 import IMP.atom
 import IMP.rmf
+import RMF
 import subprocess
 from subprocess import Popen
 import os,sys,string,math
 import shutil
 import random
 import glob
+
+
+# If we have new enough IMP/RMF, do our own RMF slicing with provenance
+if hasattr(RMF.NodeHandle, 'replace_child'):
+    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames):
+        inr = RMF.open_rmf_file_read_only(infile)
+        outr = RMF.create_rmf_file(outfile)
+        cpf = RMF.CombineProvenanceFactory(outr)
+        RMF.clone_file_info(inr, outr)
+        RMF.clone_hierarchy(inr, outr)
+        RMF.clone_static_frame(inr, outr)
+        inr.set_current_frame(RMF.FrameID(frameid))
+        outr.add_frame("f0")
+        RMF.clone_loaded_frame(inr, outr)
+        rn = outr.get_root_node()
+        children = rn.get_children()
+        if len(children) == 0:
+            return
+        rn = children[0]  # Should be the top-level IMP node
+        prov = [c for c in rn.get_children() if c.get_type() == RMF.PROVENANCE]
+        if not prov:
+            return
+        prov = prov[0]
+        # Add combine-provenance info
+        newp = rn.replace_child(prov, "combine", RMF.PROVENANCE)
+        cp = cpf.get(newp)
+        cp.set_frames(total_num_frames)
+        cp.set_runs(num_runs)
+
+# Otherwise, fall back to the rmf_slice command line tool
+else:
+    def rmf_slice(infile, frameid, outfile, num_runs, total_num_frames):
+        FNULL = open(os.devnull, 'w')
+        subprocess.call(['rmf_slice', infile, "-f", str(frameid), outfile],
+                        stdout=FNULL, stderr=subprocess.STDOUT)
+
 
 class GoodScoringModelSelector(object):
     # Authors: Shruthi Viswanath
@@ -89,10 +126,10 @@ class GoodScoringModelSelector(object):
             return True
         return False
 
-    def _extract_models_from_trajectories(self,output_dir): 
-        ''' Given the list of all good-scoring model indices, extract their frames and store them ordered by the list index.
-        '''
-        FNULL = open(os.devnull, 'w')
+    def _extract_models_from_trajectories(self, output_dir, num_runs,
+                                          total_num_frames):
+        '''Given the list of all good-scoring model indices, extract
+           their frames and store them ordered by the list index.'''
         num_gsm = sum(1 for e in self.all_good_scoring_models)
         print("Extracting",num_gsm,"good scoring models.")
         model_num=1
@@ -107,13 +144,13 @@ class GoodScoringModelSelector(object):
             trajfile=os.path.join(self.run_dir,self.run_prefix+runid,'output','rmfs',replicaid+'.rmf3')
 
             #slice_location=os.path.join(os.environ['IMP_BIN_DIR'],'rmf_slice')
-            slice_location='rmf_slice'
             
             #rmf_slice=Popen([slice_location,trajfile,"-f",str(frameid),os.path.join(output_dir,str(i)+'.rmf3')])
             #out,err=rmf_slice.communicate()
-            
-            rmf_slice = subprocess.call([slice_location,trajfile,"-f",str(frameid),os.path.join(output_dir,str(i)+'.rmf3')], stdout=FNULL, stderr=subprocess.STDOUT)
-            
+
+            rmf_slice(trajfile, frameid,
+                      os.path.join(output_dir,str(i)+'.rmf3'),
+                      num_runs, total_num_frames)
             
 
     def get_good_scoring_models(self,selection_keywords_list=[],printing_keywords_list=[],aggregate_lower_thresholds=[],
@@ -141,6 +178,7 @@ class GoodScoringModelSelector(object):
               file=outf)
      
         num_runs = 0 
+        total_num_frames = 0
 
         for each_run_dir in sorted(glob.glob(os.path.join(self.run_dir,self.run_prefix+"*")),key=lambda x:int(x.split(self.run_prefix)[1])):  
          
@@ -167,6 +205,7 @@ class GoodScoringModelSelector(object):
 
                         dat=eval(each_model_line.strip())
                         
+                        total_num_frames += 1
                         model_satisfies=False
                         selection_criteria_values=[]
                                                 
@@ -218,7 +257,8 @@ class GoodScoringModelSelector(object):
                     rsf.close()
 
         if extract:
-            self._extract_models_from_trajectories(output_dir) 
+            self._extract_models_from_trajectories(output_dir,
+                    num_runs, total_num_frames)
         
             return self._split_good_scoring_models_into_two_subsets(output_dir,num_runs,
                     split_type="divide_by_run_ids" if num_runs > 1 else "random")

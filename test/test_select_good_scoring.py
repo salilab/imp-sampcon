@@ -4,6 +4,7 @@ import sys
 import os
 import shutil
 import utils
+import RMF
 
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
@@ -104,8 +105,21 @@ class Tests(unittest.TestCase):
             self.assertEqual(len(lines), 9)
             for line in lines:
                 num, sample = line.rstrip('\r\n').split()
-                os.unlink(os.path.join(gsm_dir, 'sample_%s' % sample,
-                                       '%s.rmf3' % num))
+                rmf = os.path.join(gsm_dir, 'sample_%s' % sample,
+                                   '%s.rmf3' % num)
+                if hasattr(RMF.NodeHandle, 'replace_child'):
+                    r = RMF.open_rmf_file_read_only(rmf)
+                    cpf = RMF.CombineProvenanceConstFactory(r)
+                    rn = r.get_root_node().get_children()[0]
+                    # Should be one Provenance node
+                    prov, = [n for n in rn.get_children()
+                             if n.get_type() == RMF.PROVENANCE]
+                    # Top-level provenance should be CombineProvenance
+                    self.assertTrue(cpf.get_is(prov))
+                    cp = cpf.get(prov)
+                    self.assertEqual(cp.get_runs(), 2)
+                    self.assertEqual(cp.get_frames(), 100)
+                os.unlink(rmf)
             os.unlink(model_ids)
             os.rmdir(os.path.join(gsm_dir, 'sample_A'))
             os.rmdir(os.path.join(gsm_dir, 'sample_B'))
