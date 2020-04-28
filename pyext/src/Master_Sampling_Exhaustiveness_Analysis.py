@@ -9,6 +9,7 @@ import scipy as sp
 from scipy import spatial
 import scipy.stats
 
+import IMP.sampcon
 from .Scores_Convergence import *
 from .Clustering_RMSD import *
 from .RMSD_Calculation import *
@@ -273,8 +274,7 @@ if args.gnuplot:
     import glob
     
     thisdir = os.path.dirname(__file__)
-    gnuplotdir = os.path.join(thisdir, "..", "..", "utilities",
-                              "gnuplot_scripts")
+    gnuplotdir = IMP.sampcon.get_data_path("gnuplot_scripts")
     for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
         cmd = ['gnuplot', '-e', 'sysname="%s"' % args.sysname, filename]
         print(" ".join(cmd))
