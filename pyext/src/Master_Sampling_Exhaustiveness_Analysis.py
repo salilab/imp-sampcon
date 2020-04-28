@@ -9,10 +9,10 @@ import scipy as sp
 from scipy import spatial
 import scipy.stats
 
-from Scores_Convergence import *
-from Clustering_RMSD import *
-from RMSD_Calculation import *
-from Precision_RMSD import *
+from .Scores_Convergence import *
+from .Clustering_RMSD import *
+from .RMSD_Calculation import *
+from .Precision_RMSD import *
 
 import IMP
 import IMP.rmf

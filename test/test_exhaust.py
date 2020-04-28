@@ -6,29 +6,7 @@ import shutil
 import IMP.atom
 import IMP.rmf
 import RMF
-import utils
-
-
-TESTDIR = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-
-def make_models(tmpdir):
-    """Get a set of good-scoring models to use as input"""
-    script = utils.get_script(TOPDIR, 'select_good_scoring_models.py')
-
-    mod_dir = os.path.join(tmpdir, 'modeling')
-    shutil.copytree(os.path.join(TESTDIR, 'modeling'), mod_dir)
-
-    subprocess.check_call(
-        [sys.executable, script,
-         '-rd', mod_dir, '-rp', 'run',
-         '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-         '-pl', 'ConnectivityRestraint_Rpb1',
-         'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-         'ExcludedVolumeSphere_None', 'Total_Score',
-         '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '15.0',
-         '-e'])
+import IMP.test
 
 
 def make_pdbs_from_rmfs(tmpdir):
@@ -44,17 +22,31 @@ def make_pdbs_from_rmfs(tmpdir):
             IMP.atom.write_pdb(mhs[0], os.path.join(sdir, rmf[:-4] + 'pdb'))
 
 
-class Tests(unittest.TestCase):
+class Tests(IMP.test.TestCase):
+    def make_models(self, tmpdir):
+        """Get a set of good-scoring models to use as input"""
+        mod_dir = os.path.join(tmpdir, 'modeling')
+        shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
+
+        subprocess.check_call(
+            [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
+             '-rd', mod_dir, '-rp', 'run',
+             '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
+             '-pl', 'ConnectivityRestraint_Rpb1',
+             'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
+             'ExcludedVolumeSphere_None', 'Total_Score',
+             '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '15.0',
+             '-e'])
+
     def test_exhaust(self):
         """Test the master sampling exhaustiveness script"""
-        with utils.temporary_directory() as tmpdir:
-            make_models(tmpdir)
+        with IMP.test.temporary_directory() as tmpdir:
+            self.make_models(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            script = utils.get_script(
-                        TOPDIR, 'Master_Sampling_Exhaustiveness_Analysis.py')
+            script = 'IMP.sampcon.Master_Sampling_Exhaustiveness_Analysis'
             subprocess.check_call(
-                [sys.executable, script, '-n', 'test', '-p', gsm_dir,
-                 '-d', os.path.join(TESTDIR, 'input', 'density_ranges.txt'),
+                [sys.executable, '-m', script, '-n', 'test', '-p', gsm_dir,
+                 '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'],
                 cwd=tmpdir)
 
@@ -83,18 +75,17 @@ class Tests(unittest.TestCase):
 
     def test_exhaust_pdb(self):
         """Test the master sampling exhaustiveness script with PDBs"""
-        with utils.temporary_directory() as tmpdir:
-            make_models(tmpdir)
+        with IMP.test.temporary_directory() as tmpdir:
+            self.make_models(tmpdir)
             make_pdbs_from_rmfs(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            script = utils.get_script(
-                        TOPDIR, 'Master_Sampling_Exhaustiveness_Analysis.py')
+            script = 'IMP.sampcon.Master_Sampling_Exhaustiveness_Analysis'
             subprocess.check_call(
-                [sys.executable, script, '-n', 'test', '-p', gsm_dir,
-                 '-d', os.path.join(TESTDIR, 'input', 'density_ranges.txt'),
+                [sys.executable, '-m', script, '-n', 'test', '-p', gsm_dir,
+                 '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-e', 'pdb'],
                 cwd=tmpdir)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    IMP.test.main()

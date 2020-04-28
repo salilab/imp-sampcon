@@ -3,23 +3,18 @@ import subprocess
 import sys
 import os
 import shutil
-import utils
 import RMF
+import IMP.test
 
 
-TESTDIR = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-
-class Tests(unittest.TestCase):
+class Tests(IMP.test.TestCase):
     def test_select_good_scoring_models(self):
         """Test select_good_scoring_models.py"""
-        script = utils.get_script(TOPDIR, 'select_good_scoring_models.py')
-        with utils.temporary_directory() as tmpdir:
+        with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
-            shutil.copytree(os.path.join(TESTDIR, 'modeling'), mod_dir)
+            shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             subprocess.check_call(
-                [sys.executable, script,
+                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
                  '-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -42,14 +37,13 @@ class Tests(unittest.TestCase):
 
     def test_select_good_scoring_models_one_run(self):
         """Test select_good_scoring_models.py with only one run"""
-        script = utils.get_script(TOPDIR, 'select_good_scoring_models.py')
-        with utils.temporary_directory() as tmpdir:
+        with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
-            shutil.copytree(os.path.join(TESTDIR, 'modeling'), mod_dir)
+            shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
             subprocess.check_call(
-                [sys.executable, script,
+                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
                  '-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -73,12 +67,11 @@ class Tests(unittest.TestCase):
 
     def test_select_good_scoring_models_extract(self):
         """Test select_good_scoring_models.py with extract"""
-        script = utils.get_script(TOPDIR, 'select_good_scoring_models.py')
-        with utils.temporary_directory() as tmpdir:
+        with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
-            shutil.copytree(os.path.join(TESTDIR, 'modeling'), mod_dir)
+            shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             subprocess.check_call(
-                [sys.executable, script,
+                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
                  '-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -135,14 +128,13 @@ class Tests(unittest.TestCase):
 
     def test_select_good_scoring_models_extract_one_run(self):
         """Test select_good_scoring_models.py with extract, one run"""
-        script = utils.get_script(TOPDIR, 'select_good_scoring_models.py')
-        with utils.temporary_directory() as tmpdir:
+        with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
-            shutil.copytree(os.path.join(TESTDIR, 'modeling'), mod_dir)
+            shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
             subprocess.check_call(
-                [sys.executable, script,
+                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
                  '-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -179,4 +171,4 @@ class Tests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    IMP.test.main()

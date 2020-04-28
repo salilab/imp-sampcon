@@ -44,6 +44,8 @@ if hasattr(RMF.NodeHandle, 'replace_child'):
         fp = fpf.get(newp)
         fp.set_frames(num_good_scoring)
         fp.set_method("Best scoring")
+        # todo: put in a more appropriate value
+        fp.set_threshold(0.)
 
 # Otherwise, fall back to the rmf_slice command line tool
 else:

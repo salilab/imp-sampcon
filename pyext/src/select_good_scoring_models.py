@@ -1,6 +1,6 @@
 from __future__ import print_function
 import IMP
-import GoodScoringModelSelector
+from . import GoodScoringModelSelector
 import os,sys,string,math
 import argparse
 
