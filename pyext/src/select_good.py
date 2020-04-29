@@ -1,12 +1,14 @@
+#!/usr/bin/env python
 from __future__ import print_function
 import IMP
-from . import GoodScoringModelSelector
-import os,sys,string,math
-import argparse
+import os
+from IMP import ArgumentParser
+
+
+__doc__ = "List/extract good-scoring models from a set of sampling runs."""
 
 def parse_args():
-    
-    parser = argparse.ArgumentParser(description="List and extract good-scoring models from a set of sampling runs. Example of usage: select_good_scoring_models.py -rd <run_directory_for_sampling> -rp <run_prefix> -sl ExcludedVolumeSphere_None GaussianEMRestraint_None -pl CrossLinkingMassSpectrometryDataScore|XLDSS CrossLinkingMassSpectrometryDataScore|XLEDC -agl -9999999.0 -99999.0 -aul 99999999.0 999999.0 -mlt 0 0 -mut 0 0. Flag -h for more details.")
+    parser = ArgumentParser(description="List and extract good-scoring models from a set of sampling runs. Example of usage: select_good_scoring_models.py -rd <run_directory_for_sampling> -rp <run_prefix> -sl ExcludedVolumeSphere_None GaussianEMRestraint_None -pl CrossLinkingMassSpectrometryDataScore|XLDSS CrossLinkingMassSpectrometryDataScore|XLEDC -agl -9999999.0 -99999.0 -aul 99999999.0 999999.0 -mlt 0 0 -mut 0 0. Flag -h for more details.")
     
     parser.add_argument("-rd","--run_directory",dest="run_dir",help="directory in which sampling results are stored") 
     
@@ -28,11 +30,12 @@ def parse_args():
     return result
     
 def select_good_scoring_models():
+    from IMP.sampcon.GoodScoringModelSelector import GoodScoringModelSelector
      
     # process input
     arg=parse_args()
     
-    gsms=GoodScoringModelSelector.GoodScoringModelSelector(arg.run_dir,arg.run_prefix)
+    gsms=GoodScoringModelSelector(arg.run_dir,arg.run_prefix)
                
     subsets = gsms.get_good_scoring_models(selection_keywords_list=arg.selection_keywords_list,printing_keywords_list=arg.printing_keywords_list,
     aggregate_lower_thresholds=arg.aggregate_lower_thresholds,aggregate_upper_thresholds=arg.aggregate_upper_thresholds,
@@ -73,16 +76,19 @@ def create_score_files(subsets, field="Total_Score"):
                 else:
                     print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
                     exit()
+    model_file.close()
     scoreA.close()
     scoreB.close()
-    
 
-    
- 
-if __name__ == "__main__" :
+
+def main():
     subsets = select_good_scoring_models()
 
     # Create Score Files
     create_score_files(subsets)
 
     print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")
+
+
+if __name__ == "__main__":
+    main()

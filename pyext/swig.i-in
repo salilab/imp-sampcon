@@ -3,4 +3,7 @@
 #include "RMF.h"
 %}
 
-/* No C++ code, so nothing to wrap */
+/* All scripts that can be called from the imp_sampcon application */
+%pythoncode %{
+_all_commands = ["select_good"]
+%}

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+  
+import IMP
+
+
+def main():
+    c = IMP.CommandDispatcher(short_help='Sampling convergence.',
+                              long_help='Determine convergence of sampling.',
+                              module_name="IMP.sampcon")
+    c.main()
+
+if __name__ == '__main__':
+    main()

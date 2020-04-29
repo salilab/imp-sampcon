@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.org/salilab/imp-sampcon.svg?branch=master)](https://travis-ci.org/salilab/imp-sampcon)
 [![codecov](https://codecov.io/gh/salilab/imp-sampcon/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/imp-sampcon)
 
-# imp-sampcon
+imp_sampcon: sampling exhaustiveness test {#imp_sampcon}
+=========================================
 
 These scripts implement the sampling exhaustiveness test described in
 [Viswanath et al, 2017](https://www.ncbi.nlm.nih.gov/pubmed/29211988).

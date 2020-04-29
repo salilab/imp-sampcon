@@ -5,17 +5,21 @@ import os
 import shutil
 import RMF
 import IMP.test
+from IMP.sampcon import select_good
 
 
 class Tests(IMP.test.TestCase):
+    def test_select_good_help(self):
+        """Test select_good module help"""
+        self.check_runnable_python_module("IMP.sampcon.select_good")
+
     def test_select_good_scoring_models(self):
-        """Test select_good_scoring_models.py"""
+        """Test select_good"""
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
-                 '-rd', mod_dir, '-rp', 'run',
+            self.run_python_module(select_good,
+                ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
@@ -36,15 +40,14 @@ class Tests(IMP.test.TestCase):
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
     def test_select_good_scoring_models_one_run(self):
-        """Test select_good_scoring_models.py with only one run"""
+        """Test select_good with only one run"""
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
-                 '-rd', mod_dir, '-rp', 'run',
+            self.run_python_module(select_good,
+                ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
@@ -66,13 +69,12 @@ class Tests(IMP.test.TestCase):
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
     def test_select_good_scoring_models_extract(self):
-        """Test select_good_scoring_models.py with extract"""
+        """Test select_good with extract"""
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
-                 '-rd', mod_dir, '-rp', 'run',
+            self.run_python_module(select_good,
+                ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
@@ -127,15 +129,14 @@ class Tests(IMP.test.TestCase):
             os.rmdir(gsm_dir)
 
     def test_select_good_scoring_models_extract_one_run(self):
-        """Test select_good_scoring_models.py with extract, one run"""
+        """Test select_good with extract, one run"""
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.select_good_scoring_models',
-                 '-rd', mod_dir, '-rp', 'run',
+            self.run_python_module(select_good,
+                ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
