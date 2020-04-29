@@ -3,20 +3,20 @@ import subprocess
 import sys
 import os
 import IMP.test
+from IMP.sampcon import plot_score
 
 
 class Tests(IMP.test.TestCase):
+    def test_plot_score_help(self):
+        """Test plot_score module help"""
+        self.check_runnable_python_module("IMP.sampcon.plot_score")
+
     def test_plot_score_one(self):
         """Test plot_score.py with one score"""
-        with IMP.test.temporary_directory() as tmpdir:
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.plot_score',
-                 self.get_input_file_name('model_ids_scores.txt'),
-                 'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen'],
-                cwd=tmpdir)
-            os.unlink(os.path.join(
-                tmpdir,
-                'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png'))
+        self.run_python_module(plot_score,
+            [self.get_input_file_name('model_ids_scores.txt'),
+             'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen'])
+        os.unlink('CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png')
 
     def test_plot_score_all(self):
         """Test plot_score.py with all scores"""
@@ -26,27 +26,15 @@ class Tests(IMP.test.TestCase):
             'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen.png',
             'Total_Score.png',
             'ExcludedVolumeSphere_None.png']
-        with IMP.test.temporary_directory() as tmpdir:
-            subprocess.check_call(
-                [sys.executable, '-m', 'IMP.sampcon.plot_score',
-                 self.get_input_file_name('model_ids_scores.txt'), 'all'],
-                cwd=tmpdir)
-            for e in expected:
-                os.unlink(os.path.join(tmpdir, e))
+        self.run_python_module(plot_score,
+            [self.get_input_file_name('model_ids_scores.txt'), 'all'])
+        for e in expected:
+            os.unlink(e)
 
     def test_plot_score_bad(self):
         """Test plot_score.py with bad score"""
-        out = subprocess.check_output(
-            [sys.executable, '-m', 'IMP.sampcon.plot_score',
-             self.get_input_file_name('model_ids_scores.txt'), 'garbage'],
-             universal_newlines=True)
-        self.assertEqual(out.rstrip('\r\n'),
-            "garbage is not a valid score parameter. Use 'all' or one of: "
-            "Model_index, Run_id, Replica_id, Frame_id, "
-            "CrossLinkingMassSpectrometryRestraint_Distance_, "
-            "ConnectivityRestraint_Rpb1, "
-            "CrossLinkingMassSpectrometryRestraint_Data_Score_Chen, "
-            "ExcludedVolumeSphere_None, Total_Score")
+        self.assertRaises(KeyError, self.run_python_module, plot_score,
+            [self.get_input_file_name('model_ids_scores.txt'), 'garbage'])
 
 
 if __name__ == '__main__':
