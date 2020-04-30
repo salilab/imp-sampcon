@@ -44,6 +44,10 @@ class Tests(IMP.test.TestCase):
 
     def test_exhaust(self):
         """Test the master sampling exhaustiveness script"""
+        try:
+            import pyRMSD
+        except ImportError:
+            self.skipTest("this test requires the pyRMSD Python module")
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
@@ -77,6 +81,10 @@ class Tests(IMP.test.TestCase):
 
     def test_exhaust_pdb(self):
         """Test the master sampling exhaustiveness script with PDBs"""
+        try:
+            import pyRMSD
+        except ImportError:
+            self.skipTest("this test requires the pyRMSD Python module")
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             make_pdbs_from_rmfs(tmpdir)
