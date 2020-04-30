@@ -33,12 +33,13 @@ def plot_column(plt, scores, column, show):
 
 
 def main():
+    args = parse_args()
+
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import pandas
 
-    args = parse_args()
     scores = pandas.read_csv(args.score_file, sep=' ')
 
     if args.column == "all":
