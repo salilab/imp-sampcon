@@ -30,7 +30,7 @@ def parse_args():
     return result
     
 def select_good_scoring_models():
-    from IMP.sampcon.GoodScoringModelSelector import GoodScoringModelSelector
+    from IMP.sampcon.good_scoring_model_selector import GoodScoringModelSelector
      
     # process input
     arg=parse_args()

@@ -82,8 +82,8 @@ def main():
     from scipy import spatial
 
     import IMP.sampcon
-    from IMP.sampcon import Scores_Convergence, Clustering_RMSD
-    from IMP.sampcon import RMSD_Calculation, Precision_RMSD
+    from IMP.sampcon import scores_convergence, clustering_rmsd
+    from IMP.sampcon import rmsd_calculation, precision_rmsd
 
     import IMP
 
@@ -105,29 +105,29 @@ def main():
     scores = score_A + score_B
 
     # Get the convergence of the best score
-    Scores_Convergence.get_top_scorings_statistics(scores, 0, args.sysname)
+    scores_convergence.get_top_scorings_statistics(scores, 0, args.sysname)
 
     # Check if the two score distributions are similar
-    Scores_Convergence.get_scores_distributions_KS_Stats(
+    scores_convergence.get_scores_distributions_KS_Stats(
             score_A, score_B, 100, args.sysname)
 
     #Step 1: Compute RMSD matrix
     if args.extension == "pdb":
         ps_names = [] # bead names are not stored in PDB files
         conforms, masses, radii, models_name = \
-            RMSD_Calculation.get_pdbs_coordinates(
+            rmsd_calculation.get_pdbs_coordinates(
                 args.path, idfile_A, idfile_B)
     else:
         args.extension = "rmf3"
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, models_name, n_models) = \
-                 RMSD_Calculation.get_rmfs_coordinates_one_rmf(
+                 rmsd_calculation.get_rmfs_coordinates_one_rmf(
                      args.path, args.rmf_A, args.rmf_B, args.subunit)
         # If not, default to the Identities.txt file
         else:
             (ps_names, masses, radii, conforms,
-             models_name) = RMSD_Calculation.get_rmfs_coordinates(
+             models_name) = rmsd_calculation.get_rmfs_coordinates(
                      args.path, idfile_A, idfile_B, args.subunit)
 
     print("Size of conformation matrix", conforms.shape)
@@ -136,7 +136,7 @@ def main():
         # get_rmsds_matrix modifies conforms, so save it to a file and restore
         # afterwards (so that we retain the original IMP orientation)
         numpy.save("conforms", conforms)
-        inner_data = RMSD_Calculation.get_rmsds_matrix(
+        inner_data = rmsd_calculation.get_rmsds_matrix(
                 conforms, args.mode, args.align, args.cores)
         print("Size of RMSD matrix (flattened):", inner_data.shape)
         del conforms
@@ -161,7 +161,7 @@ def main():
         total_num_models = n_models[1] + n_models[0]
     else:
         (sampleA_all_models,
-         sampleB_all_models) = Clustering_RMSD.get_sample_identity(
+         sampleB_all_models) = clustering_rmsd.get_sample_identity(
                 idfile_A, idfile_B)
         total_num_models = len(sampleA_all_models) + len(sampleB_all_models)
     all_models =  sampleA_all_models + sampleB_all_models
@@ -178,18 +178,18 @@ def main():
         gridSize = args.gridsize
 
         # Get cutoffs for clustering
-        cutoffs_list = Clustering_RMSD.get_cutoffs_list(distmat, gridSize)
+        cutoffs_list = clustering_rmsd.get_cutoffs_list(distmat, gridSize)
         print("Clustering at thresholds:", cutoffs_list)
 
         # Do clustering at each cutoff
-        pvals, cvs, percents = Clustering_RMSD.get_clusters(
+        pvals, cvs, percents = clustering_rmsd.get_clusters(
                 cutoffs_list, distmat_full, all_models, total_num_models,
                 sampleA_all_models, sampleB_all_models, args.sysname)
 
         # Now apply the rule for selecting the right precision based
         # on population of contingency table, pvalue and cramersv
         (sampling_precision, pval_converged, cramersv_converged,
-         percent_converged) = Clustering_RMSD.get_sampling_precision(
+         percent_converged) = clustering_rmsd.get_sampling_precision(
                  cutoffs_list, pvals, cvs, percents)
             
         # Output test statistics 
@@ -219,10 +219,10 @@ def main():
         
     # Perform final clustering at the required precision 
     print("Clustering at threshold %.3f" % final_clustering_threshold)
-    (cluster_centers, cluster_members) = Clustering_RMSD.precision_cluster(
+    (cluster_centers, cluster_members) = clustering_rmsd.precision_cluster(
             distmat_full, total_num_models, final_clustering_threshold)
 
-    (ctable, retained_clusters) = Clustering_RMSD.get_contingency_table(
+    (ctable, retained_clusters) = clustering_rmsd.get_contingency_table(
             len(cluster_centers), cluster_members, all_models,
             sampleA_all_models, sampleB_all_models)
     print("Contingency table:", ctable)
@@ -232,7 +232,7 @@ def main():
             print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
 
     # Obtain the subunits for which we need to calculate densities
-    density_custom_ranges = Precision_RMSD.parse_custom_ranges(args.density)
+    density_custom_ranges = precision_rmsd.parse_custom_ranges(args.density)
 
     # Output cluster precisions
     fpc = open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
@@ -259,15 +259,15 @@ def main():
 
         # Create densities for all subunits for both sample A and sample B
         # as well as separately.
-        gmd1 = Precision_RMSD.GetModelDensity(
+        gmd1 = precision_rmsd.GetModelDensity(
                 custom_ranges=density_custom_ranges,
                 resolution=args.density_threshold, voxel=args.voxel,
                 bead_names=ps_names)
-        gmd2 = Precision_RMSD.GetModelDensity(
+        gmd2 = precision_rmsd.GetModelDensity(
                 custom_ranges=density_custom_ranges,
                 resolution=args.density_threshold, voxel=args.voxel,
                 bead_names=ps_names)
-        gmdt = Precision_RMSD.GetModelDensity(
+        gmdt = precision_rmsd.GetModelDensity(
                 custom_ranges=density_custom_ranges,
                 resolution=args.density_threshold, voxel=args.voxel,
                 bead_names=ps_names)
@@ -320,7 +320,7 @@ def main():
             # get superposition of each model to cluster center and the
             # RMSD between the two
             rmsd, superposed_ps, trans = \
-                Precision_RMSD.get_particles_from_superposed(
+                precision_rmsd.get_particles_from_superposed(
                     conforms[model_index], conform_0, args.align, ps, trans)
 
             model.update() # why not?
