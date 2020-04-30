@@ -144,20 +144,22 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
     pvals=[]
     cvs=[]
     percents=[]
-    f1=open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+')
-    for c in cutoffs_list:
-        cluster_centers,cluster_members=precision_cluster(distmat_full,
-                                                          total_num_models, c)
-        ctable,retained_clusters=get_contingency_table(len(cluster_centers), cluster_members, all_models,
-                                                       run1_all_models,run2_all_models)
-        (pval,cramersv)=test_sampling_convergence(ctable, total_num_models)
-        percent_explained= percent_ensemble_explained(ctable, total_num_models)
+    with open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+') as f1:
+        for c in cutoffs_list:
+            cluster_centers, cluster_members = precision_cluster(
+                    distmat_full, total_num_models, c)
+            ctable, retained_clusters = get_contingency_table(
+                    len(cluster_centers), cluster_members, all_models,
+                    run1_all_models, run2_all_models)
+            pval, cramersv = test_sampling_convergence(ctable, total_num_models)
+            percent_explained = percent_ensemble_explained(
+                    ctable, total_num_models)
 
-        pvals.append(pval)
-        cvs.append(cramersv)
-        percents.append(percent_explained)
-        
-        print(c, pval, cramersv, percent_explained, file=f1) 
+            pvals.append(pval)
+            cvs.append(cramersv)
+            percents.append(percent_explained)
+
+            print(c, pval, cramersv, percent_explained, file=f1)
 
     return pvals, cvs, percents
 

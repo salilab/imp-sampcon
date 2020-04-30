@@ -21,37 +21,38 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     
     models_name = []
      
-    f1=open(idfile_A, 'w+')
-    f2=open(idfile_B, 'w+')
+    with open(idfile_A, 'w+') as f1:
+        for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),
+                key=lambda x:int(x.split('/')[-1].split('.')[0])):
+            print(str_file, num, file=f1)
+            models_name.append(str_file)
 
-    for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print(str_file, num, file=f1)
-        models_name.append(str_file)
+            m = IMP.Model()
+            mh = IMP.atom.read_pdb(str_file, m,
+                                   IMP.atom.NonWaterNonHydrogenPDBSelector())
+            mps = IMP.core.get_leaves(mh)
+            pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
+            if num == 0:
+                masses = [IMP.atom.Mass(p).get_mass() for p in mps]
+                radii  = [IMP.core.XYZR(p).get_radius() for p in mps]
+            conform.append(pts)
+            pts = []
+            num = num + 1
 
-        m = IMP.Model()
-        mh = IMP.atom.read_pdb(str_file, m,
-                               IMP.atom.NonWaterNonHydrogenPDBSelector())
-        mps = IMP.core.get_leaves(mh) 
-        pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
-        if num == 0:
-            masses = [IMP.atom.Mass(p).get_mass() for p in mps]
-            radii  = [IMP.core.XYZR(p).get_radius() for p in mps]
-        conform.append(pts)
-        pts = []
-        num = num + 1
+    with open(idfile_B, 'w+') as f2:
+        for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),
+                key=lambda x:int(x.split('/')[-1].split('.')[0])):
+            print(str_file, num, file=f2)
+            models_name.append(str_file)
 
-    for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print(str_file, num, file=f2)
-        models_name.append(str_file)
-
-        m = IMP.Model()
-        mh = IMP.atom.read_pdb(str_file, m,
-                               IMP.atom.NonWaterNonHydrogenPDBSelector())
-        mps = IMP.core.get_leaves(mh)
-        pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
-        conform.append(pts)
-        pts = []   
-        num = num + 1
+            m = IMP.Model()
+            mh = IMP.atom.read_pdb(str_file, m,
+                                   IMP.atom.NonWaterNonHydrogenPDBSelector())
+            mps = IMP.core.get_leaves(mh)
+            pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
+            conform.append(pts)
+            pts = []
+            num = num + 1
 
     return np.array(conform), masses, radii, models_name
 
@@ -111,6 +112,8 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
             conform.append(pts)
             pts = []
             num = num + 1
+    f1.close()
+    f2.close()
         
     return ps_names, masses, radii, np.array(conform), models_name
 

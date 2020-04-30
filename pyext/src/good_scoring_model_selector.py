@@ -266,6 +266,7 @@ class GoodScoringModelSelector(object):
                                 file=outf)
 
                     rsf.close()
+        outf.close()
 
         if extract:
             self._extract_models_from_trajectories(output_dir,
