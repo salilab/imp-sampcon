@@ -5,7 +5,7 @@ import numpy as np
 
 
 def get_scores_distribution(scores, nbins, scorecolumn, hist_ofile):
-    
+
     H, xedge = np.histogram(scores, bins=nbins)
     with open(hist_ofile, 'w+') as f1:
         for i in range(nbins):
@@ -30,8 +30,8 @@ def get_scores_distributions_KS_Stats(score_A, score_B, nbins, systemname):
     d_stat, p_value = ks_2samp(score_A, score_B)
 
     get_scores_distribution(score_A, nbins, 0, "%s.Score_Hist_A.txt" % systemname)
-    get_scores_distribution(score_B, nbins, 0, "%s.Score_Hist_B.txt" % systemname) 
-    
+    get_scores_distribution(score_B, nbins, 0, "%s.Score_Hist_B.txt" % systemname)
+
     with open("%s.KS_Test.txt" % systemname, 'w+') as f1:
         print(d_stat, p_value, file=f1)
     return d_stat, p_value

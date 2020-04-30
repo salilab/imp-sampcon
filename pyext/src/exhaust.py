@@ -168,11 +168,11 @@ def main():
     print("Size of Sample A:", len(sampleA_all_models),
           " ; Size of Sample B: ", len(sampleB_all_models),
           "; Total", total_num_models)
-        
+
     if not args.skip_sampling_precision:
-        
+
         print("Calculating sampling precision")
-        
+
         # Step 2: Cluster at intervals of grid size to get the
         # sampling precision
         gridSize = args.gridsize
@@ -191,8 +191,8 @@ def main():
         (sampling_precision, pval_converged, cramersv_converged,
          percent_converged) = clustering_rmsd.get_sampling_precision(
                  cutoffs_list, pvals, cvs, percents)
-            
-        # Output test statistics 
+
+        # Output test statistics
         with open("%s.Sampling_Precision_Stats.txt"
                   % args.sysname, 'w+') as fpv:
             print("The sampling precision is defined as the largest allowed "
@@ -211,13 +211,13 @@ def main():
                   % (sampling_precision, pval_converged, cramersv_converged,
                      percent_converged), file=fpv)
             print("", file=fpv)
-        
+
         final_clustering_threshold = sampling_precision
-        
+
     else:
         final_clustering_threshold = args.cluster_threshold
-        
-    # Perform final clustering at the required precision 
+
+    # Perform final clustering at the required precision
     print("Clustering at threshold %.3f" % final_clustering_threshold)
     (cluster_centers, cluster_members) = clustering_rmsd.precision_cluster(
             distmat_full, total_num_models, final_clustering_threshold)
@@ -226,7 +226,7 @@ def main():
             len(cluster_centers), cluster_members, all_models,
             sampleA_all_models, sampleB_all_models)
     print("Contingency table:", ctable)
-    # Output the number of models in each cluster and each sample 
+    # Output the number of models in each cluster and each sample
     with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
         for rows in range(len(ctable)):
             print(rows, ctable[rows][0], ctable[rows][1], file=fcp)
@@ -246,7 +246,7 @@ def main():
         # We use this as to align and compute RMSD/precision
         conform_0 = conforms[all_models[cluster_members[clus][0]]]
 
-        # create a directory for the cluster 
+        # create a directory for the cluster
         if not os.path.exists("./cluster.%s" %i):
             os.mkdir("./cluster.%s" %i)
             os.mkdir("./cluster.%s/Sample_A/" % i)
@@ -255,7 +255,7 @@ def main():
             shutil.rmtree("./cluster.%s" %i)
             os.mkdir("./cluster.%s" %i)
             os.mkdir("./cluster.%s/Sample_A/" % i)
-            os.mkdir("./cluster.%s/Sample_B/" % i)       
+            os.mkdir("./cluster.%s/Sample_B/" % i)
 
         # Create densities for all subunits for both sample A and sample B
         # as well as separately.
@@ -295,7 +295,7 @@ def main():
             shutil.copy(models_name[cluster_center_model_id],
                         os.path.join("./cluster." + str(i),
                                      "cluster_center_model." + args.extension))
-      
+
         # Create a model with just the cluster_member particles
         model = IMP.Model()
         ps = [] # particle list to be updated by each RMF frame
@@ -314,9 +314,9 @@ def main():
         trans = None
         # for each model in the cluster
         for mem in cluster_members[clus]:
-                
+
             model_index = all_models[mem]
-            
+
             # get superposition of each model to cluster center and the
             # RMSD between the two
             rmsd, superposed_ps, trans = \
@@ -339,7 +339,7 @@ def main():
                 # density map for sample B
                 gmd2.add_subunits_density(superposed_ps)
                 print(model_index, file=sampleB_file)
-             
+
         cluster_precision /= float(len(cluster_members[clus]) - 1.0)
 
         print("Cluster precision (average distance to cluster centroid) "
@@ -360,7 +360,7 @@ def main():
     if args.gnuplot:
         import subprocess
         import glob
-        
+
         thisdir = os.path.dirname(__file__)
         gnuplotdir = IMP.sampcon.get_data_path("gnuplot_scripts")
         for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
