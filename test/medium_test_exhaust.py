@@ -56,6 +56,27 @@ class Tests(IMP.test.TestCase):
                  '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'])
 
+            if hasattr(RMF.NodeHandle, 'replace_child'):
+                r = RMF.open_rmf_file_read_only(
+                        os.path.join(tmpdir, 'cluster.0',
+                                     'cluster_center_model.rmf3'))
+                clpf = RMF.ClusterProvenanceConstFactory(r)
+                cpf = RMF.CombineProvenanceConstFactory(r)
+                fpf = RMF.FilterProvenanceConstFactory(r)
+                rn = r.get_root_node().get_children()[0]
+                # Should be one Provenance node
+                prov, = [n for n in rn.get_children()
+                         if n.get_type() == RMF.PROVENANCE]
+                # Top-level provenance should be ClusterProvenance
+                self.assertTrue(clpf.get_is(prov))
+                cp = clpf.get(prov)
+                self.assertEqual(cp.get_members(), 36)
+                # Next provenance should be filter, combine
+                prov, = prov.get_children()
+                self.assertTrue(fpf.get_is(prov))
+                prov, = prov.get_children()
+                self.assertTrue(cpf.get_is(prov))
+
             # Check for expected files
             expected = [
                 'Distances_Matrix.data.npy', 'Identities_A.txt',

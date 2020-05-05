@@ -71,6 +71,44 @@ def parse_args():
             action='store_true')
     return parser.parse_args()
 
+
+def make_cluster_centroid(infname, frame, outfname, cluster_index,
+                          cluster_size):
+    import RMF
+    # If we have new enough IMP/RMF, do our own RMF slicing with provenance
+    if hasattr(RMF.NodeHandle, 'replace_child'):
+        print(infname, outfname)
+        inr = RMF.open_rmf_file_read_only(infname)
+        outr = RMF.create_rmf_file(outfname)
+        cpf = RMF.ClusterProvenanceFactory(outr)
+        RMF.clone_file_info(inr, outr)
+        RMF.clone_hierarchy(inr, outr)
+        RMF.clone_static_frame(inr, outr)
+        inr.set_current_frame(RMF.FrameID(frame))
+        outr.add_frame("f0")
+        RMF.clone_loaded_frame(inr, outr)
+        rn = outr.get_root_node()
+        children = rn.get_children()
+        if len(children) == 0:
+            return
+        rn = children[0]  # Should be the top-level IMP node
+        prov = [c for c in rn.get_children() if c.get_type() == RMF.PROVENANCE]
+        if not prov:
+            return
+        prov = prov[0]
+        # Add cluster-provenance info
+        newp = rn.replace_child(prov, "cluster.%d" % cluster_index,
+                RMF.PROVENANCE)
+        cp = cpf.get(newp)
+        cp.set_members(cluster_size)
+    else:
+        # Otherwise, fall back to RMF's command line tool
+        import subprocess
+        print(infname, frame, outfname)
+        subprocess.call(['rmf_slice', infname, '-f', str(frame),
+                         outfname])
+
+
 def main():
     args = parse_args()
 
@@ -282,19 +320,27 @@ def main():
         if args.rmf_A is not None:
             cluster_center_model_id = cluster_center_index
             if cluster_center_index < n_models[0]:
-                os.system('rmf_slice -q ' + args.rmf_A + " ./cluster."
-                          + str(i) + "/cluster_center_model.rmf --frame "
-                          + str(cluster_center_index))
+                make_cluster_centroid(args.rmf_A, cluster_center_index,
+                        os.path.join("cluster.%d" % i,
+                                     "cluster_center_model.rmf"),
+                        i, len(cluster_members[clus]))
             else:
-                os.system('rmf_slice -q ' + args.rmf_B + " ./cluster."
-                          + str(i) + "/cluster_center_model.rmf --frame "
-                          + str(cluster_center_index-n_models[0]))
+                make_cluster_centroid(args.rmf_B,
+                        cluster_center_index - n_models[0],
+                        os.path.join("cluster.%d" % i,
+                                     "cluster_center_model.rmf"),
+                        i, len(cluster_members[clus]))
         else:
             # index to Identities file.
             cluster_center_model_id = all_models[cluster_center_index]
-            shutil.copy(models_name[cluster_center_model_id],
-                        os.path.join("./cluster." + str(i),
-                                     "cluster_center_model." + args.extension))
+            outfname = os.path.join("cluster.%d" % i,
+                                     "cluster_center_model." + args.extension)
+            if 'rmf' in args.extension:
+                make_cluster_centroid(
+                        models_name[cluster_center_model_id], 0, outfname,
+                        i, len(cluster_members[clus]))
+            else:
+                shutil.copy(models_name[cluster_center_model_id], outfname)
 
         # Create a model with just the cluster_member particles
         model = IMP.Model()
