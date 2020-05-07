@@ -342,7 +342,7 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 
-def get_rmsds_matrix(conforms, mode, sup, cores,symm_groups):
+def get_rmsds_matrix(conforms, mode, sup, cores,symm_groups=None):
     print("Mode:",mode,"Superposition:",sup,"Number of cores:",cores)
 
     if(mode=="cpu_serial" and not sup) or (mode=="cpu_omp" and not sup):
