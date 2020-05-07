@@ -105,9 +105,9 @@ if not args.skip_sampling_precision:
     # afterwards (so that we retain the original IMP orientation)
     numpy.save("conforms", conforms)
     if args.ambiguity:
-	inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores,symm_groups)
+        inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores,symm_groups)
     else:
-	inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
+        inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
 
     print("Size of RMSD matrix (flattened):",inner_data.shape)
     del conforms
