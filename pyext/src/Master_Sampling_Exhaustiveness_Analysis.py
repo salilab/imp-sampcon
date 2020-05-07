@@ -104,11 +104,12 @@ if not args.skip_sampling_precision:
     # get_rmsds_matrix modifies conforms, so save it to a file and restore
     # afterwards (so that we retain the original IMP orientation)
     numpy.save("conforms", conforms)
-    inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
+    inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores,symm_groups)
     print("Size of RMSD matrix (flattened):",inner_data.shape)
     del conforms
     conforms = numpy.load("conforms.npy")
     os.unlink('conforms.npy')
+    
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
 mHandler = MatrixHandler()
@@ -214,9 +215,9 @@ for i in range(len(retained_clusters)):
     if args.rmf_A is not None:
         cluster_center_model_id = cluster_center_index
         if cluster_center_index < n_models[0]:
-            os.system('rmf_slice -q '+args.path+args.rmf_A+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index) )
+            os.system('rmf_slice -q '+os.path.join(args.path,args.rmf_A)+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index) )
         else:
-            os.system('rmf_slice -q '+args.path+args.rmf_B+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index-n_models[0]) )
+            os.system('rmf_slice -q '+os.path.join(args.path,args.rmf_B)+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index-n_models[0]) )
     else:
         cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
         shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))

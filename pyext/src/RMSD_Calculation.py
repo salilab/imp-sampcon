@@ -228,9 +228,9 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
     '''Modified RMF coordinates function to work with symmetric copies'''
 
     # Open RMFs and get total number of models
-    rmf_fh = RMF.open_rmf_file_read_only(path + rmf_A)
+    rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path,rmf_A))
     n_models = [rmf_fh.get_number_of_frames()]
-    rmf_fh = RMF.open_rmf_file_read_only(path + rmf_B)
+    rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path,rmf_B))
     n_models.append(rmf_fh.get_number_of_frames())
 
     masses = []
@@ -254,110 +254,117 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
         s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
     else:
         s0 = IMP.atom.Selection(h, resolution=1)
+    
     # Count particles
     for leaf in s0.get_selected_particles():
         p=IMP.core.XYZR(leaf)
         pts+=1
+   
     # Initialize array
     conform = np.empty([n_models[0]+n_models[1], pts, 3])
 
     symm_groups=[[],[],[],[]]
+    
+    # list the proteins which are present as dimers 
     protein_to_symm_group_map={'LCB1':0, 'LCB2':1, 'ORM1':2, 'TSC3':3}
+     
+    curr_particle_index_in_protein={'LCB1':-1, 'LCB2':-1, 'ORM1':-1, 'TSC3':-1}   
 
     mod_id = 0 # index for each model in conform.
+    
     for rmf_file in [rmf_A, rmf_B]:
 
         models_name.append(rmf_file)
 
-        rmf_fh = RMF.open_rmf_file_read_only(path + rmf_file)
+        rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path,rmf_file))
         h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
         
         print("Opening RMF file:", rmf_file, "with", rmf_fh.get_number_of_frames(), "frames")
+        
         for f in range(rmf_fh.get_number_of_frames()):
+            
             if f%100==0:
                 #pass
                 print("  -- Opening frame", f, "of", rmf_fh.get_number_of_frames())
+                
             IMP.rmf.load_frame(rmf_fh, f)
 
             m.update()
 
             # Store particle indices and loop over individual protein names for symmetric copies
-            total_particle_index=0
-            for subunit_name in ['LCB1', 'LCB2', 'ORM1', 'TSC3']:
+            if subunit_name:
+                s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+            else:
+                s0 = IMP.atom.Selection(h, resolution=1)
+               
+            particles = s0.get_selected_particles()
+                
+            # Copy particle coordinates
+            for i in range(len(particles)): # i is an index over all particles in the system
+                
+                leaf=particles[i]
+                p=IMP.core.XYZR(leaf)
+                pxyz = p.get_coordinates()
+                conform[mod_id][i][0] = pxyz[0]
+                conform[mod_id][i][1] = pxyz[1]
+                conform[mod_id][i][2] = pxyz[2]
 
-                if subunit_name:
-                    s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
-                else:
-                    s0 = IMP.atom.Selection(h, resolution=1)
-                particles = s0.get_selected_particles()
-                # Copy particle coordinates
-                for i in range(len(particles)):
-                    leaf=particles[i]
-                    p=IMP.core.XYZR(leaf)
-                    pxyz = p.get_coordinates()
-                    conform[mod_id][i][0] = pxyz[0]
-                    conform[mod_id][i][1] = pxyz[1]
-                    conform[mod_id][i][2] = pxyz[2]
+                # Just for the first model, update the masses and radii and log the particle name in ps_names
+                if mod_id == 0 and rmf_file==rmf_A:
+                    masses.append(IMP.atom.Mass(leaf).get_mass())
+                    radii.append(p.get_radius())
+                    mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
+                    
+                    # Need to find the copy number from the molecule
+                    # In PMI, this is three levels above the individual residues/beads
+                    # Set the copy number to X if there is none
+                    copy_number = IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
+                    
+                    # Assumes that only ambiguous protein coordinates are stored                    
+                    protein_index=protein_to_symm_group_map[mol_name]
+                    curr_particle_index_in_protein[mol_name] +=1
+                    
+                    if copy_number==0:
+                        symm_groups[protein_index].append([i])
 
-                    # Just for the first model, update the masses and radii and log the particle name in ps_names
-                    if mod_id == 0 and rmf_file==rmf_A:
-                        masses.append(IMP.atom.Mass(leaf).get_mass())
-                        radii.append(p.get_radius())
-                        mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
-                        # Need to find the copy number from the molecule
-                        # In PMI, this is three levels above the individual residues/beads
-                        # Set the copy number to X if there is none
-                        copy_number = "X"
-                        mol_p = IMP.atom.Hierarchy(p).get_parent().get_parent().get_parent()
-                        if IMP.atom.Copy().get_is_setup(mol_p):
-                            copy_number = str(IMP.atom.Copy(mol_p).get_copy_index())
-                            mol_p = IMP.atom.Hierarchy(p).get_parent().get_parent().get_parent()
+                    else: # Assumes that only ambiguous protein coordinates are stored
+                        j = curr_particle_index_in_protein[mol_name] % len(symm_groups[protein_index]) # add to the same array since these are equivalent particles
+                        symm_groups[protein_index][j].append(i)
 
-                            if IMP.atom.Copy().get_is_setup(mol_p):
-                                copy_number = str(IMP.atom.Copy(mol_p).get_copy_index())
-
-                            # Assumes that only ambiguous protein coordinates are stored                    
-                            protein_index=protein_to_symm_group_map[mol_name]
-                        
-                            if int(copy_number)==0:
-                                symm_groups[protein_index].append([total_particle_index])
-
-                            else: # Assumes that only ambiguous protein coordinates are stored
-                                j=i%len(symm_groups[protein_index]) # add to the same array since these are equivalent particles
-                                symm_groups[protein_index][j].append(total_particle_index)
-
-                            if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
-                                residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
-                                ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+copy_number)
-                            else:
-                                residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
-                                ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+copy_number)
-
-                            total_particle_index+=1
+                    if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
+                        residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
+                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
+                    else:
+                        residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
+                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
+                 
             mod_id+=1
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 
-def get_rmsds_matrix(conforms, mode, sup, cores):
+def get_rmsds_matrix(conforms, mode, sup, cores,symm_groups):
     print("Mode:",mode,"Superposition:",sup,"Number of cores:",cores)
 
-    if(mode=="cpu_serial" and not sup):
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
-
-    elif(mode=="cpu_omp" and not sup):
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_OMP_CALCULATOR", conforms)
-        calculator.setNumberOfOpenMPThreads(cores)
-
-    elif(mode=="cpu_omp" and sup):
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_OMP_CALCULATOR", conforms)
-        calculator.setNumberOfOpenMPThreads(cores)
-
+    if(mode=="cpu_serial" and not sup) or (mode=="cpu_omp" and not sup):
+        calculator_name = "NOSUP_OMP_CALCULATOR"
+        
+    elif(mode=="cpu_omp" and sup):  
+        calculator_name = "QCP_OMP_CALCULATOR"
+        
     elif(mode=="cuda" and sup):
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_CUDA_MEM_CALCULATOR", conforms)  
-
+        calculator_name = "QCP_CUDA_MEM_CALCULATOR"
     else:
         print("Wrong values to pyRMSD ! Please Fix")
         exit()
+        
+    if symm_groups:
+         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, fittingCoordsets=conforms,calculationCoordsets=conforms,calcSymmetryGroups=symm_groups)
+    else:
+         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, conforms)
+        
+    # additionally set number of cores for parallel calculator
+    if(mode=="cpu_omp"):
+        calculator.setNumberOfOpenMPThreads(int(cores))
 
     rmsd = calculator.pairwiseRMSDMatrix()
     rmsd_matrix=CondensedMatrix(rmsd)
