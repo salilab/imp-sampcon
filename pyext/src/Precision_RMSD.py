@@ -55,7 +55,7 @@ def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, alig
     for perm in pyRMSD.symmTools.symm_permutations(symm_groups): # for each permutation 
         
         new_cluster_conform_i = cluster_conform_i
-        
+     
         for sg in perm: # for each symmetric group in perm
             
             for [particle0, particle1] in sg: # swap the particles if they are in non-standard order in this permutation
@@ -75,16 +75,17 @@ def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, alig
             min_rmsd = rmsd
             superposed_final_coords = superposed_fit
 
-        # Get transformation from pyRMSD reference on the first call.
-        # This is somewhat inefficient (since we are essentially repeating
-        # the pyRMSD calculation) but pyRMSD doesn't appear to make its
-        # reference orientation available.
-        if trans is None:
-            trans = IMP.algebra.get_transformation_aligning_first_to_second(_to_vector3ds(superposed_final_coords[0]), _to_vector3ds(cluster_conform_0))
+    # Get transformation from pyRMSD reference on the first call.
+    # This is somewhat inefficient (since we are essentially repeating
+    # the pyRMSD calculation) but pyRMSD doesn't appear to make its
+    # reference orientation available.
+    if trans is None:
+        trans = IMP.algebra.get_transformation_aligning_first_to_second(_to_vector3ds(superposed_final_coords[0]), _to_vector3ds(cluster_conform_0))
 
-        for particle_index in range(len(superposed_final_coords[1])):
+    for particle_index in range(len(superposed_final_coords[1])):
+      
         # Transform from pyRMSD back to original reference
-            IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_final_coords[1][particle_index]))
+        IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_final_coords[1][particle_index]))
 
     return min_rmsd, ps, trans
 
