@@ -164,10 +164,14 @@ class GetModelDensity(object):
         else:
             return self.densities[name]
 
-    def write_mrc(self, path="./",file_prefix=""):
+    def write_mrc(self, path=".", file_prefix=""):
         for density_name in self.densities:
+            mrc = os.path.join(path, file_prefix + "_" + density_name + ".mrc")
             self.densities[density_name].multiply(1. / self.count_models)
             IMP.em.write_map(
-                self.densities[density_name],
-                path + "/" + file_prefix + "_"+ density_name + ".mrc",
+                self.densities[density_name], mrc,
                 IMP.em.MRCReaderWriter())
+        if len(self.densities) == 1:
+            return mrc
+        else:
+            return os.path.join(path, file_prefix + "_*.mrc")

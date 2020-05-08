@@ -1,5 +1,6 @@
 from __future__ import print_function
 from IMP import ArgumentParser
+import os
 
 __doc__ = "Perform analysis to determine sampling convergence."
 
@@ -73,7 +74,7 @@ def parse_args():
 
 
 def make_cluster_centroid(infname, frame, outfname, cluster_index,
-                          cluster_size):
+                          cluster_size, precision, density):
     import RMF
     # If we have new enough IMP/RMF, do our own RMF slicing with provenance
     if hasattr(RMF.NodeHandle, 'replace_child'):
@@ -101,6 +102,8 @@ def make_cluster_centroid(infname, frame, outfname, cluster_index,
                 RMF.PROVENANCE)
         cp = cpf.get(newp)
         cp.set_members(cluster_size)
+        cp.set_precision(precision)
+        cp.set_density(os.path.abspath(density))
     else:
         # Otherwise, fall back to RMF's command line tool
         import subprocess
@@ -315,33 +318,6 @@ def main():
         sampleA_file = open('cluster.'+str(i)+'.sample_A.txt', 'w')
         sampleB_file = open('cluster.'+str(i)+'.sample_B.txt', 'w')
 
-        # Add the cluster center model RMF to the cluster directory
-        cluster_center_index = cluster_members[clus][0]
-        if args.rmf_A is not None:
-            cluster_center_model_id = cluster_center_index
-            if cluster_center_index < n_models[0]:
-                make_cluster_centroid(args.rmf_A, cluster_center_index,
-                        os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf"),
-                        i, len(cluster_members[clus]))
-            else:
-                make_cluster_centroid(args.rmf_B,
-                        cluster_center_index - n_models[0],
-                        os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf"),
-                        i, len(cluster_members[clus]))
-        else:
-            # index to Identities file.
-            cluster_center_model_id = all_models[cluster_center_index]
-            outfname = os.path.join("cluster.%d" % i,
-                                     "cluster_center_model." + args.extension)
-            if 'rmf' in args.extension:
-                make_cluster_centroid(
-                        models_name[cluster_center_model_id], 0, outfname,
-                        i, len(cluster_members[clus]))
-            else:
-                shutil.copy(models_name[cluster_center_model_id], outfname)
-
         # Create a model with just the cluster_member particles
         model = IMP.Model()
         ps = [] # particle list to be updated by each RMF frame
@@ -396,10 +372,41 @@ def main():
         sampleA_file.close()
         sampleB_file.close()
 
-        # Finally, output density files for the cluster
-        gmdt.write_mrc(path="./cluster.%s" % i, file_prefix = "LPD")
+        # Output density files for the cluster
+        density = gmdt.write_mrc(path="./cluster.%s" % i, file_prefix = "LPD")
         gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix = "LPD")
         gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix = "LPD")
+
+        # Add the cluster center model RMF to the cluster directory
+        cluster_center_index = cluster_members[clus][0]
+        if args.rmf_A is not None:
+            cluster_center_model_id = cluster_center_index
+            if cluster_center_index < n_models[0]:
+                make_cluster_centroid(args.rmf_A, cluster_center_index,
+                        os.path.join("cluster.%d" % i,
+                                     "cluster_center_model.rmf"),
+                        i, len(cluster_members[clus]),
+                        cluster_precision, density)
+            else:
+                make_cluster_centroid(args.rmf_B,
+                        cluster_center_index - n_models[0],
+                        os.path.join("cluster.%d" % i,
+                                     "cluster_center_model.rmf"),
+                        i, len(cluster_members[clus]),
+                        cluster_precision, density)
+        else:
+            # index to Identities file.
+            cluster_center_model_id = all_models[cluster_center_index]
+            outfname = os.path.join("cluster.%d" % i,
+                                     "cluster_center_model." + args.extension)
+            if 'rmf' in args.extension:
+                make_cluster_centroid(
+                        models_name[cluster_center_model_id], 0, outfname,
+                        i, len(cluster_members[clus]),
+                        cluster_precision, density)
+            else:
+                shutil.copy(models_name[cluster_center_model_id], outfname)
+
     fpc.close()
 
     # generate plots for the score and structure tests

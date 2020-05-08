@@ -71,6 +71,9 @@ class Tests(IMP.test.TestCase):
                 self.assertTrue(clpf.get_is(prov))
                 cp = clpf.get(prov)
                 self.assertEqual(cp.get_members(), 36)
+                self.assertAlmostEqual(cp.get_precision(), 0.42, delta=0.01)
+                self.assertEqual(cp.get_density(),
+                                 os.path.abspath('cluster.0/LPD_TestAll.mrc'))
                 # Next provenance should be filter, combine
                 prov, = prov.get_children()
                 self.assertTrue(fpf.get_is(prov))
