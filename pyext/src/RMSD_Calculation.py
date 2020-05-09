@@ -238,29 +238,27 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
                     masses.append(IMP.atom.Mass(leaf).get_mass())
                     radii.append(p.get_radius())
                     mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
-                    
-                    # Need to find the copy number from the molecule
-                    # In PMI, this is three levels above the individual residues/beads
-                    # Set the copy number to X if there is none
+                
                     copy_number = IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
                     
-                    # Assumes that only ambiguous protein coordinates are stored    
-                    protein_plus_copy = mol_name+'.'+str(copy_number)
+                    # Add to symmetric groups if needed
+                    if symm_groups_file:
+                   
+                        protein_plus_copy = mol_name+'.'+str(copy_number)
                     
-                    # protein needs to be added to symm group for RMSD calculation
-                    if protein_plus_copy  in  group_member_to_symm_group_map:   
+                        if protein_plus_copy  in  group_member_to_symm_group_map:   
+                            # protein copy is in a symmetric group
                         
-                        group_index=group_member_to_symm_group_map[protein_plus_copy]
+                            group_index=group_member_to_symm_group_map[protein_plus_copy]
                     
-                        curr_particle_index_in_group[group_index] +=1
+                            curr_particle_index_in_group[group_index] +=1
                        
-                        if  protein_plus_copy == first_group_member[group_index]:
-                            symm_groups[group_index].append([i])
+                            if  protein_plus_copy == first_group_member[group_index]:
+                                symm_groups[group_index].append([i])
                             
-                        else: 
-                            j = curr_particle_index_in_group[group_index] % len(symm_groups[group_index])
-                            symm_groups[group_index][j].append(i)
-                
+                            else: 
+                                j = curr_particle_index_in_group[group_index] % len(symm_groups[group_index])
+                                symm_groups[group_index][j].append(i)
                         
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
@@ -270,9 +268,6 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
                         ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
                  
             mod_id+=1
-            
-    for i in range(len(symm_groups)):
-        print(symm_groups[i][0])
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 
