@@ -43,7 +43,7 @@ parser.add_argument('--cores', '-c', dest="cores", type=int,
                          'only for  cpu_omp', default=1)
 parser.add_argument('--subunit','-su',dest="subunit",help='calculate RMSD/sampling and cluster precision/densities etc over this subunit only',default=None)
 parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow superposition of models', default=False, action='store_true')
-parser.add_argument('--ambiguity', '-amb', dest="ambiguity", help='boolean flag for multiple protein copies', default=False, action='store_true')
+parser.add_argument('--ambiguity', '-amb', dest="symmetry_groups", help='file containing symmetry groups', default=None)
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="scoresA.txt")
 parser.add_argument('--scoreB', '-sb', dest="scoreB",help='name of the file having the good-scoring scores for sample B', default="scoresB.txt")
 parser.add_argument('--rmfA', '-ra', dest="rmf_A", help='RMF file with conformations from Sample A', default=None)
@@ -88,8 +88,9 @@ else:
     args.extension = "rmf3"
     # If we have a single RMF file, read conformations from that
     if args.rmf_A is not None:
-        if args.ambiguity is True:
-            ps_names, masses, radii, conforms, symm_groups, models_name, n_models = get_rmfs_coordinates_one_rmf_amb(args.path, args.rmf_A, args.rmf_B, args.subunit)
+        
+        if args.symmetry_groups:
+            ps_names, masses, radii, conforms, symm_groups, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit,args.symmetry_groups)
         else:
         	print("here")
         	ps_names, masses, radii, conforms, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit)
@@ -104,7 +105,7 @@ if not args.skip_sampling_precision:
     # get_rmsds_matrix modifies conforms, so save it to a file and restore
     # afterwards (so that we retain the original IMP orientation)
     numpy.save("conforms", conforms)
-    if args.ambiguity:
+    if args.symmetry_groups:
         inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores,symm_groups)
     else:
         inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
@@ -247,7 +248,7 @@ for i in range(len(retained_clusters)):
         model_index=all_models[mem]
         
         # get superposition of each model to cluster center and the RMSD between the two
-        if args.ambiguity is True:
+        if args.symmetry_groups:
         	rmsd, superposed_ps, trans = get_particles_from_superposed_amb(conforms[model_index], conform_0, args.align, ps, trans, symm_groups)
         else:
         	rmsd, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, args.align, ps, trans)

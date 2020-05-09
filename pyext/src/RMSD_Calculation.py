@@ -119,111 +119,37 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
         
     return ps_names, masses, radii, np.array(conform), models_name
 
-
-def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name):
-
-    # Open RMFs and get total number of models
-    rmf_fh = RMF.open_rmf_file_read_only(path + rmf_A)
-    n_models = [rmf_fh.get_number_of_frames()]
-    rmf_fh = RMF.open_rmf_file_read_only(path + rmf_B)
-    n_models.append(rmf_fh.get_number_of_frames())
-    print(n_models)
-
-    masses = []
-    radii = []
-    ps_names = []
-
-    models_name = []
-
-    # Build hierarchy from the RMF file
-    m = IMP.Model()
-    h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
-    IMP.rmf.load_frame(rmf_fh, 0)
-    m.update()
-
-    ######
-    # Initialize output array
-    pts = 0 # number of particles in each model
-
-    # Get selection
-    if subunit_name:
-        s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
-    else:
-        s0 = IMP.atom.Selection(h, resolution=1)
-    # Count particles
-    for leaf in s0.get_selected_particles():
-        p=IMP.core.XYZR(leaf)
-        pts+=1
-    # Initialize array
-    conform = np.empty([n_models[0]+n_models[1], pts, 3])
-
-    mod_id = 0 # index for each model in conform.
-    for rmf_file in [rmf_A, rmf_B]:
-
-        models_name.append(rmf_file)
-
-        rmf_fh = RMF.open_rmf_file_read_only(path + rmf_file)
-        h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
+def parse_symmetric_groups_file(symm_groups_file):
+    
+    symm_groups =[]
+    
+    member_to_symm_group={}
+    
+    first_group_member=[]
+    
+    curr_particle_index_in_group = []
+    
+    sgf = open(symm_groups_file,'r')
+    
+    for indx,ln in enumerate(sgf.readlines()):
         
-        print("Opening RMF file:", rmf_file, "with", rmf_fh.get_number_of_frames(), "frames")
-        for f in range(rmf_fh.get_number_of_frames()):
-            if f%100==0:
-                #pass
-                print("  -- Opening frame", f, "of", rmf_fh.get_number_of_frames())
-            IMP.rmf.load_frame(rmf_fh, f)
+        symm_groups.append([]) # create new symm group list
+        
+        curr_particle_index_in_group.append(-1) # particle index for new symmetric group
+        
+        fields = ln.strip().split()
+        
+        for fld in fields:
+            member_to_symm_group[fld] = indx # group that the current protein copy belongs to   
+            
+        first_group_member.append(fields[0]) # the first group member is special! We create a symm group list of particles for the first group member
+    
+    sgf.close()
+    
+    return(symm_groups,member_to_symm_group,curr_particle_index_in_group, first_group_member)
 
-            m.update()
-            if subunit_name:
-                s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
-            else:
-                s0 = IMP.atom.Selection(h, resolution=1)
-            particles = s0.get_selected_particles()
-            # Copy particle coordinates
-            for i in range(len(particles)):
-                leaf=particles[i]
-                p=IMP.core.XYZR(leaf)
-                pxyz = p.get_coordinates()
-                conform[mod_id][i][0] = pxyz[0]
-                conform[mod_id][i][1] = pxyz[1]
-                conform[mod_id][i][2] = pxyz[2]
 
-                # Just for the first model, update the masses and radii and log the particle name in ps_names
-                if mod_id == 0 and rmf_file==rmf_A:
-                    masses.append(IMP.atom.Mass(leaf).get_mass())
-                    radii.append(p.get_radius())
-                    mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
-                    # # Need to find the copy number from the molecule
-                    # # In PMI, this is three levels above the individual residues/beads
-                    # # Set the copy number to X if there is none
-                    # copy_number = "X"
-                    # mol_p = IMP.atom.Hierarchy(p).get_parent().get_parent().get_parent()
-                    # if IMP.atom.Copy().get_is_setup(mol_p):
-                    #     copy_number = str(IMP.atom.Copy(mol_p).get_copy_index())
-                    #     mol_p = IMP.atom.Hierarchy(p).get_parent().get_parent().get_parent()
-
-                    #     if IMP.atom.Copy().get_is_setup(mol_p):
-                    #         copy_number = str(IMP.atom.Copy(mol_p).get_copy_index())
-
-                    #     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
-                    #         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
-                    #         ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+copy_number)
-                    #     else:
-                    #         residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
-                    #         ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+copy_number)
-
-                    # traverse up the Hierarchy to get copy number of the molecule that the bead belongs to
-                    copy_number=IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
-                    if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
-                        residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
-                        ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
-                    else:
-                        residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
-                        ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
-            mod_id+=1
-
-    return ps_names, masses, radii, conform, models_name, n_models
-
-def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
+def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_groups_file=None):
 
     '''Modified RMF coordinates function to work with symmetric copies'''
 
@@ -263,12 +189,9 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
     # Initialize array
     conform = np.empty([n_models[0]+n_models[1], pts, 3])
 
-    symm_groups=[[],[],[],[]]
-    
-    # list the proteins which are present as dimers 
-    protein_to_symm_group_map={'LCB1':0, 'LCB2':1, 'ORM1':2, 'TSC3':3}
-     
-    curr_particle_index_in_protein={'LCB1':-1, 'LCB2':-1, 'ORM1':-1, 'TSC3':-1}   
+    # Initialize the symmetric group particles list, and protein to symmetry group mapping
+    if symm_groups_file:
+        (symm_groups, group_member_to_symm_group_map, curr_particle_index_in_group, first_group_member)=parse_symmetric_groups_file(symm_groups_file)
 
     mod_id = 0 # index for each model in conform.
     
@@ -298,7 +221,8 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
                 s0 = IMP.atom.Selection(h, resolution=1)
                
             particles = s0.get_selected_particles()
-                
+            
+            
             # Copy particle coordinates
             for i in range(len(particles)): # i is an index over all particles in the system
                 
@@ -308,7 +232,7 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
                 conform[mod_id][i][0] = pxyz[0]
                 conform[mod_id][i][1] = pxyz[1]
                 conform[mod_id][i][2] = pxyz[2]
-
+     
                 # Just for the first model, update the masses and radii and log the particle name in ps_names
                 if mod_id == 0 and rmf_file==rmf_A:
                     masses.append(IMP.atom.Mass(leaf).get_mass())
@@ -320,17 +244,24 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
                     # Set the copy number to X if there is none
                     copy_number = IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
                     
-                    # Assumes that only ambiguous protein coordinates are stored                    
-                    protein_index=protein_to_symm_group_map[mol_name]
-                    curr_particle_index_in_protein[mol_name] +=1
+                    # Assumes that only ambiguous protein coordinates are stored    
+                    protein_plus_copy = mol_name+'.'+str(copy_number)
                     
-                    if copy_number==0:
-                        symm_groups[protein_index].append([i])
-
-                    else: # Assumes that only ambiguous protein coordinates are stored
-                        j = curr_particle_index_in_protein[mol_name] % len(symm_groups[protein_index]) # add to the same array since these are equivalent particles
-                        symm_groups[protein_index][j].append(i)
-
+                    # protein needs to be added to symm group for RMSD calculation
+                    if protein_plus_copy  in  group_member_to_symm_group_map:   
+                        
+                        group_index=group_member_to_symm_group_map[protein_plus_copy]
+                    
+                        curr_particle_index_in_group[group_index] +=1
+                       
+                        if  protein_plus_copy == first_group_member[group_index]:
+                            symm_groups[group_index].append([i])
+                            
+                        else: 
+                            j = curr_particle_index_in_group[group_index] % len(symm_groups[group_index])
+                            symm_groups[group_index][j].append(i)
+                
+                        
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
                         ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
@@ -339,6 +270,9 @@ def get_rmfs_coordinates_one_rmf_amb(path, rmf_A, rmf_B, subunit_name):
                         ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
                  
             mod_id+=1
+            
+    for i in range(len(symm_groups)):
+        print(symm_groups[i][0])
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 
