@@ -237,6 +237,7 @@ class GoodScoringModelSelector(object):
 
                                 model_satisfies=self._get_score_satisfaction(score_value,aggregate_lower_thresholds[si],aggregate_upper_thresholds[si])
                                 selection_criteria_values.append(score_value)
+
                       
                             if not model_satisfies:
                                 break

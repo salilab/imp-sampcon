@@ -41,8 +41,9 @@ def select_good_scoring_models():
         
 def create_score_files(subsets, field="Total_Score"):
     arg=parse_args()
+    
     score_dir = os.path.join(arg.run_dir,
-                             "good_scoring_models" if arg.extract else "filter")
+                             "good_scoring_models")
     scoreA = open(os.path.join(score_dir, arg.score_file_prefix + "A.txt"), "w")
     scoreB = open(os.path.join(score_dir, arg.score_file_prefix + "B.txt"), "w")
     model_file = open(os.path.join(score_dir, "model_ids_scores.txt"), "r")
@@ -54,35 +55,40 @@ def create_score_files(subsets, field="Total_Score"):
         # Find index of the field we want to use for model score convergence
         if line_index==0:
             field_headers = each_model_line.strip().split()
-            ts_ix = field_headers.index(field)
-            run_ix = field_headers.index("Run_id")
-            model_ix = field_headers.index("Model_index")
-
+            
+            try:
+                ts_ix = field_headers.index(field)
+                run_ix = field_headers.index("Run_id")
+                model_ix = field_headers.index("Model_index")
+            
+            except ValueError:
+                print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
+                exit()
 
         else:
             fields = each_model_line.strip().split()
+            
             score=fields[ts_ix]
-            if arg.extract:
-                model = int(fields[model_ix])
-                print(score, file=scoreA if model in subsets[0] else scoreB)
-            else:
-                if int(fields[run_ix])==1:
-                    print(score, file=scoreA)
-                elif int(fields[run_ix])==2:
-                    print(score, file=scoreB)
-                else:
-                    print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
-                    exit()
+            
+            model = int(fields[model_ix])
+            print(score, file=scoreA if model in subsets[0] else scoreB)
+               
     scoreA.close()
     scoreB.close()
     
-
-    
  
 if __name__ == "__main__" :
+    
+    # process input
+    arg=parse_args()
+    
     subsets = select_good_scoring_models()
+    
+    print("Filtered model scores ready") 
+    
+    if arg.extract:
 
-    # Create Score Files
-    create_score_files(subsets)
+        # Create Score Files
+        create_score_files(subsets)
 
-    print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")
+        print("Ready to calculate sampling precision with Master_Sampling_Exhaustiveness_Analysis.py")
