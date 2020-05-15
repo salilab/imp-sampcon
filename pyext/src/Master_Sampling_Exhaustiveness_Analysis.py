@@ -92,7 +92,6 @@ else:
         if args.symmetry_groups:
             ps_names, masses, radii, conforms, symm_groups, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit,args.symmetry_groups)
         else:
-        	print("here")
         	ps_names, masses, radii, conforms, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit)
 
     # If not, default to the Identities.txt file

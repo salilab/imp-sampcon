@@ -73,7 +73,6 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
         for str_file in sorted(glob.glob("%s/sample_%s/*.rmf3" % (path,sample_name)),key=lambda x:int(x.split('/')[-1].split('.')[0])):
             print(str_file, num, file=sample_id_file)
             models_name.append(str_file)
-            print("here")
 
             m = IMP.Model()
             inf = RMF.open_rmf_file_read_only(str_file)
