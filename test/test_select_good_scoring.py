@@ -26,13 +26,6 @@ class Tests(unittest.TestCase):
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
                  'ExcludedVolumeSphere_None', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
-            for score in ('A', 'B'):
-                score_file = os.path.join(mod_dir, 'filter',
-                                          'scores%s.txt' % score)
-                with open(score_file) as fh:
-                    wc = len(fh.readlines())
-                self.assertEqual(wc, 48)
-                os.unlink(score_file)
             model_ids = os.path.join(mod_dir, 'filter', 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
@@ -56,14 +49,6 @@ class Tests(unittest.TestCase):
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
                  'ExcludedVolumeSphere_None', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
-            # With only a single run, everything goes into sample A
-            for score, exp_wc in (('A', 48), ('B', 0)):
-                score_file = os.path.join(mod_dir, 'filter',
-                                          'scores%s.txt' % score)
-                with open(score_file) as fh:
-                    wc = len(fh.readlines())
-                self.assertEqual(wc, exp_wc)
-                os.unlink(score_file)
             model_ids = os.path.join(mod_dir, 'filter', 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
