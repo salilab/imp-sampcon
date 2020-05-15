@@ -43,6 +43,7 @@ parser.add_argument('--cores', '-c', dest="cores", type=int,
                          'only for  cpu_omp', default=1)
 parser.add_argument('--subunit','-su',dest="subunit",help='calculate RMSD/sampling and cluster precision/densities etc over this subunit only',default=None)
 parser.add_argument('--align', '-a', dest="align", help='boolean flag to allow superposition of models', default=False, action='store_true')
+parser.add_argument('--ambiguity', '-amb', dest="symmetry_groups", help='file containing symmetry groups', default=None)
 parser.add_argument('--scoreA', '-sa', dest="scoreA", help='name of the file having the good-scoring scores for sample A', default="scoresA.txt")
 parser.add_argument('--scoreB', '-sb', dest="scoreB",help='name of the file having the good-scoring scores for sample B', default="scoresB.txt")
 parser.add_argument('--rmfA', '-ra', dest="rmf_A", help='RMF file with conformations from Sample A', default=None)
@@ -53,7 +54,6 @@ parser.add_argument('--cluster_threshold','-ct',dest="cluster_threshold",type=fl
 parser.add_argument('--voxel', '-v', dest="voxel", type=float,help='voxel size for the localization densities', default=5.0)
 parser.add_argument('--density_threshold', '-dt', type=float,dest="density_threshold", help='threshold for localization densities', default=20.0)
 parser.add_argument('--density', '-d', dest="density", help='file containing dictionary of density custom ranges', default=None)
-
 parser.add_argument('--gnuplot', '-gp', dest="gnuplot", help="plotting automatically with gnuplot", default=False, action='store_true')
 args = parser.parse_args()
 
@@ -88,7 +88,13 @@ else:
     args.extension = "rmf3"
     # If we have a single RMF file, read conformations from that
     if args.rmf_A is not None:
-        ps_names, masses, radii, conforms, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit)
+        
+        if args.symmetry_groups:
+            ps_names, masses, radii, conforms, symm_groups, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit,args.symmetry_groups)
+        else:
+        	print("here")
+        	ps_names, masses, radii, conforms, models_name, n_models = get_rmfs_coordinates_one_rmf(args.path, args.rmf_A, args.rmf_B, args.subunit)
+
     # If not, default to the Identities.txt file
     else:
         ps_names, masses, radii, conforms, models_name = get_rmfs_coordinates(args.path, idfile_A, idfile_B, args.subunit)
@@ -99,11 +105,16 @@ if not args.skip_sampling_precision:
     # get_rmsds_matrix modifies conforms, so save it to a file and restore
     # afterwards (so that we retain the original IMP orientation)
     numpy.save("conforms", conforms)
-    inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
+    if args.symmetry_groups:
+        inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores,symm_groups)
+    else:
+        inner_data = get_rmsds_matrix(conforms, args.mode, args.align, args.cores)
+
     print("Size of RMSD matrix (flattened):",inner_data.shape)
     del conforms
     conforms = numpy.load("conforms.npy")
     os.unlink('conforms.npy')
+    
 import pyRMSD.RMSDCalculator
 from pyRMSD.matrixHandler import MatrixHandler
 mHandler = MatrixHandler()
@@ -119,11 +130,12 @@ print("Size of RMSD matrix (unpacked, N x N):",distmat_full.shape)
 if args.rmf_A is not None:
     sampleA_all_models=range(n_models[0])
     sampleB_all_models=range(n_models[0],n_models[1]+n_models[0])
+    print(sampleA_all_models,sampleB_all_models)
     total_num_models = n_models[1]+n_models[0]
 else:
     sampleA_all_models,sampleB_all_models=get_sample_identity(idfile_A, idfile_B)
     total_num_models=len(sampleA_all_models)+len(sampleB_all_models)
-all_models=sampleA_all_models+sampleB_all_models
+all_models=list(sampleA_all_models)+list(sampleB_all_models)
 print("Size of Sample A:",len(sampleA_all_models)," ; Size of Sample B: ",len(sampleB_all_models),"; Total", total_num_models)
     
 if not args.skip_sampling_precision:
@@ -208,9 +220,9 @@ for i in range(len(retained_clusters)):
     if args.rmf_A is not None:
         cluster_center_model_id = cluster_center_index
         if cluster_center_index < n_models[0]:
-            os.system('rmf_slice -q '+args.rmf_A+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index) )
+            os.system('rmf_slice -q '+os.path.join(args.path,args.rmf_A)+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index) )
         else:
-            os.system('rmf_slice -q '+args.rmf_B+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index-n_models[0]) )
+            os.system('rmf_slice -q '+os.path.join(args.path,args.rmf_B)+ " ./cluster."+str(i)+"/cluster_center_model.rmf --frame "+str(cluster_center_index-n_models[0]) )
     else:
         cluster_center_model_id = all_models[cluster_center_index] # index to Identities file.
         shutil.copy(models_name[cluster_center_model_id],os.path.join("./cluster."+str(i),"cluster_center_model."+args.extension))
@@ -236,7 +248,10 @@ for i in range(len(retained_clusters)):
         model_index=all_models[mem]
         
         # get superposition of each model to cluster center and the RMSD between the two
-        rmsd, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, args.align, ps, trans)
+        if args.symmetry_groups:
+        	rmsd, superposed_ps, trans = get_particles_from_superposed_amb(conforms[model_index], conform_0, args.align, ps, trans, symm_groups)
+        else:
+        	rmsd, superposed_ps, trans = get_particles_from_superposed(conforms[model_index], conform_0, args.align, ps, trans)
 
         model.update() # why not?
 

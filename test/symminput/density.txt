@@ -1,0 +1,1 @@
+density_custom_ranges={"LCB1.0":['LCB1.0'], "LCB1.1":['LCB1.1'], "LCB2.0":['LCB2.0'], "LCB2.1":['LCB2.1'], "ORM1.0":['ORM1.0'], "ORM1.1":['ORM1.1'], "TSC3.0":['TSC3.0'], "TSC3.1":['TSC3.1'], "Whole": ['LCB1.0', 'LCB1.1', 'LCB2.0', 'LCB2.1', 'ORM1.0', 'ORM1.1', 'TSC3.0', 'TSC3.1']}
