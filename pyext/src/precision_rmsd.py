@@ -11,8 +11,8 @@ def parse_custom_ranges(ranges_file):
         d = {}
         exec(fh.read(), d)
     return d['density_custom_ranges']
-    
-    
+
+
 def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, ps, trans):
     def _to_vector3ds(numpy_array):
         # No need to fit the whole array - we only need 4 non-coplanar points,
@@ -33,7 +33,7 @@ def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, p
         trans = IMP.algebra.get_transformation_aligning_first_to_second(
             _to_vector3ds(superposed_fit[0]), _to_vector3ds(cluster_conform_0))
 
-    for particle_index in range(len(superposed_fit[1])): 
+    for particle_index in range(len(superposed_fit[1])):
         # Transform from pyRMSD back to original reference
         IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_fit[1][particle_index]))
 
@@ -109,25 +109,25 @@ class GetModelDensity(object):
         self.densities={}
         self.bead_names = bead_names
         self.custom_ranges=custom_ranges
-        
+
         # for each custom range get the particle indices that will be added to the density for that custom range
         self.particle_indices_in_custom_ranges={}
-        
+
         for density_name in self.custom_ranges:
             self.particle_indices_in_custom_ranges[density_name]=[]
-        
+
         # go through each bead, put it in the appropriate custom range(s)
         for index,beadname in enumerate(self.bead_names):
             for density_name in self.custom_ranges:
                 for domain in self.custom_ranges[density_name]: # each domain in the list custom_ranges[density_name]
-                     if self._is_contained(beadname,domain):
+                    if self._is_contained(beadname,domain):
                         self.particle_indices_in_custom_ranges[density_name].append(index)
                         #print(beadname,"is in",domain)
                         break # already added particle to this custom range
-    
+
     def normalize_density(self):
         pass
-   
+
     def _create_density_from_particles(self, ps, name,
                                       kernel_type='GAUSSIAN'):
         '''Internal function for adding to densities.
@@ -152,7 +152,7 @@ class GetModelDensity(object):
             dmap3.add(dmap)
             dmap3.add(self.densities[name])
             self.densities[name] = dmap3
-    
+
     def _is_contained(self,bead_name,domain):
         """ domain can be the name of a single protein or a tuple (start_residue,end_residue,protein_name)
         bead is a string of type moleculeName_startResidue_endResidue
@@ -194,7 +194,7 @@ class GetModelDensity(object):
         particles_custom_ranges={}
         for density_name in self.custom_ranges:
             particles_custom_ranges[density_name]=[]
-        
+
         # add each particle to the relevant custom list
         for density_name in self.custom_ranges:
             for particle_index in self.particle_indices_in_custom_ranges[density_name]:
@@ -203,7 +203,7 @@ class GetModelDensity(object):
         # finally, add each custom particle list to the density
         for density_name in self.custom_ranges:
             self._create_density_from_particles(particles_custom_ranges[density_name],density_name)
-     
+
     def get_density_keys(self):
         return list(self.densities.keys())
 
@@ -213,11 +213,15 @@ class GetModelDensity(object):
             return None
         else:
             return self.densities[name]
-        
-    def write_mrc(self, path="./",file_prefix=""):
+
+    def write_mrc(self, path=".", file_prefix=""):
         for density_name in self.densities:
+            mrc = os.path.join(path, file_prefix + "_" + density_name + ".mrc")
             self.densities[density_name].multiply(1. / self.count_models)
             IMP.em.write_map(
-                self.densities[density_name],
-                path + "/" + file_prefix + "_"+ density_name + ".mrc",
+                self.densities[density_name], mrc,
                 IMP.em.MRCReaderWriter())
+        if len(self.densities) == 1:
+            return mrc
+        else:
+            return os.path.join(path, file_prefix + "_*.mrc")

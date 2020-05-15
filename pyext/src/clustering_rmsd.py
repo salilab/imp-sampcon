@@ -21,7 +21,7 @@ def get_sample_identity(idfile_A, idfile_B):
             mod = line.split("/")[-1]
             sampleA_models.append(int(mod.strip("\n").split(" ")[1]))
     f.close()
-    
+
     with open(idfile_B, 'r') as f:
         for line in f:
             mod = line.split("/")[-1]
@@ -68,19 +68,19 @@ def precision_cluster(distmat,numModels,rmsd_cutoff):
         # get cluster with maximum weight
         max_neighbors=0
         currcenter=-1
-        for eachu in unclustered:  # if multiple clusters have same maxweight this tie is broken arbitrarily! 
+        for eachu in unclustered:  # if multiple clusters have same maxweight this tie is broken arbitrarily!
             if len(neighbors[eachu])>max_neighbors:
                 max_neighbors=len(neighbors[eachu])
-                currcenter=eachu   
-   
+                currcenter=eachu
+
         #form a new cluster with u and its neighbors
         cluster_centers.append(currcenter)
-        cluster_members.append([n for n in neighbors[currcenter]]) 
+        cluster_members.append([n for n in neighbors[currcenter]])
 
-        #update neighbors 
+        #update neighbors
         for n in neighbors[currcenter]:
             #removes the neighbor from the pool
-            unclustered.remove(n) #first occurence of n is removed. 
+            unclustered.remove(n) #first occurence of n is removed.
             boolUnclustered[n]=False # clustered
 
         for n in neighbors[currcenter]:
@@ -88,7 +88,7 @@ def precision_cluster(distmat,numModels,rmsd_cutoff):
                 if not boolUnclustered[unn]:
                     continue
                 neighbors[unn].remove(n)
-    
+
     return cluster_centers, cluster_members
 
 def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,run2_models):
@@ -111,7 +111,7 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
 
     reduced_ctable=[]
     retained_clusters=[]
-    
+
     for i in range(num_clusters):
         if full_ctable[i][0]<=10.0 or full_ctable[i][1]<=10.0:
         #if full_ctable[i][0]<=0.10*numModelsRun1 and full_ctable[i][1] <= 0.10*numModelsRun2:
@@ -123,14 +123,14 @@ def get_contingency_table(num_clusters,cluster_members,all_models,run1_models,ru
 def test_sampling_convergence(contingency_table,total_num_models):
     if len(contingency_table)==0:
         return 0.0,1.0
-    
+
     ct = numpy.transpose(contingency_table)
     [chisquare,pvalue,dof,expected]=scipy.stats.chi2_contingency(ct)
     if dof==0.0:
         cramersv=0.0
     else:
         cramersv=math.sqrt(chisquare/float(total_num_models))
-        
+
     return(pvalue,cramersv)
 
 def percent_ensemble_explained(ctable,total_num_models):
@@ -144,20 +144,22 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models, run1_
     pvals=[]
     cvs=[]
     percents=[]
-    f1=open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+')
-    for c in cutoffs_list:
-        cluster_centers,cluster_members=precision_cluster(distmat_full,
-                                                          total_num_models, c)
-        ctable,retained_clusters=get_contingency_table(len(cluster_centers), cluster_members, all_models,
-                                                       run1_all_models,run2_all_models)
-        (pval,cramersv)=test_sampling_convergence(ctable, total_num_models)
-        percent_explained= percent_ensemble_explained(ctable, total_num_models)
+    with open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+') as f1:
+        for c in cutoffs_list:
+            cluster_centers, cluster_members = precision_cluster(
+                    distmat_full, total_num_models, c)
+            ctable, retained_clusters = get_contingency_table(
+                    len(cluster_centers), cluster_members, all_models,
+                    run1_all_models, run2_all_models)
+            pval, cramersv = test_sampling_convergence(ctable, total_num_models)
+            percent_explained = percent_ensemble_explained(
+                    ctable, total_num_models)
 
-        pvals.append(pval)
-        cvs.append(cramersv)
-        percents.append(percent_explained)
-        
-        print(c, pval, cramersv, percent_explained, file=f1) 
+            pvals.append(pval)
+            cvs.append(cramersv)
+            percents.append(percent_explained)
+
+            print(c, pval, cramersv, percent_explained, file=f1)
 
     return pvals, cvs, percents
 

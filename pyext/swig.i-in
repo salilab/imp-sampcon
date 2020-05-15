@@ -1,0 +1,9 @@
+%import "RMF.i"
+%{
+#include "RMF.h"
+%}
+
+/* All scripts that can be called from the imp_sampcon application */
+%pythoncode %{
+_all_commands = ["select_good", "show_stat", "plot_score", "exhaust"]
+%}

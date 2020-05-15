@@ -18,40 +18,41 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     num = 0
     masses = []
     radii = []
-    
+
     models_name = []
-     
-    f1=open(idfile_A, 'w+')
-    f2=open(idfile_B, 'w+')
 
-    for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print(str_file, num, file=f1)
-        models_name.append(str_file)
+    with open(idfile_A, 'w+') as f1:
+        for str_file in sorted(glob.glob("%s/sample_A/*.pdb" % path),
+                key=lambda x:int(x.split('/')[-1].split('.')[0])):
+            print(str_file, num, file=f1)
+            models_name.append(str_file)
 
-        m = IMP.Model()
-        mh = IMP.atom.read_pdb(str_file, m,
-                               IMP.atom.NonWaterNonHydrogenPDBSelector())
-        mps = IMP.core.get_leaves(mh) 
-        pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
-        if num == 0:
-            masses = [IMP.atom.Mass(p).get_mass() for p in mps]
-            radii  = [IMP.core.XYZR(p).get_radius() for p in mps]
-        conform.append(pts)
-        pts = []
-        num = num + 1
+            m = IMP.Model()
+            mh = IMP.atom.read_pdb(str_file, m,
+                                   IMP.atom.NonWaterNonHydrogenPDBSelector())
+            mps = IMP.core.get_leaves(mh)
+            pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
+            if num == 0:
+                masses = [IMP.atom.Mass(p).get_mass() for p in mps]
+                radii  = [IMP.core.XYZR(p).get_radius() for p in mps]
+            conform.append(pts)
+            pts = []
+            num = num + 1
 
-    for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),key=lambda x:int(x.split('/')[-1].split('.')[0])):
-        print(str_file, num, file=f2)
-        models_name.append(str_file)
+    with open(idfile_B, 'w+') as f2:
+        for str_file in sorted(glob.glob("%s/sample_B/*.pdb" % path),
+                key=lambda x:int(x.split('/')[-1].split('.')[0])):
+            print(str_file, num, file=f2)
+            models_name.append(str_file)
 
-        m = IMP.Model()
-        mh = IMP.atom.read_pdb(str_file, m,
-                               IMP.atom.NonWaterNonHydrogenPDBSelector())
-        mps = IMP.core.get_leaves(mh)
-        pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
-        conform.append(pts)
-        pts = []   
-        num = num + 1
+            m = IMP.Model()
+            mh = IMP.atom.read_pdb(str_file, m,
+                                   IMP.atom.NonWaterNonHydrogenPDBSelector())
+            mps = IMP.core.get_leaves(mh)
+            pts = [IMP.core.XYZ(p).get_coordinates() for p in mps]
+            conform.append(pts)
+            pts = []
+            num = num + 1
 
     return np.array(conform), masses, radii, models_name
 
@@ -62,14 +63,14 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
     masses = []
     radii = []
     ps_names = []
-    
+
     f1=open(idfile_A, 'w+')
     f2=open(idfile_B, 'w+')
 
     models_name = []
-    
+
     for sample_name,sample_id_file in zip(['A','B'],[f1,f2]):
-        
+
         for str_file in sorted(glob.glob("%s/sample_%s/*.rmf3" % (path,sample_name)),key=lambda x:int(x.split('/')[-1].split('.')[0])):
             print(str_file, num, file=sample_id_file)
             models_name.append(str_file)
@@ -78,40 +79,42 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
             inf = RMF.open_rmf_file_read_only(str_file)
             h = IMP.rmf.create_hierarchies(inf, m)[0]
             IMP.rmf.load_frame(inf, 0)
-            
+
             pts = []
 
             if subunit_name:
                 s0 = IMP.atom.Selection(h, resolution=1,molecule=subunit_name)
             else:
                 s0 = IMP.atom.Selection(h, resolution=1)
-     
+
             for leaf in s0.get_selected_particles():
-                
+
                 p=IMP.core.XYZR(leaf)
                 pts.append([p.get_coordinates()[i] for i in range(3)])
-                
+
                 if num == 0 and sample_name=='A':
                     masses.append(IMP.atom.Mass(leaf).get_mass())
                     radii.append(p.get_radius())
                     mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
                     # traverse up the Hierarchy to get copy number of the molecule that the bead belongs to
-                    copy_number=IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf)) 
-                    
+                    copy_number=IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
+
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
-                        
+
                         ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
-                            
+
                     else:
                         residue_in_bead = str(IMP.atom.Residue(leaf).get_index())
-                        
+
                         ps_names.append(mol_name+"_"+residue_in_bead+"_"+residue_in_bead+"_"+str(copy_number))
-            
+
             conform.append(pts)
             pts = []
             num = num + 1
-        
+    f1.close()
+    f2.close()
+
     return ps_names, masses, radii, np.array(conform), models_name
 
 def parse_symmetric_groups_file(symm_groups_file):
@@ -196,7 +199,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
 
         rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path,rmf_file))
         h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
-        
+
         print("Opening RMF file:", rmf_file, "with", rmf_fh.get_number_of_frames(), "frames")
         
         for f in range(rmf_fh.get_number_of_frames()):
