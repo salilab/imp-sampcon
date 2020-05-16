@@ -158,6 +158,7 @@ def main():
     #Step 1: Compute RMSD matrix
     if args.extension == "pdb":
         ps_names = [] # bead names are not stored in PDB files
+        symm_groups = None
         conforms, masses, radii, models_name = \
             rmsd_calculation.get_pdbs_coordinates(
                 args.path, idfile_A, idfile_B)
@@ -172,6 +173,7 @@ def main():
 
         # If not, default to the Identities.txt file
         else:
+            symm_groups = None
             (ps_names, masses, radii, conforms,
              models_name) = rmsd_calculation.get_rmfs_coordinates(
                      args.path, idfile_A, idfile_B, args.subunit)
