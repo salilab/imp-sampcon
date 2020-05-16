@@ -164,15 +164,11 @@ def main():
         args.extension = "rmf3"
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
-            if args.symmetry_groups:
-                (ps_names, masses, radii, conforms, symm_groups, models_name,
-                    n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                         args.path, args.rmf_A, args.rmf_B, args.subunit,
-                         args.symmetry_groups)
-            else:
-                (ps_names, masses, radii, conforms, models_name, n_models) = \
-                     rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                         args.path, args.rmf_A, args.rmf_B, args.subunit)
+            (ps_names, masses, radii, conforms, symm_groups, models_name,
+                n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
+                     args.path, args.rmf_A, args.rmf_B, args.subunit,
+                     args.symmetry_groups)
+                
         # If not, default to the Identities.txt file
         else:
             (ps_names, masses, radii, conforms,
@@ -185,12 +181,8 @@ def main():
         # get_rmsds_matrix modifies conforms, so save it to a file and restore
         # afterwards (so that we retain the original IMP orientation)
         numpy.save("conforms", conforms)
-        if args.symmetry_groups:
-            inner_data = rmsd_calculation.get_rmsds_matrix(
-                    conforms, args.mode, args.align, args.cores, symm_groups)
-        else:
-            inner_data = rmsd_calculation.get_rmsds_matrix(
-                    conforms, args.mode, args.align, args.cores)
+        inner_data = rmsd_calculation.get_rmsds_matrix(
+                conforms, args.mode, args.align, args.cores, symm_groups)
         print("Size of RMSD matrix (flattened):", inner_data.shape)
         del conforms
         conforms = numpy.load("conforms.npy")
