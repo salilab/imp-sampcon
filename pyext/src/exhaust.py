@@ -33,6 +33,8 @@ def parse_args():
     parser.add_argument('--align', '-a', dest="align",
             help='boolean flag to allow superposition of models',
             default=False, action='store_true')
+    parser.add_argument('--ambiguity', '-amb', dest="symmetry_groups",
+                        help='file containing symmetry groups', default=None)
     parser.add_argument('--scoreA', '-sa', dest="scoreA",
             help='name of the file having the good-scoring scores for sample A',
             default="scoresA.txt")
@@ -162,9 +164,15 @@ def main():
         args.extension = "rmf3"
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
-            (ps_names, masses, radii, conforms, models_name, n_models) = \
-                 rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                     args.path, args.rmf_A, args.rmf_B, args.subunit)
+            if args.symmetry_groups:
+                (ps_names, masses, radii, conforms, symm_groups, models_name,
+                    n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
+                         args.path, args.rmf_A, args.rmf_B, args.subunit,
+                         args.symmetry_groups)
+            else:
+                (ps_names, masses, radii, conforms, models_name, n_models) = \
+                     rmsd_calculation.get_rmfs_coordinates_one_rmf(
+                         args.path, args.rmf_A, args.rmf_B, args.subunit)
         # If not, default to the Identities.txt file
         else:
             (ps_names, masses, radii, conforms,
@@ -177,8 +185,12 @@ def main():
         # get_rmsds_matrix modifies conforms, so save it to a file and restore
         # afterwards (so that we retain the original IMP orientation)
         numpy.save("conforms", conforms)
-        inner_data = rmsd_calculation.get_rmsds_matrix(
-                conforms, args.mode, args.align, args.cores)
+        if args.symmetry_groups:
+            inner_data = rmsd_calculation.get_rmsds_matrix(
+                    conforms, args.mode, args.align, args.cores, symm_groups)
+        else:
+            inner_data = rmsd_calculation.get_rmsds_matrix(
+                    conforms, args.mode, args.align, args.cores)
         print("Size of RMSD matrix (flattened):", inner_data.shape)
         del conforms
         conforms = numpy.load("conforms.npy")
@@ -341,9 +353,15 @@ def main():
 
             # get superposition of each model to cluster center and the
             # RMSD between the two
-            rmsd, superposed_ps, trans = \
-                precision_rmsd.get_particles_from_superposed(
-                    conforms[model_index], conform_0, args.align, ps, trans)
+            if args.symmetry_groups:
+                rmsd, superposed_ps, trans = \
+                    precision_rmsd.get_particles_from_superposed_amb(
+                        conforms[model_index], conform_0, args.align, ps, trans,
+                        symm_groups)
+            else:
+                rmsd, superposed_ps, trans = \
+                    precision_rmsd.get_particles_from_superposed(
+                        conforms[model_index], conform_0, args.align, ps, trans)
 
             model.update() # why not?
 
