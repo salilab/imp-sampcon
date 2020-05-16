@@ -165,7 +165,6 @@ def main():
         args.extension = "rmf3"
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
-            #symm_groups = None
             (ps_names, masses, radii, conforms, symm_groups, models_name,
                 n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
                      args.path, args.rmf_A, args.rmf_B, args.subunit,
