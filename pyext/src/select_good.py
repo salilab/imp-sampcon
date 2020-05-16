@@ -47,7 +47,7 @@ def select_good_scoring_models():
 
 def create_score_files(subsets, field="Total_Score"):
     arg=parse_args()
-    
+
     score_dir = os.path.join(arg.run_dir,
                              "good_scoring_models")
     scoreA = open(os.path.join(score_dir, arg.score_file_prefix + "A.txt"), "w")
@@ -61,33 +61,33 @@ def create_score_files(subsets, field="Total_Score"):
         # Find index of the field we want to use for model score convergence
         if line_index==0:
             field_headers = each_model_line.strip().split()
-            
+
             try:
                 ts_ix = field_headers.index(field)
                 run_ix = field_headers.index("Run_id")
                 model_ix = field_headers.index("Model_index")
-            
+
             except ValueError:
                 print("create_scores_file: model_ids_scores.txt file has an incorrect format.")
                 exit()
 
         else:
             fields = each_model_line.strip().split()
-            
+
             score=fields[ts_ix]
-            
+
             model = int(fields[model_ix])
             print(score, file=scoreA if model in subsets[0] else scoreB)
-               
+
     scoreA.close()
     scoreB.close()
-    
+
 
 def main():
     subsets, extract = select_good_scoring_models()
-    
-    print("Filtered model scores ready") 
-    
+
+    print("Filtered model scores ready")
+
     if extract:
 
         # Create Score Files

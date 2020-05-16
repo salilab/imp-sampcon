@@ -118,32 +118,32 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
     return ps_names, masses, radii, np.array(conform), models_name
 
 def parse_symmetric_groups_file(symm_groups_file):
-    
+
     symm_groups =[]
-    
+
     member_to_symm_group={}
-    
+
     first_group_member=[]
-    
+
     curr_particle_index_in_group = []
-    
+
     sgf = open(symm_groups_file,'r')
-    
+
     for indx,ln in enumerate(sgf.readlines()):
-        
+
         symm_groups.append([]) # create new symm group list
-        
+
         curr_particle_index_in_group.append(-1) # particle index for new symmetric group
-        
+
         fields = ln.strip().split()
-        
+
         for fld in fields:
-            member_to_symm_group[fld] = indx # group that the current protein copy belongs to   
-            
+            member_to_symm_group[fld] = indx # group that the current protein copy belongs to
+
         first_group_member.append(fields[0]) # the first group member is special! We create a symm group list of particles for the first group member
-    
+
     sgf.close()
-    
+
     return(symm_groups,member_to_symm_group,curr_particle_index_in_group, first_group_member)
 
 
@@ -178,12 +178,12 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
         s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
     else:
         s0 = IMP.atom.Selection(h, resolution=1)
-    
+
     # Count particles
     for leaf in s0.get_selected_particles():
         p=IMP.core.XYZR(leaf)
         pts+=1
-   
+
     # Initialize array
     conform = np.empty([n_models[0]+n_models[1], pts, 3])
 
@@ -192,7 +192,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
         (symm_groups, group_member_to_symm_group_map, curr_particle_index_in_group, first_group_member)=parse_symmetric_groups_file(symm_groups_file)
 
     mod_id = 0 # index for each model in conform.
-    
+
     for rmf_file in [rmf_A, rmf_B]:
 
         models_name.append(rmf_file)
@@ -201,13 +201,13 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
         h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
 
         print("Opening RMF file:", rmf_file, "with", rmf_fh.get_number_of_frames(), "frames")
-        
+
         for f in range(rmf_fh.get_number_of_frames()):
-            
+
             if f%100==0:
                 #pass
                 print("  -- Opening frame", f, "of", rmf_fh.get_number_of_frames())
-                
+
             IMP.rmf.load_frame(rmf_fh, f)
 
             m.update()
@@ -217,20 +217,20 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
                 s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
             else:
                 s0 = IMP.atom.Selection(h, resolution=1)
-               
+
             particles = s0.get_selected_particles()
-            
-            
+
+
             # Copy particle coordinates
             for i in range(len(particles)): # i is an index over all particles in the system
-                
+
                 leaf=particles[i]
                 p=IMP.core.XYZR(leaf)
                 pxyz = p.get_coordinates()
                 conform[mod_id][i][0] = pxyz[0]
                 conform[mod_id][i][1] = pxyz[1]
                 conform[mod_id][i][2] = pxyz[2]
-     
+
                 # Just for the first model, update the masses and radii and log the particle name in ps_names
                 if mod_id == 0 and rmf_file==rmf_A:
                     masses.append(IMP.atom.Mass(leaf).get_mass())
@@ -238,26 +238,26 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
                     mol_name = IMP.atom.get_molecule_name(IMP.atom.Hierarchy(leaf))
                     # traverse up the Hierarchy to get copy number of the molecule that the bead belongs to
                     copy_number=IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
-                    
+
                     # Add to symmetric groups if needed
                     if symm_groups_file:
-                   
+
                         protein_plus_copy = mol_name+'.'+str(copy_number)
-                    
-                        if protein_plus_copy  in  group_member_to_symm_group_map:   
+
+                        if protein_plus_copy  in  group_member_to_symm_group_map:
                             # protein copy is in a symmetric group
-                        
+
                             group_index=group_member_to_symm_group_map[protein_plus_copy]
-                    
+
                             curr_particle_index_in_group[group_index] +=1
-                       
+
                             if  protein_plus_copy == first_group_member[group_index]:
                                 symm_groups[group_index].append([i])
-                            
-                            else: 
+
+                            else:
                                 j = curr_particle_index_in_group[group_index] % len(symm_groups[group_index])
                                 symm_groups[group_index][j].append(i)
-                        
+
                     if IMP.atom.Fragment.get_is_setup(leaf): #TODO not tested on non-fragment systems
                         residues_in_bead = IMP.atom.Fragment(leaf).get_residue_indexes()
                         ps_names.append(mol_name+"_"+str(min(residues_in_bead))+"_"+str(max(residues_in_bead))+"_"+str(copy_number))
@@ -273,21 +273,21 @@ def get_rmsds_matrix(conforms, mode, sup, cores,symm_groups=None):
 
     if(mode=="cpu_serial" and not sup) or (mode=="cpu_omp" and not sup):
         calculator_name = "NOSUP_OMP_CALCULATOR"
-        
-    elif(mode=="cpu_omp" and sup):  
+
+    elif(mode=="cpu_omp" and sup):
         calculator_name = "QCP_OMP_CALCULATOR"
-        
+
     elif(mode=="cuda" and sup):
         calculator_name = "QCP_CUDA_MEM_CALCULATOR"
     else:
         print("Wrong values to pyRMSD ! Please Fix")
         exit()
-        
+
     if symm_groups:
-         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, fittingCoordsets=conforms,calculationCoordsets=conforms,calcSymmetryGroups=symm_groups)
+        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, fittingCoordsets=conforms,calculationCoordsets=conforms,calcSymmetryGroups=symm_groups)
     else:
-         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, conforms)
-        
+        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(calculator_name, conforms)
+
     # additionally set number of cores for parallel calculator
     if(mode=="cpu_omp"):
         calculator.setNumberOfOpenMPThreads(int(cores))
