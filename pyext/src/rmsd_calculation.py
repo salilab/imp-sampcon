@@ -190,6 +190,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
     # Initialize the symmetric group particles list, and protein to symmetry group mapping
     if symm_groups_file:
         (symm_groups, group_member_to_symm_group_map, curr_particle_index_in_group, first_group_member)=parse_symmetric_groups_file(symm_groups_file)
+    else: symm_groups = None    
 
     mod_id = 0 # index for each model in conform.
 
