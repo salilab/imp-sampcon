@@ -120,11 +120,8 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
 def parse_symmetric_groups_file(symm_groups_file):
 
     symm_groups =[]
-
     member_to_symm_group={}
-
     first_group_member=[]
-
     curr_particle_index_in_group = []
 
     sgf = open(symm_groups_file,'r')
@@ -132,7 +129,6 @@ def parse_symmetric_groups_file(symm_groups_file):
     for indx,ln in enumerate(sgf.readlines()):
 
         symm_groups.append([]) # create new symm group list
-
         curr_particle_index_in_group.append(-1) # particle index for new symmetric group
 
         fields = ln.strip().split()
@@ -144,8 +140,7 @@ def parse_symmetric_groups_file(symm_groups_file):
 
     sgf.close()
 
-    return(symm_groups,member_to_symm_group,curr_particle_index_in_group, first_group_member)
-
+    return (symm_groups, member_to_symm_group, curr_particle_index_in_group, first_group_member)
 
 def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_groups_file=None):
 
@@ -190,7 +185,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None, symm_gro
     # Initialize the symmetric group particles list, and protein to symmetry group mapping
     if symm_groups_file:
         (symm_groups, group_member_to_symm_group_map, curr_particle_index_in_group, first_group_member)=parse_symmetric_groups_file(symm_groups_file)
-    else: symm_groups = None    
+    else: symm_groups = None
 
     mod_id = 0 # index for each model in conform.
 

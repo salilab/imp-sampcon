@@ -1,4 +1,4 @@
-The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a  SPOTS model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our  SPOTS  modeling is 25.497  A.
+The sampling precision is defined as the largest allowed RMSD between the cluster centroid and a  SPOTS model within any cluster in the finest clustering for which each sample contributes models proportionally to its size (considering both significance and magnitude of the difference) and for which a sufficient proportion of all models occur in sufficiently large clusters. The sampling precision for our  SPOTS  modeling is 30.611  A.
 Sampling precision, P-value, Cramer's V and percentage of clustered models below:
-25.497	0.013	0.094	99.900
+30.611	0.030	0.095	98.697
 
