@@ -204,8 +204,8 @@ def main():
 
     # Get model lists
     if args.rmf_A is not None:
-        sampleA_all_models = range(n_models[0])
-        sampleB_all_models = range(n_models[0], n_models[1] + n_models[0])
+        sampleA_all_models = list(range(n_models[0]))
+        sampleB_all_models = list(range(n_models[0], n_models[1] + n_models[0]))
         total_num_models = n_models[1] + n_models[0]
     else:
         (sampleA_all_models,
