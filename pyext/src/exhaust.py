@@ -395,16 +395,17 @@ def main():
         if args.rmf_A is not None:
             cluster_center_model_id = cluster_center_index
             if cluster_center_index < n_models[0]:
-                make_cluster_centroid(args.rmf_A, cluster_center_index,
+                make_cluster_centroid(os.path.join(args.path, args.rmf_A),
+                        cluster_center_index,
                         os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf"),
+                                     "cluster_center_model.rmf3"),
                         i, len(cluster_members[clus]),
                         cluster_precision, density, args.path)
             else:
-                make_cluster_centroid(args.rmf_B,
+                make_cluster_centroid(os.path.join(args.path, args.rmf_B),
                         cluster_center_index - n_models[0],
                         os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf"),
+                                     "cluster_center_model.rmf3"),
                         i, len(cluster_members[clus]),
                         cluster_precision, density, args.path)
         else:
