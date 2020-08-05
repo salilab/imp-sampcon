@@ -28,7 +28,7 @@ class Tests(IMP.test.TestCase):
         """Test exhaust module help"""
         self.check_runnable_python_module("IMP.sampcon.exhaust")
 
-    def make_models(self, tmpdir):
+    def make_models(self, tmpdir, make_rmf=False):
         """Get a set of good-scoring models to use as input"""
         mod_dir = os.path.join(tmpdir, 'modeling')
         shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
@@ -41,6 +41,16 @@ class Tests(IMP.test.TestCase):
              'ExcludedVolumeSphere_None', 'Total_Score',
              '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '15.0',
              '-e'])
+        if make_rmf:
+            gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
+            def read_sample(subdir):
+                return sorted('%s/%s' % (subdir, rmf)
+                        for rmf in os.listdir(os.path.join(gsm_dir, subdir))
+                        if rmf.endswith('.rmf3'))
+            subprocess.check_call(['rmf_cat'] + read_sample('sample_A')
+                    + ['A.rmf3'], cwd=gsm_dir)
+            subprocess.check_call(['rmf_cat'] + read_sample('sample_B')
+                    + ['B.rmf3'], cwd=gsm_dir)
 
     def test_exhaust(self):
         """Test the master sampling exhaustiveness script"""
@@ -84,6 +94,43 @@ class Tests(IMP.test.TestCase):
             expected = [
                 'Distances_Matrix.data.npy', 'Identities_A.txt',
                 'Identities_B.txt', 'cluster.0.all.txt',
+                'cluster.0.sample_A.txt',
+                'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
+                'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
+                'test.Cluster_Population.txt', 'test.Cluster_Precision.txt',
+                'test.KS_Test.txt', 'test.Sampling_Precision_Stats.txt',
+                'test.Score_Dist.pdf', 'test.Score_Hist_A.txt',
+                'test.Score_Hist_B.txt', 'test.Top_Score_Conv.pdf',
+                'test.Top_Score_Conv.txt',
+                'cluster.0/cluster_center_model.rmf3',
+                'cluster.0/LPD_TestAll.mrc',
+                'cluster.0/Sample_A/LPD_TestAll.mrc',
+                'cluster.0/Sample_B/LPD_TestAll.mrc']
+
+            for e in expected:
+                os.unlink(os.path.join(tmpdir, e))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_A'))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_B'))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0'))
+
+    def test_exhaust_rmf_a_b(self):
+        "Test the master sampling exhaustiveness script with rmf_A,B options"
+        try:
+            import pyRMSD
+        except ImportError:
+            self.skipTest("this test requires the pyRMSD Python module")
+        with IMP.test.temporary_working_directory() as tmpdir:
+            self.make_models(tmpdir, make_rmf=True)
+            gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            self.run_python_module(exhaust,
+                ['-n', 'test', '-p', gsm_dir,
+                 '-ra', 'A.rmf3', '-rb', 'B.rmf3',
+                 '-d', self.get_input_file_name('density_ranges.txt'),
+                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'])
+
+            # Check for expected files
+            expected = [
+                'Distances_Matrix.data.npy', 'cluster.0.all.txt',
                 'cluster.0.sample_A.txt',
                 'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
                 'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
