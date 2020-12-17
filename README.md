@@ -1,6 +1,6 @@
 \brief Sampling exhaustiveness protocol
 
-[![Build Status](https://travis-ci.org/salilab/imp-sampcon.svg?branch=master)](https://travis-ci.org/salilab/imp-sampcon)
+[![Build Status](https://github.com/salilab/imp-sampcon/workflows/build/badge.svg?branch=master)](https://github.com/salilab/imp-sampcon/actions?query=workflow%3Abuild)
 [![codecov](https://codecov.io/gh/salilab/imp-sampcon/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/imp-sampcon)
 
 This module implements the sampling exhaustiveness test described in

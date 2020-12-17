@@ -1,0 +1,36 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  schedule:
+  - cron: "11 6 * * 5"  # Run at a random time weekly
+
+jobs:
+  build:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [2.7, 3.8]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup conda and dependencies
+      run: |
+        sudo apt-get update -qq && sudo apt-get install -qq gnuplot
+        tools/setup_travis.sh ~/conda ${{ matrix.python-version }}
+    - name: Test
+      run: |
+        export IMP_TMP_DIR=/tmp
+        source ~/conda/bin/activate python${{ matrix.python-version }}
+        mkdir build && cd build
+        if test "${{ matrix.python-version }}" = "2.7" ; then PY2=on; else PY2=off; fi
+        cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP -DUSE_PYTHON2=${PY2}
+        make
+        ./setup_environment.sh py.test --cov=.. --cov-branch --cov-report=xml -v ../test/test_*.py ../test/medium_test_*.py test/*/*.py
+    - uses: codecov/codecov-action@v1
