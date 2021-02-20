@@ -44,7 +44,8 @@ def main():
 
     if args.column == "all":
         print("Plotting all columns")
-        exclude = frozenset(('Model_index', 'Replica_id', 'Frame_id', 'Run_id'))
+        exclude = frozenset(('Model_index', 'Replica_id', 'Frame_id',
+                             'Run_id'))
         for k in scores.columns:
             if k not in exclude:
                 p = plot_column(plt, scores, k, show=False)

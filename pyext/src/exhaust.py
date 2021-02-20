@@ -4,74 +4,92 @@ import os
 
 __doc__ = "Perform analysis to determine sampling convergence."
 
-###########################################################
-#Scripts written by Shruthi Viswanath and Ilan E. Chemmama#
-#             in Andrej Sali Lab at UCSF.                 #
-#  Based on Viswanath, Chemmama et al. Biophys. J. (2017) #
-#                                                         #
-###########################################################
+############################################################
+# Scripts written by Shruthi Viswanath and Ilan E. Chemmama#
+#              in Andrej Sali Lab at UCSF.                 #
+#   Based on Viswanath, Chemmama et al. Biophys. J. (2017) #
+#                                                          #
+############################################################
+
 
 def parse_args():
     parser = ArgumentParser(
-            description="First stages of analysis for assessing sampling "
-                        "convergence")
-    parser.add_argument('--sysname', '-n', dest="sysname",
-            help='name of the system', default="")
-    parser.add_argument('--path', '-p', dest="path",
-            help='path to the good-scoring models', default="./")
-    parser.add_argument('--extension', '-e', dest="extension",
-            help='extension of the file', choices=['rmf', 'pdb'],
-            default="rmf")
-    parser.add_argument('--mode', '-m', dest="mode", help='pyRMSD calculator',
-            choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
-    parser.add_argument('--cores', '-c', dest="cores", type=int,
-            help='number of cores for RMSD matrix calculations; '
-                 'only for cpu_omp', default=1)
-    parser.add_argument('--subunit', '-su', dest="subunit",
-            help='calculate RMSD/sampling and cluster precision/densities '
-                 'etc over this subunit only', default=None)
-    parser.add_argument('--align', '-a', dest="align",
-            help='boolean flag to allow superposition of models',
-            default=False, action='store_true')
-    parser.add_argument('--ambiguity', '-amb', dest="symmetry_groups",
-                        help='file containing symmetry groups', default=None)
-    parser.add_argument('--scoreA', '-sa', dest="scoreA",
-            help='name of the file having the good-scoring scores for sample A',
-            default="scoresA.txt")
-    parser.add_argument('--scoreB', '-sb', dest="scoreB",
-            help='name of the file having the good-scoring scores for sample B',
-            default="scoresB.txt")
-    parser.add_argument('--rmfA', '-ra', dest="rmf_A",
-            help='RMF file with conformations from Sample A', default=None)
-    parser.add_argument('--rmfB', '-rb', dest="rmf_B",
-            help='RMF file with conformations from Sample B', default=None)
-    parser.add_argument('--gridsize', '-g', dest="gridsize", type=float,
-            help='grid size for calculating sampling precision', default=10.0)
-    parser.add_argument('--skip', '-s', dest="skip_sampling_precision",
-            help="This option will bypass the calculation of sampling "
-                 "precision. This option needs to be used with the clustering "
-                 "threshold option. Otherwise by default, sampling precision "
-                 "is calculated and the clustering threshold is the "
-                 "calculated sampling precision.", default=False,
-            action='store_true')
-    parser.add_argument('--cluster_threshold', '-ct', dest="cluster_threshold",
-            type=float,
-            help='final clustering threshold to visualize clusters. Assumes '
-                 'that the user has previously calculated sampling precision '
-                 'and wants clusters defined at a threshold higher than the '
-                 'sampling precision for ease of analysis (lesser number of '
-                 'clusters).', default=30.0)
-    parser.add_argument('--voxel', '-v', dest="voxel", type=float,
-            help='voxel size for the localization densities', default=5.0)
-    parser.add_argument('--density_threshold', '-dt', type=float,
-            dest="density_threshold",
-            help='threshold for localization densities', default=20.0)
-    parser.add_argument('--density', '-d', dest="density",
-            help='file containing dictionary of density custom ranges',
-            default=None)
-    parser.add_argument('--gnuplot', '-gp', dest="gnuplot",
-            help="plotting automatically with gnuplot", default=False,
-            action='store_true')
+        description="First stages of analysis for assessing sampling "
+                    "convergence")
+    parser.add_argument(
+        '--sysname', '-n', dest="sysname",
+        help='name of the system', default="")
+    parser.add_argument(
+        '--path', '-p', dest="path",
+        help='path to the good-scoring models', default="./")
+    parser.add_argument(
+        '--extension', '-e', dest="extension",
+        help='extension of the file', choices=['rmf', 'pdb'], default="rmf")
+    parser.add_argument(
+        '--mode', '-m', dest="mode", help='pyRMSD calculator',
+        choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
+    parser.add_argument(
+        '--cores', '-c', dest="cores", type=int,
+        help='number of cores for RMSD matrix calculations; '
+             'only for cpu_omp', default=1)
+    parser.add_argument(
+        '--subunit', '-su', dest="subunit",
+        help='calculate RMSD/sampling and cluster precision/densities '
+             'etc over this subunit only', default=None)
+    parser.add_argument(
+        '--align', '-a', dest="align",
+        help='boolean flag to allow superposition of models',
+        default=False, action='store_true')
+    parser.add_argument(
+        '--ambiguity', '-amb', dest="symmetry_groups",
+        help='file containing symmetry groups', default=None)
+    parser.add_argument(
+        '--scoreA', '-sa', dest="scoreA",
+        help='name of the file having the good-scoring scores for sample A',
+        default="scoresA.txt")
+    parser.add_argument(
+        '--scoreB', '-sb', dest="scoreB",
+        help='name of the file having the good-scoring scores for sample B',
+        default="scoresB.txt")
+    parser.add_argument(
+        '--rmfA', '-ra', dest="rmf_A",
+        help='RMF file with conformations from Sample A', default=None)
+    parser.add_argument(
+        '--rmfB', '-rb', dest="rmf_B",
+        help='RMF file with conformations from Sample B', default=None)
+    parser.add_argument(
+        '--gridsize', '-g', dest="gridsize", type=float,
+        help='grid size for calculating sampling precision', default=10.0)
+    parser.add_argument(
+        '--skip', '-s', dest="skip_sampling_precision",
+        help="This option will bypass the calculation of sampling "
+             "precision. This option needs to be used with the clustering "
+             "threshold option. Otherwise by default, sampling precision "
+             "is calculated and the clustering threshold is the "
+             "calculated sampling precision.", default=False,
+        action='store_true')
+    parser.add_argument(
+        '--cluster_threshold', '-ct', dest="cluster_threshold", type=float,
+        help='final clustering threshold to visualize clusters. Assumes '
+             'that the user has previously calculated sampling precision '
+             'and wants clusters defined at a threshold higher than the '
+             'sampling precision for ease of analysis (lesser number of '
+             'clusters).', default=30.0)
+    parser.add_argument(
+        '--voxel', '-v', dest="voxel", type=float,
+        help='voxel size for the localization densities', default=5.0)
+    parser.add_argument(
+        '--density_threshold', '-dt', type=float,
+        dest="density_threshold",
+        help='threshold for localization densities', default=20.0)
+    parser.add_argument(
+        '--density', '-d', dest="density",
+        help='file containing dictionary of density custom ranges',
+        default=None)
+    parser.add_argument(
+        '--gnuplot', '-gp', dest="gnuplot",
+        help="plotting automatically with gnuplot", default=False,
+        action='store_true')
     return parser.parse_args()
 
 
@@ -101,8 +119,8 @@ def make_cluster_centroid(infname, frame, outfname, cluster_index,
             return
         prov = prov[0]
         # Add cluster-provenance info
-        newp = rn.replace_child(prov, "cluster.%d" % cluster_index,
-                RMF.PROVENANCE)
+        newp = rn.replace_child(
+            prov, "cluster.%d" % cluster_index, RMF.PROVENANCE)
         cp = cpf.get(newp)
         cp.set_members(cluster_size)
         cp.set_precision(precision)
@@ -123,7 +141,6 @@ def main():
     import numpy
 
     import scipy as sp
-    from scipy import spatial
 
     import IMP.sampcon
     from IMP.sampcon import scores_convergence, clustering_rmsd
@@ -134,7 +151,7 @@ def main():
     idfile_A = "Identities_A.txt"
     idfile_B = "Identities_B.txt"
 
-    #Step 0: Compute Score convergence
+    # Step 0: Compute Score convergence
     score_A = []
     score_B = []
 
@@ -155,9 +172,9 @@ def main():
     scores_convergence.get_scores_distributions_KS_Stats(
             score_A, score_B, 100, args.sysname)
 
-    #Step 1: Compute RMSD matrix
+    # Step 1: Compute RMSD matrix
     if args.extension == "pdb":
-        ps_names = [] # bead names are not stored in PDB files
+        ps_names = []  # bead names are not stored in PDB files
         symm_groups = None
         conforms, masses, radii, models_name = \
             rmsd_calculation.get_pdbs_coordinates(
@@ -191,7 +208,6 @@ def main():
         conforms = numpy.load("conforms.npy")
         os.unlink('conforms.npy')
 
-    import pyRMSD.RMSDCalculator
     from pyRMSD.matrixHandler import MatrixHandler
     mHandler = MatrixHandler()
     mHandler.loadMatrix("Distances_Matrix.data")
@@ -205,7 +221,8 @@ def main():
     # Get model lists
     if args.rmf_A is not None:
         sampleA_all_models = list(range(n_models[0]))
-        sampleB_all_models = list(range(n_models[0], n_models[1] + n_models[0]))
+        sampleB_all_models = list(range(n_models[0],
+                                        n_models[1] + n_models[0]))
         total_num_models = n_models[1] + n_models[0]
     else:
         (sampleA_all_models,
@@ -245,12 +262,12 @@ def main():
                   % args.sysname, 'w+') as fpv:
             print("The sampling precision is defined as the largest allowed "
                   "RMSD between the cluster centroid and a ", args.sysname,
-                  "model within any cluster in the finest clustering for which "
-                  "each sample contributes models proportionally to its size "
-                  "(considering both significance and magnitude of the "
-                  "difference) and for which a sufficient proportion of all "
-                  "models occur in sufficiently large clusters. The sampling "
-                  "precision for our ", args.sysname,
+                  "model within any cluster in the finest clustering for "
+                  "which each sample contributes models proportionally to "
+                  "its size (considering both significance and magnitude of "
+                  "the difference) and for which a sufficient proportion of "
+                  "all models occur in sufficiently large clusters. The "
+                  "sampling precision for our ", args.sysname,
                   " modeling is %.3f" % (sampling_precision), " A.", file=fpv)
 
             print("Sampling precision, P-value, Cramer's V and percentage "
@@ -295,13 +312,13 @@ def main():
         conform_0 = conforms[all_models[cluster_members[clus][0]]]
 
         # create a directory for the cluster
-        if not os.path.exists("./cluster.%s" %i):
-            os.mkdir("./cluster.%s" %i)
+        if not os.path.exists("./cluster.%s" % i):
+            os.mkdir("./cluster.%s" % i)
             os.mkdir("./cluster.%s/Sample_A/" % i)
             os.mkdir("./cluster.%s/Sample_B/" % i)
         else:
-            shutil.rmtree("./cluster.%s" %i)
-            os.mkdir("./cluster.%s" %i)
+            shutil.rmtree("./cluster.%s" % i)
+            os.mkdir("./cluster.%s" % i)
             os.mkdir("./cluster.%s/Sample_A/" % i)
             os.mkdir("./cluster.%s/Sample_B/" % i)
 
@@ -327,10 +344,10 @@ def main():
 
         # Create a model with just the cluster_member particles
         model = IMP.Model()
-        ps = [] # particle list to be updated by each RMF frame
+        ps = []  # particle list to be updated by each RMF frame
         for pi in range(len(conform_0)):
             p = IMP.Particle(model, "%s" % str(pi))
-            IMP.core.XYZ.setup_particle(p, (0,0,0))
+            IMP.core.XYZ.setup_particle(p, (0, 0, 0))
             IMP.core.XYZR.setup_particle(p, float(radii[pi]))
             IMP.atom.Mass.setup_particle(p, float(masses[pi]))
             ps.append(p)
@@ -351,19 +368,20 @@ def main():
             if args.symmetry_groups:
                 rmsd, superposed_ps, trans = \
                     precision_rmsd.get_particles_from_superposed_amb(
-                        conforms[model_index], conform_0, args.align, ps, trans,
-                        symm_groups)
+                        conforms[model_index], conform_0, args.align, ps,
+                        trans, symm_groups)
             else:
                 rmsd, superposed_ps, trans = \
                     precision_rmsd.get_particles_from_superposed(
-                        conforms[model_index], conform_0, args.align, ps, trans)
+                        conforms[model_index], conform_0, args.align,
+                        ps, trans)
 
-            model.update() # why not?
+            model.update()  # why not?
 
             cluster_precision += rmsd
 
             # Add the superposed particles to the respective density maps
-            gmdt.add_subunits_density(superposed_ps) # total density map
+            gmdt.add_subunits_density(superposed_ps)  # total density map
             print(model_index, file=both_file)
 
             if model_index in sampleA_all_models:
@@ -386,33 +404,35 @@ def main():
         sampleB_file.close()
 
         # Output density files for the cluster
-        density = gmdt.write_mrc(path="./cluster.%s" % i, file_prefix = "LPD")
-        gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix = "LPD")
-        gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix = "LPD")
+        density = gmdt.write_mrc(path="./cluster.%s" % i, file_prefix="LPD")
+        gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix="LPD")
+        gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix="LPD")
 
         # Add the cluster center model RMF to the cluster directory
         cluster_center_index = cluster_members[clus][0]
         if args.rmf_A is not None:
             cluster_center_model_id = cluster_center_index
             if cluster_center_index < n_models[0]:
-                make_cluster_centroid(os.path.join(args.path, args.rmf_A),
-                        cluster_center_index,
-                        os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf3"),
-                        i, len(cluster_members[clus]),
-                        cluster_precision, density, args.path)
+                make_cluster_centroid(
+                    os.path.join(args.path, args.rmf_A),
+                    cluster_center_index,
+                    os.path.join("cluster.%d" % i,
+                                 "cluster_center_model.rmf3"),
+                    i, len(cluster_members[clus]),
+                    cluster_precision, density, args.path)
             else:
-                make_cluster_centroid(os.path.join(args.path, args.rmf_B),
-                        cluster_center_index - n_models[0],
-                        os.path.join("cluster.%d" % i,
-                                     "cluster_center_model.rmf3"),
-                        i, len(cluster_members[clus]),
-                        cluster_precision, density, args.path)
+                make_cluster_centroid(
+                    os.path.join(args.path, args.rmf_B),
+                    cluster_center_index - n_models[0],
+                    os.path.join("cluster.%d" % i,
+                                 "cluster_center_model.rmf3"),
+                    i, len(cluster_members[clus]),
+                    cluster_precision, density, args.path)
         else:
             # index to Identities file.
             cluster_center_model_id = all_models[cluster_center_index]
             outfname = os.path.join("cluster.%d" % i,
-                                     "cluster_center_model." + args.extension)
+                                    "cluster_center_model." + args.extension)
             if 'rmf' in args.extension:
                 make_cluster_centroid(
                         models_name[cluster_center_model_id], 0, outfname,
@@ -428,12 +448,12 @@ def main():
         import subprocess
         import glob
 
-        thisdir = os.path.dirname(__file__)
         gnuplotdir = IMP.sampcon.get_data_path("gnuplot_scripts")
         for filename in sorted(glob.glob(os.path.join(gnuplotdir, "*.plt"))):
             cmd = ['gnuplot', '-e', 'sysname="%s"' % args.sysname, filename]
             print(" ".join(cmd))
             subprocess.check_call(cmd)
+
 
 if __name__ == '__main__':
     main()

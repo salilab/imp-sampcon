@@ -28,7 +28,7 @@ bash miniconda.sh -b -p ${conda_dir}
 export PATH=${conda_dir}/bin:$PATH
 conda create --yes -q -n python${python_version} -c salilab python=${python_version} pip scipy matplotlib pandas pyrmsd imp-nightly cmake
 source activate python${python_version}
-pip install pytest-cov coverage
+pip install pytest-cov coverage pytest-flake8
 
 cd ${cur_dir}
 

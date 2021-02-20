@@ -1,10 +1,10 @@
 from __future__ import print_function
-import os,sys
+import os
 import numpy
-import string
 import IMP
 import IMP.em
 import pyRMSD.RMSDCalculator
+
 
 def parse_custom_ranges(ranges_file):
     with open(ranges_file) as fh:
@@ -13,18 +13,24 @@ def parse_custom_ranges(ranges_file):
     return d['density_custom_ranges']
 
 
-def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, ps, trans):
+def get_particles_from_superposed(
+        cluster_conform_i, cluster_conform_0, align, ps, trans):
     def _to_vector3ds(numpy_array):
         # No need to fit the whole array - we only need 4 non-coplanar points,
         # so 100 should be plenty
         return [IMP.algebra.Vector3D(c) for c in numpy_array[:100]]
 
     if align:
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, cluster_conform_i]))
+        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+            "QCP_SERIAL_CALCULATOR",
+            numpy.array([cluster_conform_0, cluster_conform_i]))
     else:
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, cluster_conform_i]))
+        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+            "NOSUP_SERIAL_CALCULATOR",
+            numpy.array([cluster_conform_0, cluster_conform_i]))
 
-    rmsd, superposed_fit = calculator.pairwise(0, 1, get_superposed_coordinates = True)
+    rmsd, superposed_fit = calculator.pairwise(
+        0, 1, get_superposed_coordinates=True)
     # Get transformation from pyRMSD reference on the first call.
     # This is somewhat inefficient (since we are essentially repeating
     # the pyRMSD calculation) but pyRMSD doesn't appear to make its
@@ -35,11 +41,14 @@ def get_particles_from_superposed(cluster_conform_i, cluster_conform_0, align, p
 
     for particle_index in range(len(superposed_fit[1])):
         # Transform from pyRMSD back to original reference
-        IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_fit[1][particle_index]))
+        IMP.core.XYZ(ps[particle_index]).set_coordinates(
+            trans * IMP.algebra.Vector3D(superposed_fit[1][particle_index]))
 
     return rmsd, ps, trans
 
-def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, align, ps, trans, symm_groups):
+
+def get_particles_from_superposed_amb(
+        cluster_conform_i, cluster_conform_0, align, ps, trans, symm_groups):
 
     '''Modified superposed function to work with symmetric copies'''
 
@@ -50,26 +59,33 @@ def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, alig
 
     min_rmsd = 10000.0
 
-    superposed_final_coords=[]
+    superposed_final_coords = []
 
-    for perm in pyRMSD.symmTools.symm_permutations(symm_groups): # for each permutation
+    for perm in pyRMSD.symmTools.symm_permutations(symm_groups):
+        # for each permutation
 
         new_cluster_conform_i = cluster_conform_i
 
-        for sg in perm: # for each symmetric group in perm
+        for sg in perm:  # for each symmetric group in perm
 
-            for [particle0, particle1] in sg: # swap the particles if they are in non-standard order in this permutation
-
+            for [particle0, particle1] in sg:
+                # swap the particles if they are in non-standard order
+                # in this permutation
                 if particle0 > particle1:
-
-                    pyRMSD.symmTools.swap_atoms(new_cluster_conform_i, particle0, particle1)
+                    pyRMSD.symmTools.swap_atoms(
+                        new_cluster_conform_i, particle0, particle1)
 
         if align:
-            calculator = pyRMSD.RMSDCalculator.RMSDCalculator("QCP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, new_cluster_conform_i]))
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                "QCP_SERIAL_CALCULATOR",
+                numpy.array([cluster_conform_0, new_cluster_conform_i]))
         else:
-            calculator = pyRMSD.RMSDCalculator.RMSDCalculator("NOSUP_SERIAL_CALCULATOR", numpy.array([cluster_conform_0, new_cluster_conform_i]))
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                "NOSUP_SERIAL_CALCULATOR",
+                numpy.array([cluster_conform_0, new_cluster_conform_i]))
 
-        rmsd, superposed_fit = calculator.pairwise(0, 1, get_superposed_coordinates = True)
+        rmsd, superposed_fit = calculator.pairwise(
+            0, 1, get_superposed_coordinates=True)
 
         if rmsd < min_rmsd:
             min_rmsd = rmsd
@@ -80,14 +96,19 @@ def get_particles_from_superposed_amb(cluster_conform_i, cluster_conform_0, alig
     # the pyRMSD calculation) but pyRMSD doesn't appear to make its
     # reference orientation available.
     if trans is None:
-        trans = IMP.algebra.get_transformation_aligning_first_to_second(_to_vector3ds(superposed_final_coords[0]), _to_vector3ds(cluster_conform_0))
+        trans = IMP.algebra.get_transformation_aligning_first_to_second(
+            _to_vector3ds(superposed_final_coords[0]),
+            _to_vector3ds(cluster_conform_0))
 
     for particle_index in range(len(superposed_final_coords[1])):
 
         # Transform from pyRMSD back to original reference
-        IMP.core.XYZ(ps[particle_index]).set_coordinates(trans * IMP.algebra.Vector3D(superposed_final_coords[1][particle_index]))
+        IMP.core.XYZ(ps[particle_index]).set_coordinates(
+            trans * IMP.algebra.Vector3D(
+                superposed_final_coords[1][particle_index]))
 
     return min_rmsd, ps, trans
+
 
 class GetModelDensity(object):
     """Compute mean density maps from structures.
@@ -96,47 +117,47 @@ class GetModelDensity(object):
     particle coordinates to the existing density maps.
     """
 
-    def __init__(self, custom_ranges=None, resolution=20.0, voxel=5.0, bead_names = None):
+    def __init__(self, custom_ranges=None, resolution=20.0, voxel=5.0,
+                 bead_names=None):
         """Constructor.
         @param list of particles decorated with mass, radius, and XYZ
-           @param resolution The MRC resolution of the output map (in Angstrom unit)
-           @param voxel The voxel size for the output map (lower is slower)
+        @param resolution The MRC resolution of the output map
+               (in Angstrom unit)
+        @param voxel The voxel size for the output map (lower is slower)
         """
 
         self.MRCresolution = resolution
         self.voxel = voxel
         self.count_models = 0.0
-        self.densities={}
+        self.densities = {}
         self.bead_names = bead_names
-        self.custom_ranges=custom_ranges
+        self.custom_ranges = custom_ranges
 
-        # for each custom range get the particle indices that will be added to the density for that custom range
-        self.particle_indices_in_custom_ranges={}
+        # for each custom range get the particle indices that will be
+        # added to the density for that custom range
+        self.particle_indices_in_custom_ranges = {}
 
         for density_name in self.custom_ranges:
-            self.particle_indices_in_custom_ranges[density_name]=[]
+            self.particle_indices_in_custom_ranges[density_name] = []
 
         # go through each bead, put it in the appropriate custom range(s)
-        for index,beadname in enumerate(self.bead_names):
+        for index, beadname in enumerate(self.bead_names):
             for density_name in self.custom_ranges:
-                for domain in self.custom_ranges[density_name]: # each domain in the list custom_ranges[density_name]
-                    if self._is_contained(beadname,domain):
-                        self.particle_indices_in_custom_ranges[density_name].append(index)
-                        #print(beadname,"is in",domain)
-                        break # already added particle to this custom range
+                # each domain in the list custom_ranges[density_name]
+                for domain in self.custom_ranges[density_name]:
+                    if self._is_contained(beadname, domain):
+                        self.particle_indices_in_custom_ranges[
+                            density_name].append(index)
+                        break  # already added particle to this custom range
 
     def normalize_density(self):
         pass
 
     def _create_density_from_particles(self, ps, name,
-                                      kernel_type='GAUSSIAN'):
+                                       kernel_type='GAUSSIAN'):
         '''Internal function for adding to densities.
         pass XYZR particles with mass and create a density from them.
         kernel type options are GAUSSIAN, BINARIZED_SPHERE, and SPHERE.'''
-        kd = {
-            'GAUSSIAN': IMP.em.GAUSSIAN,
-            'BINARIZED_SPHERE': IMP.em.BINARIZED_SPHERE,
-            'SPHERE': IMP.em.SPHERE}
         dmap = IMP.em.SampledDensityMap(ps, self.MRCresolution, self.voxel)
         dmap.calcRMS()
         dmap.set_was_used(True)
@@ -147,14 +168,15 @@ class GetModelDensity(object):
             bbox1 = IMP.em.get_bounding_box(self.densities[name])
             bbox2 = IMP.em.get_bounding_box(dmap)
             bbox1 += bbox2
-            dmap3 = IMP.em.create_density_map(bbox1,self.voxel)
+            dmap3 = IMP.em.create_density_map(bbox1, self.voxel)
             dmap3.set_was_used(True)
             dmap3.add(dmap)
             dmap3.add(self.densities[name])
             self.densities[name] = dmap3
 
-    def _is_contained(self,bead_name,domain):
-        """ domain can be the name of a single protein or a tuple (start_residue,end_residue,protein_name)
+    def _is_contained(self, bead_name, domain):
+        """ domain can be the name of a single protein or a tuple
+            (start_residue,end_residue,protein_name)
         bead is a string of type moleculeName_startResidue_endResidue
         """
 
@@ -179,8 +201,10 @@ class GetModelDensity(object):
 
         # residue range check
         if isinstance(domain, tuple):
-            bead_residues = set(range(int(bead_res_start),int(bead_res_end)+1))
-            domain_residues = set(range(int(domain[0]),int(domain[1])+1))
+            bead_residues = set(range(int(bead_res_start),
+                                      int(bead_res_end)+1))
+            domain_residues = set(range(int(domain[0]),
+                                        int(domain[1])+1))
             return not domain_residues.isdisjoint(bead_residues)
         else:
             return True
@@ -191,23 +215,26 @@ class GetModelDensity(object):
         """
         self.count_models += 1.0
         # initialize custom list of particles
-        particles_custom_ranges={}
+        particles_custom_ranges = {}
         for density_name in self.custom_ranges:
-            particles_custom_ranges[density_name]=[]
+            particles_custom_ranges[density_name] = []
 
         # add each particle to the relevant custom list
         for density_name in self.custom_ranges:
-            for particle_index in self.particle_indices_in_custom_ranges[density_name]:
-                particles_custom_ranges[density_name].append(ps[particle_index])
+            for particle_index \
+                    in self.particle_indices_in_custom_ranges[density_name]:
+                particles_custom_ranges[density_name].append(
+                    ps[particle_index])
 
         # finally, add each custom particle list to the density
         for density_name in self.custom_ranges:
-            self._create_density_from_particles(particles_custom_ranges[density_name],density_name)
+            self._create_density_from_particles(
+                particles_custom_ranges[density_name], density_name)
 
     def get_density_keys(self):
         return list(self.densities.keys())
 
-    def get_density(self,name):
+    def get_density(self, name):
         """Get the current density for some component name"""
         if name not in self.densities:
             return None
