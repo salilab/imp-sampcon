@@ -209,7 +209,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
     # Get selection
     if subunit_name:
         s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
-    if selection:
+    elif selection:
         s0=None
         for idx,selected_range in enumerate(selection.values()):
             if idx==0:
