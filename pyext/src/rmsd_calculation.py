@@ -14,7 +14,7 @@ import RMF
 
 def parse_rmsd_selection(h, selection):
     s0 = None
-    for idx,selected_range in enumerate(selection.values()):
+    for idx, selected_range in enumerate(selection.values()):
         # parse tuple selection in dictionary file for residue ranges
         s = IMP.atom.Selection(h, resolution=1,
                                molecule=str(selected_range[0][2]),
@@ -26,6 +26,7 @@ def parse_rmsd_selection(h, selection):
             s0 |= s
 
     return s0
+
 
 def get_pdbs_coordinates(path, idfile_A, idfile_B):
     pts = []
