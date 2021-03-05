@@ -90,6 +90,14 @@ def parse_args():
         '--gnuplot', '-gp', dest="gnuplot",
         help="plotting automatically with gnuplot", default=False,
         action='store_true')
+    parser.add_argument(
+        '--selection', '-sn', dest="selection",
+        help='file containing dictionary'
+        'of selected subunits and residues'
+        'for RMSD and clustering calculation'
+        "each entry in the dictionary takes the form"
+        "'selection name': [(residue_start, residue_end, protein name)",
+        default=None)
     return parser.parse_args()
 
 
@@ -181,19 +189,26 @@ def main():
                 args.path, idfile_A, idfile_B)
     else:
         args.extension = "rmf3"
+        if args.selection is not None:
+            rmsd_custom_ranges = \
+                precision_rmsd.parse_custom_ranges(args.selection)
+        else:
+            rmsd_custom_ranges = None
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, symm_groups, models_name,
                 n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
                      args.path, args.rmf_A, args.rmf_B, args.subunit,
-                     args.symmetry_groups)
+                     args.symmetry_groups,
+                     rmsd_custom_ranges)
 
         # If not, default to the Identities.txt file
         else:
             symm_groups = None
             (ps_names, masses, radii, conforms,
              models_name) = rmsd_calculation.get_rmfs_coordinates(
-                     args.path, idfile_A, idfile_B, args.subunit)
+                     args.path, idfile_A, idfile_B, args.subunit,
+                     selection=rmsd_custom_ranges)
 
     print("Size of conformation matrix", conforms.shape)
 

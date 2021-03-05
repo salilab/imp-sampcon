@@ -12,6 +12,22 @@ import IMP.rmf
 import RMF
 
 
+def parse_rmsd_selection(h, selection):
+    s0 = None
+    for idx, selected_range in enumerate(selection.values()):
+        # parse tuple selection in dictionary file for residue ranges
+        s = IMP.atom.Selection(h, resolution=1,
+                               molecule=str(selected_range[0][2]),
+                               residue_indexes=range(selected_range[0][0],
+                                                     selected_range[0][1]))
+        if idx == 0:
+            s0 = s
+        else:
+            s0 |= s
+
+    return s0
+
+
 def get_pdbs_coordinates(path, idfile_A, idfile_B):
     pts = []
     conform = []
@@ -59,7 +75,8 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     return np.array(conform), masses, radii, models_name
 
 
-def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
+def get_rmfs_coordinates(path, idfile_A, idfile_B,
+                         subunit_name=None, selection=None):
 
     conform = []
     num = 0
@@ -89,6 +106,8 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name):
 
             if subunit_name:
                 s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+            elif selection is not None:
+                s0 = parse_rmsd_selection(h, selection)
             else:
                 s0 = IMP.atom.Selection(h, resolution=1)
 
@@ -166,8 +185,7 @@ def parse_symmetric_groups_file(symm_groups_file):
 
 
 def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
-                                 symm_groups_file=None):
-
+                                 symm_groups_file=None, selection=None):
     '''Modified RMF coordinates function to work with symmetric copies'''
 
     # Open RMFs and get total number of models
@@ -195,6 +213,8 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
     # Get selection
     if subunit_name:
         s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+    elif selection is not None:
+        s0 = parse_rmsd_selection(h, selection)
     else:
         s0 = IMP.atom.Selection(h, resolution=1)
 
@@ -242,6 +262,8 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
             # names for symmetric copies
             if subunit_name:
                 s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+            elif selection is not None:
+                s0 = parse_rmsd_selection(h, selection)
             else:
                 s0 = IMP.atom.Selection(h, resolution=1)
 
