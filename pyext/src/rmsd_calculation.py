@@ -11,6 +11,21 @@ import IMP.atom
 import IMP.rmf
 import RMF
 
+def parse_rmsd_selection(h, selection):
+    s0=None
+    for idx,selected_range in enumerate(selection.values()):
+        if idx==0:
+            s0 = IMP.atom.Selection(h, resolution=1,
+                    molecule=str(selected_range[0][2]), 
+                    residue_indexes=range(selected_range[0][0], 
+                    selected_range[0][1]))
+        else:
+            s1 = IMP.atom.Selection(h, resolution=1,
+                    molecule=str(selected_range[0][2]),
+                    residue_indexes=range(selected_range[0][0],
+                    selected_range[0][1]))
+            s0 = s0 | s1
+    return s0
 
 def get_pdbs_coordinates(path, idfile_A, idfile_B):
     pts = []
@@ -90,19 +105,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name=None, selection=
             if subunit_name:
                 s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
             elif selection is not None:
-                s0=None
-                for idx,selected_range in enumerate(selection.values()):
-                    if idx==0:
-                        s0 = IMP.atom.Selection(h, resolution=1,
-                                molecule=str(selected_range[0][2]), 
-                                residue_indexes=range(selected_range[0][0], 
-                                selected_range[0][1]))
-                    else:
-                        s1 = IMP.atom.Selection(h, resolution=1,
-                                molecule=str(selected_range[0][2]), 
-                                residue_indexes=range(selected_range[0][0], 
-                                selected_range[0][1]))
-                        s0 = s0 | s1
+                s0 = parse_rmsd_selection(h, selection)
             else:
                 s0 = IMP.atom.Selection(h, resolution=1)
 
@@ -210,19 +213,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
     if subunit_name:
         s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
     elif selection:
-        s0=None
-        for idx,selected_range in enumerate(selection.values()):
-            if idx==0:
-                s0 = IMP.atom.Selection(h, resolution=1,
-                        molecule=str(selected_range[0][2]), 
-                        residue_indexes=range(selected_range[0][0], 
-                        selected_range[0][1]))
-            else:
-                s1 = IMP.atom.Selection(h, resolution=1,
-                        molecule=str(selected_range[0][2]), 
-                        residue_indexes=range(selected_range[0][0], 
-                        selected_range[0][1]))
-                s0 = s0 | s1
+        s0 = parse_rmsd_selection(h, selection)
     else:
         s0 = IMP.atom.Selection(h, resolution=1)
 
