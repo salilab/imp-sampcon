@@ -187,7 +187,10 @@ def main():
                 args.path, idfile_A, idfile_B)
     else:
         args.extension = "rmf3"
-        rmsd_custom_ranges = precision_rmsd.parse_custom_ranges(args.selection)
+        if args.selection is not None:
+            rmsd_custom_ranges = precision_rmsd.parse_custom_ranges(args.selection)
+        else:
+            rmsd_custom_ranges = None
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, symm_groups, models_name,

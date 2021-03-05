@@ -89,7 +89,7 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name=None, selection=
 
             if subunit_name:
                 s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
-            elif selection:
+            elif selection is not None:
                 s0=None
                 for idx,selected_range in enumerate(selection.values()):
                     if idx==0:
