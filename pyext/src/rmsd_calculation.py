@@ -15,16 +15,17 @@ import RMF
 def parse_rmsd_selection(h, selection):
     s0 = None
     for idx,selected_range in enumerate(selection.values()):
-        if idx==0:
+        if idx == 0:
+            #parse tuple selection in dictionary file for residue ranges
             s0 = IMP.atom.Selection(h, resolution=1,
-                    molecule = str(selected_range[0][2]),
-                    residue_indexes=range(selected_range[0][0],
-                    selected_range[0][1]))
+                                    molecule=str(selected_range[0][2]),
+                                    residue_indexes=range(selected_range[0][0],
+                                    selected_range[0][1]))
         else:
             s1 = IMP.atom.Selection(h, resolution=1,
-                    molecule = str(selected_range[0][2]),
-                    residue_indexes=range(selected_range[0][0],
-                    selected_range[0][1]))
+                                    molecule=str(selected_range[0][2]),
+                                    residue_indexes=range(selected_range[0][0],
+                                    selected_range[0][1]))
             s0 = s0 | s1
 
     return s0
@@ -76,7 +77,8 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
     return np.array(conform), masses, radii, models_name
 
 
-def get_rmfs_coordinates(path, idfile_A, idfile_B, subunit_name=None, selection=None):
+def get_rmfs_coordinates(path, idfile_A, idfile_B,
+                         subunit_name=None, selection=None):
 
     conform = []
     num = 0
@@ -186,8 +188,8 @@ def parse_symmetric_groups_file(symm_groups_file):
 
 def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
                                  symm_groups_file=None, selection=None):
- 
     '''Modified RMF coordinates function to work with symmetric copies'''
+
 
     # Open RMFs and get total number of models
     rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_A))

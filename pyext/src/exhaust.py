@@ -92,7 +92,8 @@ def parse_args():
         action='store_true')
     parser.add_argument(
         '--selection', '-sn', dest="selection",
-        help='file containing dictionary of selected subunits and residues'
+        help='file containing dictionary'
+        'of selected subunits and residues'
         'for RMSD and clustering calculation'
         "each entry in the dictionary takes the form"
         "'selection name': [(residue_start, residue_end, protein name)",
