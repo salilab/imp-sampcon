@@ -190,7 +190,8 @@ def main():
     else:
         args.extension = "rmf3"
         if args.selection is not None:
-            rmsd_custom_ranges = precision_rmsd.parse_custom_ranges(args.selection)
+            rmsd_custom_ranges = \
+                precision_rmsd.parse_custom_ranges(args.selection)
         else:
             rmsd_custom_ranges = None
         # If we have a single RMF file, read conformations from that
