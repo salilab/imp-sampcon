@@ -18,9 +18,8 @@ def parse_rmsd_selection(h, selection):
         # parse tuple selection in dictionary file for residue ranges
         s = IMP.atom.Selection(h, resolution=1,
                                molecule=str(selected_range[0][2]),
-                                            molecule=str(selected_range[0][2]),
-                                            residue_indexes=range(selected_range[0][0],
-                                            selected_range[0][1]))
+                               residue_indexes=range(selected_range[0][0],
+                                                     selected_range[0][1]))
         if idx == 0:
             s0 = s
         else:
