@@ -164,10 +164,8 @@ def parse_symmetric_groups_file(symm_groups_file):
     for indx, ln in enumerate(sgf.readlines()):
 
         symm_groups.append([])  # create new symm group list
-
         # particle index for new symmetric group
         curr_particle_index_in_group.append(-1)
-
         fields = ln.strip().split()
 
         for fld in fields:
@@ -296,13 +294,10 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
                     if symm_groups_file:
 
                         protein_plus_copy = mol_name+'.'+str(copy_number)
-
                         if protein_plus_copy in group_member_to_symm_group_map:
                             # protein copy is in a symmetric group
-
                             group_index = group_member_to_symm_group_map[
                                 protein_plus_copy]
-
                             curr_particle_index_in_group[group_index] += 1
 
                             if protein_plus_copy \
@@ -334,14 +329,13 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
 
 
 def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
-    print("Mode:", mode, "Superposition:", sup, "Number of cores:", cores)
 
     if (mode == "cpu_serial" and not sup) or (mode == "cpu_omp" and not sup):
         calculator_name = "NOSUP_OMP_CALCULATOR"
 
     elif mode == "cpu_omp" and sup:
         calculator_name = "QCP_OMP_CALCULATOR"
-
+        print("we are using QCP_OMP to compute RMSD")
     elif mode == "cuda" and sup:
         calculator_name = "QCP_CUDA_MEM_CALCULATOR"
     else:
@@ -349,9 +343,14 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
         exit()
 
     if symm_groups:
+        print("We have ambiguity.")
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
-            calculator_name, fittingCoordsets=conforms,
-            calculationCoordsets=conforms, calcSymmetryGroups=symm_groups)
+            calculator_name,
+            fittingCoordsets=conforms,
+            #calculationCoordsets=conforms,
+            calcSymmetryGroups=symm_groups,
+            fitSymmetryGroups=symm_groups)
+
     else:
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
             calculator_name, conforms)
