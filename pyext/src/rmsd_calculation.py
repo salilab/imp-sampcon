@@ -347,7 +347,6 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
             calculator_name,
             fittingCoordsets=conforms,
-            #calculationCoordsets=conforms,
             calcSymmetryGroups=symm_groups,
             fitSymmetryGroups=symm_groups)
 
