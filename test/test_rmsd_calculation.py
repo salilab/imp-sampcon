@@ -2,13 +2,14 @@ import IMP
 import IMP.core
 import IMP.atom
 import IMP.test
-from IMP.sampcon import rmsd_calculation
+import IMP.rmf
 import RMF
 import os
 
 try:
     import pyRMSD
     from pyRMSD.matrixHandler import MatrixHandler
+    from IMP.sampcon import rmsd_calculation
 except ImportError:
     pyRMSD = None
 
@@ -130,6 +131,7 @@ class Tests(IMP.test.TestCase):
         os.unlink("./Distances_Matrix.data.npy")
         self.assertAlmostEqual(rmsd, rmsd_noali[0][2], delta=1e-3)
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_rmsd_with_alignment_and_no_ambiguity(self):
         """Check for rmsd with alignment but no ambiguity"""
         rmsd_ali = self.get_rmsd_matrix(True, False)
@@ -141,6 +143,7 @@ class Tests(IMP.test.TestCase):
         os.unlink("./Distances_Matrix.data.npy")
         self.assertAlmostEqual(rmsd, rmsd_ali[0][2], delta=1e-3)
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_rmsd_with_alignment_and_with_ambiguity(self):
         """Check for rmsd with alignment and with ambiguity"""
         rmsd_ali_amb = self.get_rmsd_matrix(True, self.symmetry)
