@@ -1,6 +1,4 @@
-import unittest
 import subprocess
-import sys
 import os
 import shutil
 import IMP.atom
@@ -33,7 +31,8 @@ class Tests(IMP.test.TestCase):
         mod_dir = os.path.join(tmpdir, 'modeling')
         shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
 
-        self.run_python_module(select_good,
+        self.run_python_module(
+            select_good,
             ['-rd', mod_dir, '-rp', 'run',
              '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
              '-pl', 'ConnectivityRestraint_Rpb1',
@@ -43,25 +42,30 @@ class Tests(IMP.test.TestCase):
              '-e'])
         if make_rmf:
             gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
+
             def read_sample(subdir):
-                return sorted('%s/%s' % (subdir, rmf)
-                        for rmf in os.listdir(os.path.join(gsm_dir, subdir))
-                        if rmf.endswith('.rmf3'))
-            subprocess.check_call(['rmf_cat'] + read_sample('sample_A')
-                    + ['A.rmf3'], cwd=gsm_dir)
-            subprocess.check_call(['rmf_cat'] + read_sample('sample_B')
-                    + ['B.rmf3'], cwd=gsm_dir)
+                return sorted(
+                    '%s/%s' % (subdir, rmf)
+                    for rmf in os.listdir(os.path.join(gsm_dir, subdir))
+                    if rmf.endswith('.rmf3'))
+            subprocess.check_call(
+                ['rmf_cat'] + read_sample('sample_A') + ['A.rmf3'],
+                cwd=gsm_dir)
+            subprocess.check_call(
+                ['rmf_cat'] + read_sample('sample_B') + ['B.rmf3'],
+                cwd=gsm_dir)
 
     def test_exhaust(self):
         """Test the master sampling exhaustiveness script"""
         try:
-            import pyRMSD
+            import pyRMSD  # noqa: F401
         except ImportError:
             self.skipTest("this test requires the pyRMSD Python module")
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            self.run_python_module(exhaust,
+            self.run_python_module(
+                exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'])
@@ -116,13 +120,14 @@ class Tests(IMP.test.TestCase):
     def test_exhaust_rmf_a_b(self):
         "Test the master sampling exhaustiveness script with rmf_A,B options"
         try:
-            import pyRMSD
+            import pyRMSD  # noqa: F401
         except ImportError:
             self.skipTest("this test requires the pyRMSD Python module")
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir, make_rmf=True)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            self.run_python_module(exhaust,
+            self.run_python_module(
+                exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-ra', 'A.rmf3', '-rb', 'B.rmf3',
                  '-d', self.get_input_file_name('density_ranges.txt'),
@@ -153,14 +158,15 @@ class Tests(IMP.test.TestCase):
     def test_exhaust_pdb(self):
         """Test the master sampling exhaustiveness script with PDBs"""
         try:
-            import pyRMSD
+            import pyRMSD  # noqa: F401
         except ImportError:
             self.skipTest("this test requires the pyRMSD Python module")
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             make_pdbs_from_rmfs(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            self.run_python_module(exhaust,
+            self.run_python_module(
+                exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-e', 'pdb'])

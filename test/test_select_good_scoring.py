@@ -1,6 +1,3 @@
-import unittest
-import subprocess
-import sys
 import os
 import shutil
 import RMF
@@ -18,7 +15,8 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
-            self.run_python_module(select_good,
+            self.run_python_module(
+                select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -39,7 +37,8 @@ class Tests(IMP.test.TestCase):
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
-            self.run_python_module(select_good,
+            self.run_python_module(
+                select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -58,7 +57,8 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_directory() as tmpdir:
             mod_dir = os.path.join(tmpdir, 'modeling')
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
-            self.run_python_module(select_good,
+            self.run_python_module(
+                select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',
@@ -120,7 +120,8 @@ class Tests(IMP.test.TestCase):
             shutil.copytree(self.get_input_file_name('modeling'), mod_dir)
             # Keep only run1
             shutil.rmtree(os.path.join(mod_dir, 'run2'))
-            self.run_python_module(select_good,
+            self.run_python_module(
+                select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
                  '-pl', 'ConnectivityRestraint_Rpb1',

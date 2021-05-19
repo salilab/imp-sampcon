@@ -1,5 +1,3 @@
-import unittest
-import subprocess
 import sys
 if sys.version_info[0] >= 3:
     from io import StringIO as StdoutIO
@@ -17,12 +15,12 @@ class Tests(IMP.test.TestCase):
 
     def test_show_stat(self):
         """Test show_stat"""
-        stat = self.get_input_file_name(os.path.join('modeling', 'run1',
-            'output', 'stat.0.out'))
+        stat = self.get_input_file_name(
+            os.path.join('modeling', 'run1', 'output', 'stat.0.out'))
         old_stdout = sys.stdout
         try:
             sys.stdout = StdoutIO()
-            r = self.run_python_module(show_stat, [stat])
+            _ = self.run_python_module(show_stat, [stat])
             o = sys.stdout.getvalue()
         finally:
             sys.stdout = old_stdout
