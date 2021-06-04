@@ -10,7 +10,7 @@ fi
 python_version=$1
 
 conda config --remove channels defaults  # get conda-forge, not main, packages
-conda create --yes -q -n python${python_version} -c salilab -c conda-forge python=${python_version} pip scipy matplotlib pandas pyrmsd imp-nightly cmake gnuplot
+conda create --yes -q -n python${python_version} -c salilab -c conda-forge python=${python_version} pip scipy matplotlib pandas pyrmsd imp-nightly cmake
 eval "$(conda shell.bash hook)"
 conda activate python${python_version}
 pip install pytest-cov coverage pytest-flake8
