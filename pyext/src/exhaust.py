@@ -33,6 +33,10 @@ def parse_args():
         help='number of cores for RMSD matrix calculations; '
              'only for cpu_omp', default=1)
     parser.add_argument(
+        '--resolution', '-r', dest="resolution",type=int,
+        help='resolution at which to select proteins in a multiscale system',
+        default=1)
+    parser.add_argument(
         '--subunit', '-su', dest="subunit",
         help='calculate RMSD/sampling and cluster precision/densities '
              'etc over this subunit only', default=None)
@@ -198,7 +202,7 @@ def main():
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, symm_groups, models_name,
                 n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                     args.path, args.rmf_A, args.rmf_B, args.subunit,
+                     args.path, args.rmf_A, args.rmf_B, args.resolution, args.subunit,
                      args.symmetry_groups,
                      rmsd_custom_ranges)
 
@@ -207,7 +211,7 @@ def main():
             symm_groups = None
             (ps_names, masses, radii, conforms,
              models_name) = rmsd_calculation.get_rmfs_coordinates(
-                     args.path, idfile_A, idfile_B, args.subunit,
+                     args.path, idfile_A, idfile_B, args.resolution,args.subunit,
                      selection=rmsd_custom_ranges)
 
     print("Size of conformation matrix", conforms.shape)
