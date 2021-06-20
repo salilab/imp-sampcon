@@ -87,7 +87,7 @@ This is usually not necessary if the sampling uses an EM map to place the comple
 ### Doing the clustering, RMSD, and precision calculation on selected subunits
 By default, `exhaust` considers all subunits for RMSD and clustering. There are a couple of options to specify one or more subunits in particular.
 To select a single subunit `-su` option can be used.
-To select multiple subunits or domains of subunits, `-sn` option can be used. Protein domains can be specified with start and end residue numbers. Full proteins can also be specified without start and end residues. Each selection is listed as an entry in a dictionary called `density_custom_ranges` in a text file, like in the following example.
+To select multiple subunits or domains of subunits, `-sn` option can be used. Protein domains are specified with start and end residue numbers. Each selection is listed as an entry in a dictionary called `density_custom_ranges` in a text file, like in the following example.
 ```
 density_custom_ranges = {"Rpb4":[(1,200,"Rpb4")],"Rpb7":[("Rpb7")],"Rpb11-Rpb14-subcomplex":[("Rpb11"),("Rpb14")]}
 ```
