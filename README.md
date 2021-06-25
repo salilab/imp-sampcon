@@ -33,7 +33,7 @@ The protocol is typically run using the `imp_sampcon` command line tool:
    sampling was exhaustive.
 
 For a full demonstration of the protocol, see its usage in
-IMP's [actin modeling tutorial](https://integrativemodeling.org/tutorials/actin/analysis.html) and [RNA Polymerase 2 tutorial](https://github.com/salilab/imp_analysis_tutorial).
+IMP's [actin modeling tutorial](https://integrativemodeling.org/tutorials/actin/analysis.html).
 
 # Selecting models for exhaustiveness test
 
@@ -57,7 +57,7 @@ Once the final thresholds are obtained, one can use `select_good` in EXTRACT mod
 
 # Running the exhaustiveness test
 
-See the usage of `exhaust` in IMP's [actin modeling tutorial](https://integrativemodeling.org/tutorials/actin/analysis.html) and [RNA Polymerase 2 tutorial](https://github.com/salilab/imp_analysis_tutorial).
+See the usage of `exhaust` in IMP's [actin modeling tutorial](https://integrativemodeling.org/tutorials/actin/analysis.html).
 
 ## Outputs
 
@@ -107,7 +107,7 @@ Voxel (`-v`) and density threshold (`-dt`) input options are related to density 
 
 The protocol can also handle systems with ambiguity and symmetry (e.g. multiple protein copies whose positions can be interchanged), where this information needs to be considered while calculating the RMSD between models. The RMSD between two protein models is the minimum RMSD over permutations of equivalent proteins.
 
-** Note **: You only need to use this option if your protein copies are symmetric, i.e. they are interchangeable in the model. If there are multiple copies but they occupy distinct positions in the model, this option will not be useful and will give the same result as regular `exhaust` without ambiguity option.
+**Note**: You only need to use this option if your protein copies are symmetric, i.e. they are interchangeable in the model. If there are multiple copies but they occupy distinct positions in the model, this option will not be useful and will give the same result as regular `exhaust` without ambiguity option.
 
 #### Example
 If a system has 2 copies of protein A and 1 copy of protein B, i.e. the proteins are A.0, A.1,B.0. The RMSD between any pair of models m0 and m1, is the minimum RMSD between `RMSD[m0(A.0,A.1,B.0) , m1(A.0,A.1,B.1)]` and `RMSD[m0(A.0,A.1,B.1), m1(A.1,A.0,B.1]`. Note that the copies of A in m1 were interchanged while calculating the second RMSD.
