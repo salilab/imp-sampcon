@@ -12,19 +12,38 @@ import IMP.rmf
 import RMF
 
 
-def parse_rmsd_selection(h, selection):
+def parse_rmsd_selection(h, selection, resolution=1):
     s0 = None
-    for idx, selected_range in enumerate(selection.values()):
-        # parse tuple selection in dictionary file for residue ranges
-        s = IMP.atom.Selection(h, resolution=1,
-                               molecule=str(selected_range[0][2]),
-                               residue_indexes=range(selected_range[0][0],
-                                                     selected_range[0][1]))
-        if idx == 0:
-            s0 = s
-        else:
-            s0 |= s
+    for domain_list in selection.values():
+        # each element of the dictionary is a list of domains
+        # each domain is a tuple like (start,end,protein) or (protein)
+        # to add copy number use (start,end,protein.copy_number)
+        # or (protein.copy_number)
 
+        for domain in domain_list:
+
+            start_res = int(domain[0])
+            end_res = int(domain[1])
+
+            prot_plus_copy = domain[2]
+
+            if "." in prot_plus_copy:
+                copy_number = int(prot_plus_copy.split(".")[1])
+                prot_name = prot_plus_copy.split(".")[0]
+
+            else:
+                copy_number = 0
+                prot_name = prot_plus_copy
+
+            s = IMP.atom.Selection(h, resolution=resolution,
+                                   molecule=prot_name,
+                                   copy_index=copy_number,
+                                   residue_indexes=range(start_res, end_res+1))
+
+            if s0:
+                s0 |= s
+            else:
+                s0 = s
     return s0
 
 
@@ -76,7 +95,7 @@ def get_pdbs_coordinates(path, idfile_A, idfile_B):
 
 
 def get_rmfs_coordinates(path, idfile_A, idfile_B,
-                         subunit_name=None, selection=None):
+                         subunit_name=None, selection=None, resolution=1):
 
     conform = []
     num = 0
@@ -105,11 +124,12 @@ def get_rmfs_coordinates(path, idfile_A, idfile_B,
             pts = []
 
             if subunit_name:
-                s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+                s0 = IMP.atom.Selection(h, resolution=resolution,
+                                        molecule=subunit_name)
             elif selection is not None:
-                s0 = parse_rmsd_selection(h, selection)
+                s0 = parse_rmsd_selection(h, selection, resolution)
             else:
-                s0 = IMP.atom.Selection(h, resolution=1)
+                s0 = IMP.atom.Selection(h, resolution=resolution)
 
             for leaf in s0.get_selected_particles():
 
@@ -183,7 +203,8 @@ def parse_symmetric_groups_file(symm_groups_file):
 
 
 def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
-                                 symm_groups_file=None, selection=None):
+                                 symm_groups_file=None, selection=None,
+                                 resolution=1):
     '''Modified RMF coordinates function to work with symmetric copies'''
 
     # Open RMFs and get total number of models
@@ -210,11 +231,12 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
 
     # Get selection
     if subunit_name:
-        s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+        s0 = IMP.atom.Selection(h, resolution=resolution,
+                                molecule=subunit_name)
     elif selection is not None:
-        s0 = parse_rmsd_selection(h, selection)
+        s0 = parse_rmsd_selection(h, selection, resolution)
     else:
-        s0 = IMP.atom.Selection(h, resolution=1)
+        s0 = IMP.atom.Selection(h, resolution=resolution)
 
     # Count particles
     for leaf in s0.get_selected_particles():
@@ -259,11 +281,12 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
             # Store particle indices and loop over individual protein
             # names for symmetric copies
             if subunit_name:
-                s0 = IMP.atom.Selection(h, resolution=1, molecule=subunit_name)
+                s0 = IMP.atom.Selection(h, resolution=resolution,
+                                        molecule=subunit_name)
             elif selection is not None:
-                s0 = parse_rmsd_selection(h, selection)
+                s0 = parse_rmsd_selection(h, selection, resolution)
             else:
-                s0 = IMP.atom.Selection(h, resolution=1)
+                s0 = IMP.atom.Selection(h, resolution=resolution)
 
             particles = s0.get_selected_particles()
 
@@ -324,6 +347,13 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
                             mol_name + "_" + residue_in_bead + "_" +
                             residue_in_bead + "_" + str(copy_number))
             mod_id += 1
+
+    if symm_groups_file:
+        for grp in symm_groups:
+            if len(grp) == 0:
+                print("Warning. Symmetry option specified but created "
+                      "symmetry group is empty. Cross-check the "
+                      "specification of symmetry groups.")
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 

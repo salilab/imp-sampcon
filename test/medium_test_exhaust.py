@@ -155,6 +155,46 @@ class Tests(IMP.test.TestCase):
             os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_B'))
             os.rmdir(os.path.join(tmpdir, 'cluster.0'))
 
+    def test_exhaust_selection_resolution(self):
+        """Test the master sampling exhaustiveness script with
+        selection and resolution options"""
+        try:
+            import pyRMSD  # noqa: F401
+        except ImportError:
+            self.skipTest("this test requires the pyRMSD Python module")
+        with IMP.test.temporary_working_directory() as tmpdir:
+            self.make_models(tmpdir, make_rmf=True)
+            gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            self.run_python_module(
+                exhaust,
+                ['-n', 'test', '-p', gsm_dir,
+                 '-ra', 'A.rmf3', '-rb', 'B.rmf3',
+                 '-sn', self.get_input_file_name('selection.txt'),
+                 '-r', '1', '-d', self.get_input_file_name('selection.txt'),
+                 '-m', 'cpu_omp', '-c', '8', '-g', '0.5', '-gp'])
+
+            # Check for expected files
+            expected = [
+                'Distances_Matrix.data.npy', 'cluster.0.all.txt',
+                'cluster.0.sample_A.txt',
+                'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
+                'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
+                'test.Cluster_Population.txt', 'test.Cluster_Precision.txt',
+                'test.KS_Test.txt', 'test.Sampling_Precision_Stats.txt',
+                'test.Score_Dist.pdf', 'test.Score_Hist_A.txt',
+                'test.Score_Hist_B.txt', 'test.Top_Score_Conv.pdf',
+                'test.Top_Score_Conv.txt',
+                'cluster.0/cluster_center_model.rmf3',
+                'cluster.0/LPD_TestAll.mrc',
+                'cluster.0/Sample_A/LPD_TestAll.mrc',
+                'cluster.0/Sample_B/LPD_TestAll.mrc']
+
+            for e in expected:
+                os.unlink(os.path.join(tmpdir, e))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_A'))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0', 'Sample_B'))
+            os.rmdir(os.path.join(tmpdir, 'cluster.0'))
+
     def test_exhaust_pdb(self):
         """Test the master sampling exhaustiveness script with PDBs"""
         try:
