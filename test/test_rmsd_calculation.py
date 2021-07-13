@@ -106,7 +106,9 @@ class Tests(IMP.test.TestCase):
              self.get_input_file_name("SampledA.rmf3"),
              self.get_input_file_name("SampledC.rmf3"),
              None,
-             symmetry)
+             symmetry,
+             None,
+             1)
 
         inner_data = rmsd_calculation.get_rmsds_matrix(  # noqa
             conforms, 'cpu_omp', align, 2, symm_groups)
