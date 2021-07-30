@@ -117,6 +117,7 @@ def create_score_files(subsets, field="Total_Score"):
             model = int(fields[model_ix])
             print(score, file=scoreA if model in subsets[0] else scoreB)
 
+    model_file.close()
     scoreA.close()
     scoreB.close()
 
