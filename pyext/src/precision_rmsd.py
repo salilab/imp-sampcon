@@ -7,6 +7,8 @@ import pyRMSD.RMSDCalculator
 
 
 def parse_custom_ranges(ranges_file):
+    if not ranges_file:
+        return []
     with open(ranges_file) as fh:
         d = {}
         exec(fh.read(), d)
