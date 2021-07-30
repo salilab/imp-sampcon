@@ -208,7 +208,6 @@ class Tests(IMP.test.TestCase):
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
-                 '-d', self.get_input_file_name('density_ranges.txt'),
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-e', 'pdb'])
 
 
