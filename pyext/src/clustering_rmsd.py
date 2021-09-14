@@ -2,6 +2,8 @@ from __future__ import print_function
 import numpy
 import math
 import scipy.stats
+from multiprocessing import Pool
+import os
 
 
 def get_sample_identity(idfile_A, idfile_B):
@@ -139,15 +141,16 @@ def percent_ensemble_explained(ctable, total_num_models):
 
 
 def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models,
-                 run1_all_models, run2_all_models, sysname):
+                 run1_all_models, run2_all_models, sysname, cores):
     # Do Clustering on a Grid
     pvals = []
     cvs = []
     percents = []
     with open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+') as f1:
-        for c in cutoffs_list:
-            cluster_centers, cluster_members = precision_cluster(
-                    distmat_full, total_num_models, c)
+        with Pool(cores) as p:
+            results = p.starmap(precision_cluster, [(distmat_full, total_num_models, c) for c in cutoffs_list])
+        for i, x in enumerate(results):
+            cluster_centers, cluster_members = x
             ctable, retained_clusters = get_contingency_table(
                     len(cluster_centers), cluster_members, all_models,
                     run1_all_models, run2_all_models)
@@ -160,7 +163,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models,
             cvs.append(cramersv)
             percents.append(percent_explained)
 
-            print(c, pval, cramersv, percent_explained, file=f1)
+            print(cutoffs_list[i], pval, cramersv, percent_explained, file=f1)
 
     return pvals, cvs, percents
 

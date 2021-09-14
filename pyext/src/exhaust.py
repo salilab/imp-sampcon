@@ -270,7 +270,7 @@ def main():
         # Do clustering at each cutoff
         pvals, cvs, percents = clustering_rmsd.get_clusters(
                 cutoffs_list, distmat_full, all_models, total_num_models,
-                sampleA_all_models, sampleB_all_models, args.sysname)
+                sampleA_all_models, sampleB_all_models, args.sysname, args.cores)
 
         # Now apply the rule for selecting the right precision based
         # on population of contingency table, pvalue and cramersv
