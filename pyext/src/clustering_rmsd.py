@@ -3,7 +3,6 @@ import numpy
 import math
 import scipy.stats
 from multiprocessing import Pool
-import os
 
 
 def get_sample_identity(idfile_A, idfile_B):
