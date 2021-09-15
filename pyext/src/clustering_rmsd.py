@@ -25,12 +25,11 @@ def get_sample_identity(idfile_A, idfile_B):
 
 
 def get_cutoffs_list(distmat, gridSize):
-
     mindist = distmat.min()
     maxdist = distmat.max()
 
     print("Minimum and maximum pairwise model distances:", mindist, maxdist)
-    cutoffs = numpy.arange(mindist+gridSize, maxdist, gridSize)
+    cutoffs = numpy.arange(mindist + gridSize, maxdist, gridSize)
     return cutoffs
 
 
@@ -57,7 +56,7 @@ def precision_cluster(distmat, numModels, rmsd_cutoff):
         unclustered.append(i)
         boolUnclustered.append(True)
 
-    cluster_members = []   # list of lists : one list per cluster
+    cluster_members = []  # list of lists : one list per cluster
     cluster_centers = []
 
     while len(unclustered) > 0:
@@ -126,7 +125,7 @@ def test_sampling_convergence(contingency_table, total_num_models):
     if dof == 0.0:
         cramersv = 0.0
     else:
-        cramersv = math.sqrt(chisquare/float(total_num_models))
+        cramersv = math.sqrt(chisquare / float(total_num_models))
 
     return pvalue, cramersv
 
@@ -146,14 +145,20 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models,
     pvals = []
     cvs = []
     percents = []
+
+    def unpacking_wrapper(arg_tuple):
+        return precision_cluster(*arg_tuple)
+
     with open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+') as f1:
         with Pool(cores) as p:
-            results = p.starmap(precision_cluster, [(distmat_full, total_num_models, c) for c in cutoffs_list])
+            args_list = [(distmat_full, total_num_models, c)
+                         for c in cutoffs_list]
+            results = p.map(unpacking_wrapper, args_list)
         for i, x in enumerate(results):
             cluster_centers, cluster_members = x
             ctable, retained_clusters = get_contingency_table(
-                    len(cluster_centers), cluster_members, all_models,
-                    run1_all_models, run2_all_models)
+                len(cluster_centers), cluster_members, all_models,
+                run1_all_models, run2_all_models)
             pval, cramersv = test_sampling_convergence(ctable,
                                                        total_num_models)
             percent_explained = percent_ensemble_explained(ctable,
