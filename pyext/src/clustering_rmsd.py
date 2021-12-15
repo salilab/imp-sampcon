@@ -140,8 +140,10 @@ def percent_ensemble_explained(ctable, total_num_models):
 
 
 def unpacking_wrapper(arg_tuple):
-    all_models, run1_all_models, run2_all_models, total_num_models = arg_tuple[2:]
-    cluster_centers, cluster_members = precision_cluster(*((distmat_full, ) + arg_tuple[0:2]))
+    x = arg_tuple[2:]
+    all_models, run1_all_models, run2_all_models, total_num_models = x
+    x = precision_cluster(*((distmat_full, ) + arg_tuple[0:2]))
+    cluster_centers, cluster_members = x
     ctable, retained_clusters = get_contingency_table(
         len(cluster_centers), cluster_members, all_models,
         run1_all_models, run2_all_models)
