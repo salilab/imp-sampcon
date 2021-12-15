@@ -4,7 +4,6 @@ import os
 
 __doc__ = "Perform analysis to determine sampling convergence."
 
-
 ############################################################
 # Scripts written by Shruthi Viswanath and Ilan E. Chemmama#
 #              in Andrej Sali Lab at UCSF.                 #
@@ -31,7 +30,7 @@ def parse_args():
         choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
     parser.add_argument(
         '--cores', '-c', dest="cores", type=int,
-        help='number of cores for RMSD matrix calculations; '
+        help='number of cores for parallel clustering at different thresholds and RMSD matrix calculations; '
              'only for cpu_omp', default=1)
     parser.add_argument(
         '--resolution', '-r', dest="resolution", type=int,
@@ -98,16 +97,17 @@ def parse_args():
     parser.add_argument(
         '--selection', '-sn', dest="selection",
         help='file containing dictionary'
-             'of selected subunits and residues'
-             'for RMSD and clustering calculation'
-             "each entry in the dictionary takes the form"
-             "'selection name': [(residue_start, residue_end, protein name)",
+        'of selected subunits and residues'
+        'for RMSD and clustering calculation'
+        "each entry in the dictionary takes the form"
+        "'selection name': [(residue_start, residue_end, protein name)",
         default=None)
     return parser.parse_args()
 
 
 def make_cluster_centroid(infname, frame, outfname, cluster_index,
                           cluster_size, precision, density, path):
+
     import RMF
     # If we have new enough IMP/RMF, do our own RMF slicing with provenance
     if hasattr(RMF.NodeHandle, 'replace_child'):
@@ -182,7 +182,7 @@ def main():
 
     # Check if the two score distributions are similar
     scores_convergence.get_scores_distributions_KS_Stats(
-        score_A, score_B, 100, args.sysname)
+            score_A, score_B, 100, args.sysname)
 
     # Step 1: Compute RMSD matrix
     if args.extension == "pdb":
@@ -201,20 +201,20 @@ def main():
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, symm_groups, models_name,
-             n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                args.path, args.rmf_A, args.rmf_B, args.subunit,
-                args.symmetry_groups,
-                rmsd_custom_ranges,
-                args.resolution)
+                n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
+                     args.path, args.rmf_A, args.rmf_B, args.subunit,
+                     args.symmetry_groups,
+                     rmsd_custom_ranges,
+                     args.resolution)
 
         # If not, default to the Identities.txt file
         else:
             symm_groups = None
             (ps_names, masses, radii, conforms,
              models_name) = rmsd_calculation.get_rmfs_coordinates(
-                args.path, idfile_A, idfile_B, args.subunit,
-                selection=rmsd_custom_ranges,
-                resolution=args.resolution)
+                     args.path, idfile_A, idfile_B, args.subunit,
+                     selection=rmsd_custom_ranges,
+                     resolution=args.resolution)
 
     print("Size of conformation matrix", conforms.shape)
 
@@ -223,7 +223,7 @@ def main():
         # afterwards (so that we retain the original IMP orientation)
         numpy.save("conforms", conforms)
         inner_data = rmsd_calculation.get_rmsds_matrix(
-            conforms, args.mode, args.align, args.cores, symm_groups)
+                conforms, args.mode, args.align, args.cores, symm_groups)
         print("Size of RMSD matrix (flattened):", inner_data.shape)
         del conforms
         conforms = numpy.load("conforms.npy")
@@ -248,7 +248,7 @@ def main():
     else:
         (sampleA_all_models,
          sampleB_all_models) = clustering_rmsd.get_sample_identity(
-            idfile_A, idfile_B)
+                idfile_A, idfile_B)
         total_num_models = len(sampleA_all_models) + len(sampleB_all_models)
     all_models = list(sampleA_all_models) + list(sampleB_all_models)
     print("Size of Sample A:", len(sampleA_all_models),
@@ -269,7 +269,7 @@ def main():
 
         # Do clustering at each cutoff
         pvals, cvs, percents = clustering_rmsd.get_clusters(
-            cutoffs_list, distmat_full, all_models, total_num_models,
+                cutoffs_list, distmat_full, all_models, total_num_models,
             sampleA_all_models, sampleB_all_models, args.sysname,
             args.cores)
 
@@ -277,7 +277,7 @@ def main():
         # on population of contingency table, pvalue and cramersv
         (sampling_precision, pval_converged, cramersv_converged,
          percent_converged) = clustering_rmsd.get_sampling_precision(
-            cutoffs_list, pvals, cvs, percents)
+                 cutoffs_list, pvals, cvs, percents)
 
         # Output test statistics
         with open("%s.Sampling_Precision_Stats.txt"
@@ -307,11 +307,11 @@ def main():
     # Perform final clustering at the required precision
     print("Clustering at threshold %.3f" % final_clustering_threshold)
     (cluster_centers, cluster_members) = clustering_rmsd.precision_cluster(
-        distmat_full, total_num_models, final_clustering_threshold)
+            distmat_full, total_num_models, final_clustering_threshold)
 
     (ctable, retained_clusters) = clustering_rmsd.get_contingency_table(
-        len(cluster_centers), cluster_members, all_models,
-        sampleA_all_models, sampleB_all_models)
+            len(cluster_centers), cluster_members, all_models,
+            sampleA_all_models, sampleB_all_models)
     print("Contingency table:", ctable)
     # Output the number of models in each cluster and each sample
     with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
@@ -347,22 +347,22 @@ def main():
         # Create densities for all subunits for both sample A and sample B
         # as well as separately.
         gmd1 = precision_rmsd.GetModelDensity(
-            custom_ranges=density_custom_ranges,
-            resolution=args.density_threshold, voxel=args.voxel,
-            bead_names=ps_names)
+                custom_ranges=density_custom_ranges,
+                resolution=args.density_threshold, voxel=args.voxel,
+                bead_names=ps_names)
         gmd2 = precision_rmsd.GetModelDensity(
-            custom_ranges=density_custom_ranges,
-            resolution=args.density_threshold, voxel=args.voxel,
-            bead_names=ps_names)
+                custom_ranges=density_custom_ranges,
+                resolution=args.density_threshold, voxel=args.voxel,
+                bead_names=ps_names)
         gmdt = precision_rmsd.GetModelDensity(
-            custom_ranges=density_custom_ranges,
-            resolution=args.density_threshold, voxel=args.voxel,
-            bead_names=ps_names)
+                custom_ranges=density_custom_ranges,
+                resolution=args.density_threshold, voxel=args.voxel,
+                bead_names=ps_names)
 
         # Also output the identities of cluster members
-        both_file = open('cluster.' + str(i) + '.all.txt', 'w')
-        sampleA_file = open('cluster.' + str(i) + '.sample_A.txt', 'w')
-        sampleB_file = open('cluster.' + str(i) + '.sample_B.txt', 'w')
+        both_file = open('cluster.'+str(i)+'.all.txt', 'w')
+        sampleA_file = open('cluster.'+str(i)+'.sample_A.txt', 'w')
+        sampleB_file = open('cluster.'+str(i)+'.sample_B.txt', 'w')
 
         # Create a model with just the cluster_member particles
         model = IMP.Model()
@@ -457,9 +457,9 @@ def main():
                                     "cluster_center_model." + args.extension)
             if 'rmf' in args.extension:
                 make_cluster_centroid(
-                    models_name[cluster_center_model_id], 0, outfname,
-                    i, len(cluster_members[clus]),
-                    cluster_precision, density, args.path)
+                        models_name[cluster_center_model_id], 0, outfname,
+                        i, len(cluster_members[clus]),
+                        cluster_precision, density, args.path)
             else:
                 shutil.copy(models_name[cluster_center_model_id], outfname)
 
