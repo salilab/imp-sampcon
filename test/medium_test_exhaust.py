@@ -5,8 +5,12 @@ import IMP.atom
 import IMP.rmf
 import RMF
 import IMP.test
+import sys
 from IMP.sampcon import exhaust, select_good
 
+# Skip gnuplot tests on Python 2.7; on our CI systems we get conflicts between
+# system gnuplot and conda's ancient Python 2 packages
+TEST_GNUPLOT = sys.version_info[0] >= 3
 
 def make_pdbs_from_rmfs(tmpdir):
     for sample in ('sample_A', 'sample_B'):
@@ -64,11 +68,12 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            gnuplot = ['-gp'] if TEST_GNUPLOT else []
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-d', self.get_input_file_name('density_ranges.txt'),
-                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'])
+                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5'] + gnuplot)
 
             if hasattr(RMF.NodeHandle, 'replace_child'):
                 r = RMF.open_rmf_file_read_only(
@@ -98,18 +103,20 @@ class Tests(IMP.test.TestCase):
             expected = [
                 'Distances_Matrix.data.npy', 'Identities_A.txt',
                 'Identities_B.txt', 'cluster.0.all.txt',
-                'cluster.0.sample_A.txt',
-                'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
-                'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
+                'cluster.0.sample_A.txt', 'cluster.0.sample_B.txt',
+                'test.ChiSquare_Grid_Stats.txt',
                 'test.Cluster_Population.txt', 'test.Cluster_Precision.txt',
                 'test.KS_Test.txt', 'test.Sampling_Precision_Stats.txt',
-                'test.Score_Dist.pdf', 'test.Score_Hist_A.txt',
-                'test.Score_Hist_B.txt', 'test.Top_Score_Conv.pdf',
+                'test.Score_Hist_A.txt', 'test.Score_Hist_B.txt',
                 'test.Top_Score_Conv.txt',
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc']
+            if TEST_GNUPLOT:
+                expected.extend([
+                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -126,28 +133,31 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir, make_rmf=True)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            gnuplot = ['-gp'] if TEST_GNUPLOT else []
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-ra', 'A.rmf3', '-rb', 'B.rmf3',
                  '-d', self.get_input_file_name('density_ranges.txt'),
-                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-gp'])
+                 '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5'] + gnuplot)
 
             # Check for expected files
             expected = [
                 'Distances_Matrix.data.npy', 'cluster.0.all.txt',
-                'cluster.0.sample_A.txt',
-                'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
-                'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
+                'cluster.0.sample_A.txt', 'cluster.0.sample_B.txt',
+                'test.ChiSquare_Grid_Stats.txt',
                 'test.Cluster_Population.txt', 'test.Cluster_Precision.txt',
                 'test.KS_Test.txt', 'test.Sampling_Precision_Stats.txt',
-                'test.Score_Dist.pdf', 'test.Score_Hist_A.txt',
-                'test.Score_Hist_B.txt', 'test.Top_Score_Conv.pdf',
+                'test.Score_Hist_A.txt', 'test.Score_Hist_B.txt',
                 'test.Top_Score_Conv.txt',
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc']
+            if TEST_GNUPLOT:
+                expected.extend([
+                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -165,29 +175,32 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir, make_rmf=True)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
+            gnuplot = ['-gp'] if TEST_GNUPLOT else []
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
                  '-ra', 'A.rmf3', '-rb', 'B.rmf3',
                  '-sn', self.get_input_file_name('selection.txt'),
                  '-r', '1', '-d', self.get_input_file_name('selection.txt'),
-                 '-m', 'cpu_omp', '-c', '8', '-g', '0.5', '-gp'])
+                 '-m', 'cpu_omp', '-c', '8', '-g', '0.5'] + gnuplot)
 
             # Check for expected files
             expected = [
                 'Distances_Matrix.data.npy', 'cluster.0.all.txt',
-                'cluster.0.sample_A.txt',
-                'cluster.0.sample_B.txt', 'test.ChiSquare.pdf',
-                'test.ChiSquare_Grid_Stats.txt', 'test.Cluster_Population.pdf',
+                'cluster.0.sample_A.txt', 'cluster.0.sample_B.txt',
+                'test.ChiSquare_Grid_Stats.txt',
                 'test.Cluster_Population.txt', 'test.Cluster_Precision.txt',
                 'test.KS_Test.txt', 'test.Sampling_Precision_Stats.txt',
-                'test.Score_Dist.pdf', 'test.Score_Hist_A.txt',
-                'test.Score_Hist_B.txt', 'test.Top_Score_Conv.pdf',
+                'test.Score_Hist_A.txt', 'test.Score_Hist_B.txt',
                 'test.Top_Score_Conv.txt',
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc']
+            if TEST_GNUPLOT:
+                expected.extend([
+                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))

@@ -9,8 +9,13 @@ fi
 
 python_version=$1
 
+# Don't install conda's gnuplot on Python 2.7; it conflicts with the IMP package
+if [ "${python_version}" != "2.7" ]; then
+  gnuplot="gnuplot"
+fi
+
 conda config --remove channels defaults  # get conda-forge, not main, packages
-conda create --yes -q -n python${python_version} -c salilab -c conda-forge python=${python_version} pip scipy matplotlib pandas pyrmsd imp-nightly cmake
+conda create --yes -q -n python${python_version} -c salilab -c conda-forge python=${python_version} pip scipy matplotlib pandas pyrmsd imp-nightly cmake ${gnuplot}
 eval "$(conda shell.bash hook)"
 conda activate python${python_version}
 pip install pytest-cov coverage pytest-flake8
