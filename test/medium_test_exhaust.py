@@ -12,6 +12,7 @@ from IMP.sampcon import exhaust, select_good
 # system gnuplot and conda's ancient Python 2 packages
 TEST_GNUPLOT = sys.version_info[0] >= 3
 
+
 def make_pdbs_from_rmfs(tmpdir):
     for sample in ('sample_A', 'sample_B'):
         sdir = os.path.join(tmpdir, 'modeling', 'good_scoring_models', sample)
