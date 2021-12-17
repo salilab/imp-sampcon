@@ -169,7 +169,7 @@ def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models,
         p = Pool(cores, init_foo, initargs=(distmat_full, ))
         args_list = [(total_num_models, c, all_models, run1_all_models,
                       run2_all_models, total_num_models)
-                      for c in cutoffs_list]
+                     for c in cutoffs_list]
         results = p.map(unpacking_wrapper, args_list)
         for i, x in enumerate(results):
             pvals.append(x[0])
