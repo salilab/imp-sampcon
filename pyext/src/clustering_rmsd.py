@@ -2,6 +2,7 @@ from __future__ import print_function
 import numpy
 import math
 import scipy.stats
+from multiprocessing import Pool
 
 
 def get_sample_identity(idfile_A, idfile_B):
@@ -138,29 +139,44 @@ def percent_ensemble_explained(ctable, total_num_models):
     return percent_clustered
 
 
+def unpacking_wrapper(arg_tuple):
+    x = arg_tuple[2:]
+    all_models, run1_all_models, run2_all_models, total_num_models = x
+    x = precision_cluster(*((distmat_full, ) + arg_tuple[0:2]))
+    cluster_centers, cluster_members = x
+    ctable, retained_clusters = get_contingency_table(
+        len(cluster_centers), cluster_members, all_models,
+        run1_all_models, run2_all_models)
+    pval, cramersv = test_sampling_convergence(ctable,
+                                               total_num_models)
+    percent_explained = percent_ensemble_explained(ctable,
+                                                   total_num_models)
+    return pval, cramersv, percent_explained
+
+
+def init_foo(distmat):
+    global distmat_full
+    distmat_full = distmat
+
+
 def get_clusters(cutoffs_list, distmat_full, all_models, total_num_models,
-                 run1_all_models, run2_all_models, sysname):
+                 run1_all_models, run2_all_models, sysname, cores):
     # Do Clustering on a Grid
     pvals = []
     cvs = []
     percents = []
     with open("%s.ChiSquare_Grid_Stats.txt" % sysname, 'w+') as f1:
-        for c in cutoffs_list:
-            cluster_centers, cluster_members = precision_cluster(
-                    distmat_full, total_num_models, c)
-            ctable, retained_clusters = get_contingency_table(
-                    len(cluster_centers), cluster_members, all_models,
-                    run1_all_models, run2_all_models)
-            pval, cramersv = test_sampling_convergence(ctable,
-                                                       total_num_models)
-            percent_explained = percent_ensemble_explained(ctable,
-                                                           total_num_models)
+        p = Pool(cores, init_foo, initargs=(distmat_full, ))
+        args_list = [(total_num_models, c, all_models, run1_all_models,
+                      run2_all_models, total_num_models)
+                     for c in cutoffs_list]
+        results = p.map(unpacking_wrapper, args_list)
+        for i, x in enumerate(results):
+            pvals.append(x[0])
+            cvs.append(x[1])
+            percents.append(x[2])
 
-            pvals.append(pval)
-            cvs.append(cramersv)
-            percents.append(percent_explained)
-
-            print(c, pval, cramersv, percent_explained, file=f1)
+            print(cutoffs_list[i], x[0], x[1], x[2], file=f1)
 
     return pvals, cvs, percents
 
