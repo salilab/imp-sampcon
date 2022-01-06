@@ -388,16 +388,10 @@ def main():
 
             # get superposition of each model to cluster center and the
             # RMSD between the two
-            if args.symmetry_groups:
-                rmsd, superposed_ps, trans = \
-                    precision_rmsd.get_particles_from_superposed_amb(
-                        conforms[model_index], conform_0, args.align, ps,
-                        trans, symm_groups)
-            else:
-                rmsd, superposed_ps, trans = \
+            rmsd, superposed_ps, trans = \
                     precision_rmsd.get_particles_from_superposed(
                         conforms[model_index], conform_0, args.align,
-                        ps, trans)
+                        ps, trans, symm_groups)
 
             model.update()  # why not?
 
