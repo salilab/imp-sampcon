@@ -243,7 +243,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
                                  resolution=1, n_cores=None):
     '''Modified RMF coordinates function to work with symmetric copies'''
     if n_cores is None:
-        n_cores == 1
+        n_cores = 1
     # Open RMFs and get total number of models
     rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_A))
     n_models = [rmf_fh.get_number_of_frames()]
