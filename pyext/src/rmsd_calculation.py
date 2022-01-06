@@ -217,7 +217,7 @@ def get_conforms_per_frame_batch(arg_bundle):
         m.update()
         if subunit_name:
             s0 = IMP.atom.Selection(h, resolution=resolution,
-                                        molecule=subunit_name)
+                                    molecule=subunit_name)
         elif selection is not None:
             s0 = parse_rmsd_selection(h, selection, resolution)
         else:
@@ -232,12 +232,12 @@ def get_conforms_per_frame_batch(arg_bundle):
             leaf = particles[i]
             p = IMP.core.XYZR(leaf)
             pxyz = p.get_coordinates()
-            result[mod_id].append(list(pxyz)) 
+            result[mod_id].append(list(pxyz))
         mod_id += 1
     return result
-    
 
-def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, 
+
+def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
                                  subunit_name=None,
                                  symm_groups_file=None, selection=None,
                                  resolution=1, n_cores=None):
@@ -291,7 +291,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
                  parse_symmetric_groups_file(symm_groups_file)
     else:
         symm_groups = None
-    
+
     # add masses, particle names and radii
     rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_A))
     h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
@@ -306,7 +306,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
         s0 = IMP.atom.Selection(h, resolution=resolution)
     particles = s0.get_selected_particles()
 
-        # Copy particle coordinates
+    # Copy particle coordinates
     for i in range(len(particles)):
         # i is an index over all particles in the system
 
@@ -354,8 +354,8 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
             ps_names.append(
                 mol_name + "_" + residue_in_bead + "_" +
                 residue_in_bead + "_" + str(copy_number))
-                
-    mod_id = 0  # index for each model in conform.          
+
+    mod_id = 0  # index for each model in conform.
     for rmf_file in [rmf_A, rmf_B]:
 
         models_name.append(rmf_file)
@@ -364,7 +364,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
         n_frames = rmf_fh.get_number_of_frames()
         print("Opening RMF file:", rmf_file, "with",
               n_frames, "frames")
-        
+
         n_per_core = n_frames // n_cores
         spacing = np.arange(0, n_per_core * n_cores, n_per_core)
         mod_id_starts = spacing + mod_id
@@ -377,8 +377,8 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
             b = frame_number_ends[i]
             frame_lists.append(np.arange(a, b + 1))
         p = mp.Pool(n_cores)
-        args_list = [(rmf_file, frame_lists[i], mod_id_starts[i], \
-                     resolution, subunit_name, selection, path) for i in range(n_cores)]
+        args_list = [(rmf_file, frame_lists[i], mod_id_starts[i], resolution,
+                     subunit_name, selection, path) for i in range(n_cores)]
         results = p.map(get_conforms_per_frame_batch, args_list)
         for res in results:
             for m_id in res:
