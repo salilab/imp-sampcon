@@ -203,7 +203,8 @@ def main():
         if args.rmf_A is not None:
             (ps_names, masses, radii, conforms, symm_groups, models_name,
                 n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
-                     args.path, args.rmf_A, args.rmf_B, args.subunit,
+                     args.path, args.rmf_A, args.rmf_B, args.cores,
+                     args.subunit,
                      args.symmetry_groups,
                      rmsd_custom_ranges,
                      args.resolution)

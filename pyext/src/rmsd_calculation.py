@@ -204,7 +204,8 @@ def parse_symmetric_groups_file(symm_groups_file):
 
 
 def get_conforms_per_frame_batch(arg_bundle):
-    rmf_file, frames, mod_id_start, resolution, subunit_name, selection, path = arg_bundle
+    rmf_file, frames, mod_id_start = arg_bundle[:3]
+    resolution, subunit_name, selection, path = arg_bundle[3:]
     from collections import defaultdict
     m = IMP.Model()
     rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_file))
@@ -236,7 +237,8 @@ def get_conforms_per_frame_batch(arg_bundle):
     return result
     
 
-def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, n_cores, subunit_name=None,
+def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, n_cores, 
+                                 subunit_name=None,
                                  symm_groups_file=None, selection=None,
                                  resolution=1):
     '''Modified RMF coordinates function to work with symmetric copies'''
@@ -356,7 +358,6 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, n_cores, subunit_name=None,
     for rmf_file in [rmf_A, rmf_B]:
 
         models_name.append(rmf_file)
-
         rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_file))
         h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
         n_frames = rmf_fh.get_number_of_frames()
@@ -364,13 +365,19 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, n_cores, subunit_name=None,
               n_frames, "frames")
         
         n_per_core = n_frames // n_cores
-        mod_id_starts = np.arange(mod_id, mod_id + n_per_core * n_cores, n_per_core)
-        frame_number_starts = np.arange(0, n_per_core * n_cores, n_per_core)
-        frame_number_ends = np.arange(n_per_core, n_per_core + n_per_core * n_cores, n_per_core)
+        spacing = np.arange(0, n_per_core * n_cores, n_per_core)
+        mod_id_starts = spacing + mod_id
+        frame_number_starts = spacing
+        frame_number_ends = spacing + n_per_core
         frame_number_ends[-1] = n_frames - 1
-        frame_lists = [np.arange(frame_number_starts[i], frame_number_ends[i] + 1) for i in range(n_cores)]
+        frame_lists = []
+        for i in range(n_cores):
+            a = frame_number_starts[i]
+            b = frame_number_ends[i]
+            frame_lists.append(np.arange(a, b + 1))
         p = mp.Pool(n_cores)
-        args_list = [(rmf_file, frame_lists[i], mod_id_starts[i], resolution, subunit_name, selection, path) for i in range(n_cores)]
+        args_list = [(rmf_file, frame_lists[i], mod_id_starts[i], \
+                     resolution, subunit_name, selection, path) for i in range(n_cores)]
         results = p.map(get_conforms_per_frame_batch, args_list)
         for res in results:
             for m_id in res:
