@@ -58,6 +58,7 @@ def get_particles_from_superposed(
 
     return rmsd, ps, trans
 
+
 class GetModelDensity(object):
     """Compute mean density maps from structures.
     Keeps a dictionary of density maps,

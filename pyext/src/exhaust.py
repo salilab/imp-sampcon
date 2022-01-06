@@ -389,7 +389,7 @@ def main():
             # get superposition of each model to cluster center and the
             # RMSD between the two
             rmsd, superposed_ps, trans = \
-                    precision_rmsd.get_particles_from_superposed(
+                precision_rmsd.get_particles_from_superposed(
                         conforms[model_index], conform_0, args.align,
                         ps, trans, symm_groups)
 
