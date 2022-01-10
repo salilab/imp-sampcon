@@ -10,6 +10,7 @@ import IMP
 import IMP.atom
 import IMP.rmf
 import RMF
+import multiprocessing as mp
 
 
 def parse_rmsd_selection(h, selection, resolution=1):
@@ -202,11 +203,47 @@ def parse_symmetric_groups_file(symm_groups_file):
             first_group_member)
 
 
-def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
-                                 symm_groups_file=None, selection=None,
-                                 resolution=1):
-    '''Modified RMF coordinates function to work with symmetric copies'''
+def get_conforms_per_frame_batch(arg_bundle):
+    rmf_file, frames, mod_id_start = arg_bundle[:3]
+    resolution, subunit_name, selection, path = arg_bundle[3:]
+    from collections import defaultdict
+    m = IMP.Model()
+    rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_file))
+    h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
+    result = defaultdict(list)
+    mod_id = mod_id_start
+    for f in frames:
+        IMP.rmf.load_frame(rmf_fh, f)
+        m.update()
+        if subunit_name:
+            s0 = IMP.atom.Selection(h, resolution=resolution,
+                                    molecule=subunit_name)
+        elif selection is not None:
+            s0 = parse_rmsd_selection(h, selection, resolution)
+        else:
+            s0 = IMP.atom.Selection(h, resolution=resolution)
 
+        particles = s0.get_selected_particles()
+
+        # Copy particle coordinates
+        for i in range(len(particles)):
+            # i is an index over all particles in the system
+
+            leaf = particles[i]
+            p = IMP.core.XYZR(leaf)
+            pxyz = p.get_coordinates()
+            result[mod_id].append(list(pxyz))
+        mod_id += 1
+    return result
+
+
+def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
+                                 subunit_name=None,
+                                 symm_groups_file=None, selection=None,
+                                 resolution=1, n_cores=None):
+    '''Modified RMF coordinates function to work with symmetric copies'''
+    if n_cores is None:
+        n_cores = 1
     # Open RMFs and get total number of models
     rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_A))
     n_models = [rmf_fh.get_number_of_frames()]
@@ -255,98 +292,98 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B, subunit_name=None,
     else:
         symm_groups = None
 
-    mod_id = 0  # index for each model in conform.
+    # add masses, particle names and radii
+    rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_A))
+    h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
+    IMP.rmf.load_frame(rmf_fh, 0)
+    m.update()
+    if subunit_name:
+        s0 = IMP.atom.Selection(h, resolution=resolution,
+                                molecule=subunit_name)
+    elif selection is not None:
+        s0 = parse_rmsd_selection(h, selection, resolution)
+    else:
+        s0 = IMP.atom.Selection(h, resolution=resolution)
+    particles = s0.get_selected_particles()
 
+    # Copy particle coordinates
+    for i in range(len(particles)):
+        # i is an index over all particles in the system
+
+        leaf = particles[i]
+        p = IMP.core.XYZR(leaf)
+        masses.append(IMP.atom.Mass(leaf).get_mass())
+        radii.append(p.get_radius())
+        mol_name = IMP.atom.get_molecule_name(
+                IMP.atom.Hierarchy(leaf))
+        # traverse up the Hierarchy to get copy number of
+        # the molecule that the bead belongs to
+        copy_number = \
+            IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
+
+        # Add to symmetric groups if needed
+        if symm_groups_file:
+
+            protein_plus_copy = mol_name+'.'+str(copy_number)
+            if protein_plus_copy in group_member_to_symm_group_map:
+                # protein copy is in a symmetric group
+                group_index = group_member_to_symm_group_map[
+                    protein_plus_copy]
+                curr_particle_index_in_group[group_index] += 1
+
+                if protein_plus_copy \
+                        == first_group_member[group_index]:
+                    symm_groups[group_index].append([i])
+
+                else:
+                    j = curr_particle_index_in_group[group_index] \
+                            % len(symm_groups[group_index])
+                    symm_groups[group_index][j].append(i)
+
+        # TODO not tested on non-fragment systems
+        if IMP.atom.Fragment.get_is_setup(leaf):
+            residues_in_bead = \
+                IMP.atom.Fragment(leaf).get_residue_indexes()
+            ps_names.append(
+                mol_name + "_" + str(min(residues_in_bead)) + "_"
+                + str(max(residues_in_bead)) + "_"
+                + str(copy_number))
+        else:
+            residue_in_bead = \
+                str(IMP.atom.Residue(leaf).get_index())
+            ps_names.append(
+                mol_name + "_" + residue_in_bead + "_" +
+                residue_in_bead + "_" + str(copy_number))
+
+    mod_id = 0  # index for each model in conform.
     for rmf_file in [rmf_A, rmf_B]:
 
         models_name.append(rmf_file)
-
         rmf_fh = RMF.open_rmf_file_read_only(os.path.join(path, rmf_file))
         h = IMP.rmf.create_hierarchies(rmf_fh, m)[0]
-
+        n_frames = rmf_fh.get_number_of_frames()
         print("Opening RMF file:", rmf_file, "with",
-              rmf_fh.get_number_of_frames(), "frames")
+              n_frames, "frames")
 
-        for f in range(rmf_fh.get_number_of_frames()):
-
-            if f % 100 == 0:
-                # pass
-                print("  -- Opening frame", f, "of",
-                      rmf_fh.get_number_of_frames())
-
-            IMP.rmf.load_frame(rmf_fh, f)
-
-            m.update()
-
-            # Store particle indices and loop over individual protein
-            # names for symmetric copies
-            if subunit_name:
-                s0 = IMP.atom.Selection(h, resolution=resolution,
-                                        molecule=subunit_name)
-            elif selection is not None:
-                s0 = parse_rmsd_selection(h, selection, resolution)
-            else:
-                s0 = IMP.atom.Selection(h, resolution=resolution)
-
-            particles = s0.get_selected_particles()
-
-            # Copy particle coordinates
-            for i in range(len(particles)):
-                # i is an index over all particles in the system
-
-                leaf = particles[i]
-                p = IMP.core.XYZR(leaf)
-                pxyz = p.get_coordinates()
-                conform[mod_id][i][0] = pxyz[0]
-                conform[mod_id][i][1] = pxyz[1]
-                conform[mod_id][i][2] = pxyz[2]
-
-                # Just for the first model, update the masses and radii
-                # and log the particle name in ps_names
-                if mod_id == 0 and rmf_file == rmf_A:
-                    masses.append(IMP.atom.Mass(leaf).get_mass())
-                    radii.append(p.get_radius())
-                    mol_name = IMP.atom.get_molecule_name(
-                            IMP.atom.Hierarchy(leaf))
-                    # traverse up the Hierarchy to get copy number of
-                    # the molecule that the bead belongs to
-                    copy_number = \
-                        IMP.atom.get_copy_index(IMP.atom.Hierarchy(leaf))
-
-                    # Add to symmetric groups if needed
-                    if symm_groups_file:
-
-                        protein_plus_copy = mol_name+'.'+str(copy_number)
-                        if protein_plus_copy in group_member_to_symm_group_map:
-                            # protein copy is in a symmetric group
-                            group_index = group_member_to_symm_group_map[
-                                protein_plus_copy]
-                            curr_particle_index_in_group[group_index] += 1
-
-                            if protein_plus_copy \
-                                    == first_group_member[group_index]:
-                                symm_groups[group_index].append([i])
-
-                            else:
-                                j = curr_particle_index_in_group[group_index] \
-                                        % len(symm_groups[group_index])
-                                symm_groups[group_index][j].append(i)
-
-                    # TODO not tested on non-fragment systems
-                    if IMP.atom.Fragment.get_is_setup(leaf):
-                        residues_in_bead = \
-                            IMP.atom.Fragment(leaf).get_residue_indexes()
-                        ps_names.append(
-                            mol_name + "_" + str(min(residues_in_bead)) + "_"
-                            + str(max(residues_in_bead)) + "_"
-                            + str(copy_number))
-                    else:
-                        residue_in_bead = \
-                            str(IMP.atom.Residue(leaf).get_index())
-                        ps_names.append(
-                            mol_name + "_" + residue_in_bead + "_" +
-                            residue_in_bead + "_" + str(copy_number))
-            mod_id += 1
+        n_per_core = n_frames // n_cores
+        spacing = np.arange(0, n_per_core * n_cores, n_per_core)
+        mod_id_starts = spacing + mod_id
+        frame_number_starts = spacing
+        frame_number_ends = spacing + n_per_core
+        frame_number_ends[-1] = n_frames - 1
+        frame_lists = []
+        for i in range(n_cores):
+            a = frame_number_starts[i]
+            b = frame_number_ends[i]
+            frame_lists.append(np.arange(a, b + 1))
+        p = mp.Pool(n_cores)
+        args_list = [(rmf_file, frame_lists[i], mod_id_starts[i], resolution,
+                     subunit_name, selection, path) for i in range(n_cores)]
+        results = p.map(get_conforms_per_frame_batch, args_list)
+        for res in results:
+            for m_id in res:
+                conform[m_id, :, :] = np.array(res[m_id])
+        mod_id += n_frames
 
     if symm_groups_file:
         for grp in symm_groups:
