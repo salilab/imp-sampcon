@@ -364,7 +364,8 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
         n_frames = rmf_fh.get_number_of_frames()
         print("Opening RMF file:", rmf_file, "with",
               n_frames, "frames")
-
+        
+        n_cores = min(n_cores, n_frames)  # to ensure n_per_core > 0
         n_per_core = n_frames // n_cores
         spacing = np.arange(0, n_per_core * n_cores, n_per_core)
         mod_id_starts = spacing + mod_id
@@ -424,8 +425,13 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
     # additionally set number of cores for parallel calculator
     if mode == "cpu_omp":
         calculator.setNumberOfOpenMPThreads(int(cores))
-
-    rmsd = calculator.pairwiseRMSDMatrix()
+    
+    if symm_groups:
+        rmsd = calculator.pairwiseRMSDMatrix()
+    else:
+        rmsd = []
+        for i in range(len(conforms) - 1):
+            rmsd += list(calculator.oneVsFollowing(i))
     rmsd_matrix = CondensedMatrix(rmsd)
     inner_data = rmsd_matrix.get_data()
     np.save("Distances_Matrix.data", inner_data)
