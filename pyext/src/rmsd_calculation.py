@@ -426,7 +426,7 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
     if mode == "cpu_omp":
         calculator.setNumberOfOpenMPThreads(int(cores))
     
-    if symm_groups:
+    if not symm_groups:
         rmsd = calculator.pairwiseRMSDMatrix()
     else:
         rmsd = []
