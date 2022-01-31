@@ -600,10 +600,10 @@ Objavro.codecnullavro.schema‚¸{
         }
     ]
 }
- ‹Ù/HÃîh†On3©ŠHˆ4 IMP 2.14.0IMPIMP restraint&IMP restraint files
-alias alternativesfeature
+ e-ÒÅë]›zGc\•»‡”* IMP 2.14.0IMP
+alias alternatives
 physicsprovenancesequence
-shapeuncertainty    ^ root  System  State_0 ProteinA.3 Frag_1-15 
+shape    V root  System  State_0 ProteinA.1 Frag_1-15 
  Frag_1-15: Res 1 1
  2
  3
@@ -619,35 +619,31 @@ shapeuncertainty    ^ root  System  State_0 ProteinA.3 Frag_1
  $13
  &14
  (15
- *ProteinA.1 ,Frag_1-15* . Frag_1-15: Res 1, 01. 22. 43. 64. 85. :6. <7. >8. @9. B10. D11. F12. H13. J14. L15. Nsampling PscriptN RsoftwareP TsoftwareR Vexcluded_volume  X PairsRestraint 0V Z&'7_bead', '10_bead'X \&'12_bead', '7_bead'X  n  filter threshold"cluster precision&explicit resolutionmass
+ *ProteinA.3 ,Frag_1-15* . Frag_1-15: Res 1, 01. 22. 43. 64. 85. :6. <7. >8. @9. B10. D11. F12. H13. J14. L15. Nsampling PscriptN RsoftwareP TsoftwareR  b  filter threshold"cluster precision&explicit resolutionmass
 radius
 
 *diffusion coefficient
-
-score
-scalescale lowerscale upperweight 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
+ 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
 combined frames filter frames cluster members external frame aliased element
  residue index copy index &first residue index $last residue index state index  reference "molecule $bonded 0
  &bonded 1
  ( rigid body index  $structure filenamestructure chainsampling methodfilter methodcluster density
 script filenamesoftware name software version"software locationresidue typechain idsequencechain typetype name 
 types 
-roots residue indexesrepresentation coordinates
+roots residue indexes coordinates
 rgb colorvariances
 translation
  rotation
  N N N <JD@8
 2<0&L$"H6
 >4B(F:  *     "* (
-Æ  ,  €?  €? <J  ÜBD  ÜB@  ÜB8  ÜB2  ÜB<  ÜB0  ÜB&DÆBL  ÜB$s(B"ìQâBDÆBs(BìQâBH  ÜB6  ÜBDÆB>  ÜB4  ÜBs(BìQâBìQâBB  ÜBDÆB(ìQâBF  ÜB:  ÜB DÆBs(Bs(B <JùÏ8@DùÏ8@@dNC@8ùÏ8@2ùÏ8@<W!@0W!@&ùÏ8@LdNC@$W!@"dNC@ùÏ8@W!@dNC@HW!@6W!@ùÏ8@>ùÏ8@4dNC@W!@dNC@dNC@BW!@ùÏ8@(dNC@FdNC@:dNC@ ùÏ8@W!@W!@ X  €?V  €?  NMonte Carlo 
-P<../../create_decoys_with_mc.py TFIntegrative Modeling Platform (IMP)RIMP PMI module T2.14.0R2.14.0 T>https://integrativemodeling.orgR>https://integrativemodeling.org <JVALDVAL@LEU8VAL2VAL<ALA0ALA&VALLLEU$ALA"LEUVALALALEUHALA6ALAVAL>VAL4LEUALALEULEUBALAVAL(LEUFLEU:LEU VALALAALA *BA *AVLAVLAVLAVLAVLAVLAVLAVLAVLAVL * UnknownChainType UnknownChainType   &ğ“ñ¿À¿§µA$ A£¿?£û?^Sé@"©K@¶½B?m;¹@©K@™P¿³Šd¾ A£¿˜#ÀñÜ¿ğ“ñ¿ê¹?n¨NÀxÑ?ê¹?(l—ÀF%ƒ?˜#À„ÇÀ?EŒ>¹M@mÎ£?—YÀ™P¿	œ÷À(xÑ?À¿ Á$ATZ¿¹M@ıÙÁ ?EŒ>±ŸÀ}#‰@*:À+~Ô¼2@=,@+~Ô¼õå+Á   .
+
+  <J  ÜBD  ÜB@  ÜB8  ÜB2  ÜB<  ÜB0  ÜB&DÆBL  ÜB$s(B"ìQâBDÆBs(BìQâBH  ÜB6  ÜBDÆB>  ÜB4  ÜBs(BìQâBìQâBB  ÜBDÆB(ìQâBF  ÜB:  ÜB DÆBs(Bs(B <JùÏ8@DùÏ8@@dNC@8ùÏ8@2ùÏ8@<W!@0W!@&ùÏ8@LdNC@$W!@"dNC@ùÏ8@W!@dNC@HW!@6W!@ùÏ8@>ùÏ8@4dNC@W!@dNC@dNC@BW!@ùÏ8@(dNC@FdNC@:dNC@ ùÏ8@W!@W!@  NMonte Carlo 
+P<../../create_decoys_with_mc.py TFIntegrative Modeling Platform (IMP)RIMP PMI module T2.14.0R2.14.0 T>https://integrativemodeling.orgR>https://integrativemodeling.org <JVALDVAL@LEU8VAL2VAL<ALA0ALA&VALLLEU$ALA"LEUVALALALEUHALA6ALAVAL>VAL4LEUALALEULEUBALAVAL(LEUFLEU:LEU VALALAALA *BA *AVLAVLAVLAVLAVLAVLAVLAVLAVLAVL * UnknownChainType UnknownChainType   &ğ“ñ¿À¿§µA$ A£¿?£û?^Sé@"©K@¶½B?m;¹@©K@™P¿³Šd¾ A£¿˜#ÀñÜ¿ğ“ñ¿ê¹?n¨NÀxÑ?ê¹?(l—ÀF%ƒ?˜#À„ÇÀ?EŒ>¹M@mÎ£?—YÀ™P¿	œ÷À(xÑ?À¿ Á$ATZ¿¹M@ıÙÁ ?EŒ>±ŸÀ}#‰@*:À+~Ô¼2@=,@+~Ô¼õå+Á   .
  ,
  
 
  
-  \F< Z<B X<L"$&J(20 46FH8:<>@BD V<L"$&J(20 46FH8:<>@BD              \µ ¨=Z
-nO@X®T@V®T@    Lu–,Á°nÁ,²@ÁJõ5uÁ7ÎAñ9Ÿ@B^üğ¿C„ AÚJÁD°"3ÁÓ |ÁwXÀ@{w7Ášœ$¿°Ç@F?qb±@¢#“Á:vMAñwÁ,.Y@8·vBA;Ùß¿q­>@H÷ÿÚ¿3ÆÁ‰4A6¾qVÁñ¿q¿N€[A>ÀDtÁ+(Á°Y,À4äıÁü’º@ÅÕyÁ2P,©@½]@Rûá@<?7.À–İÒ@	RhÁ0Í²u¿W\á?‡g,Á 
-ÆšAê~¿¢ÕÅ@   
-aÇi?œœ®>Z°¿½zXO¾             ZÒ@\›y>X³k+@V³k+@    L‚0Á¶¯Á¨>ÁJô4sÁ¯Aø—@B^A÷¿¿*ö@1w@ÁDiˆ3Á{ÁıáfÀ@/w7Áâ?¿÷ô»@F;?ÈI¬@ìûÁ:[KAÁÁ³äA@8Üñ9A°°å¿XÊ*@H¢“Õ¿­şÁşâ0A6áûMÁWî­¿!×SA>úsÁíU&ÁÂ!À4:¿Á`*»@¯ÍvÁ2ù9¬@´3`@ú»Ü@<ÂÀn¹É@ÈúfÁ0›ÄP¿®°@„("Á 
-m¸A1U9Àõ1A   
-ík?»Û´>Û·½Ç¾       ‹Ù/HÃîh†On3©ŠH  ‹Ù/HÃîh†On3©ŠH
+                 Lu–,Á°nÁ,²@ÁJõ5uÁ7ÎAñ9Ÿ@B^üğ¿C„ AÚJÁD°"3ÁÓ |ÁwXÀ@{w7Ášœ$¿°Ç@F?qb±@¢#“Á:vMAñwÁ,.Y@8·vBA;Ùß¿q­>@H÷ÿÚ¿3ÆÁ‰4A6¾qVÁñ¿q¿N€[A>ÀDtÁ+(Á°Y,À4äıÁü’º@ÅÕyÁ2P,©@½]@Rûá@<?7.À–İÒ@	RhÁ0Í²u¿W\á?‡g,Á 
+ûóÀ)¿ÂÀXÈŸA   
+¾‡E?Üö¾äk?>©½>       e-ÒÅë]›zGc\•»‡  e-ÒÅë]›zGc\•»‡
