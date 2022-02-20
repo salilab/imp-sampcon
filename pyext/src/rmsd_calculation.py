@@ -11,6 +11,20 @@ import IMP.atom
 import IMP.rmf
 import RMF
 import multiprocessing as mp
+from itertools import combinations
+
+
+def parse_symm_groups_for_pyrmsd(s):
+    output = []
+    for grp in s:
+        n = len(grp[0])
+        if n == 2:
+            output.append(grp)
+            continue
+        for j, k in combinations(np.arange(n), 2):
+            sub_grp = np.array(grp)[:, np.array([j, k])]
+            output.append(sub_grp.tolist())
+    return output
 
 
 def parse_rmsd_selection(h, selection, resolution=1):
@@ -412,11 +426,12 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
 
     if symm_groups:
         print("We have ambiguity.")
+        s1 = parse_symm_groups_for_pyrmsd(symm_groups)
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
             calculator_name,
             fittingCoordsets=conforms,
-            calcSymmetryGroups=symm_groups,
-            fitSymmetryGroups=symm_groups)
+            calcSymmetryGroups=s1,
+            fitSymmetryGroups=s1)
 
     else:
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(

@@ -4,6 +4,7 @@ import numpy
 import IMP
 import IMP.em
 import pyRMSD.RMSDCalculator
+from IMP.sampcon.rmsd_calculation import parse_symm_groups_for_pyrmsd
 
 
 def parse_custom_ranges(ranges_file):
@@ -35,11 +36,12 @@ def get_particles_from_superposed(
             calculator_name,
             conforms)
     else:
+        s1 = parse_symm_groups_for_pyrmsd(symm_groups)
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
             calculator_name,
             fittingCoordsets=conforms,
-            calcSymmetryGroups=symm_groups,
-            fitSymmetryGroups=symm_groups)
+            calcSymmetryGroups=s1,
+            fitSymmetryGroups=s1)
 
     rmsd, superposed_fit = calculator.pairwise(
         0, 1, get_superposed_coordinates=True)
