@@ -75,6 +75,11 @@ Cluster populations are in `actin.Cluster_Population.txt`, showing the number of
 Cluster precisions are in `actin.Cluster_Precision.txt`, with the precision defined by the average RMSD to the cluster centroid.
 The individual cluster directories contain representative bead models and localization densities.
 
+### Minor updates to the protocol from the BJ 2017 paper
+Note that for both the score distribution test and the chi-square tests, the distributions of models in samples A and B are deemed to be different only if the p-value is significant as well as effect size (D or Cramer's V) is also large. See also `Similarity of Scores` section in the paper [Viswanath et al, 2017](https://www.ncbi.nlm.nih.gov/pubmed/29211988). 
+
+The model precision is now calculated as the average RMSD between a model in the cluster and the cluster centroid model, and not using weighted RMSF as mentioned in the original paper. 
+
 ## Special input options
 Here a few special cases of `exhaust` are mentioned.
 
