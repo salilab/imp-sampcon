@@ -103,6 +103,10 @@ def parse_args():
         "each entry in the dictionary takes the form"
         "'selection name': [(residue_start, residue_end, protein name)",
         default=None)
+    parser.add_argument(
+        '--prism', '-pr', dest="prism",
+        help="Save input files for PrISM", default=False,
+        action='store_true')
     return parser.parse_args()
 
 
@@ -346,7 +350,10 @@ def main():
             os.mkdir("./cluster.%s" % i)
             os.mkdir("./cluster.%s/Sample_A/" % i)
             os.mkdir("./cluster.%s/Sample_B/" % i)
-
+        # File for saving input to PrISM
+        if args.prism:
+            prism_file = 'cluster.'+str(i)+'.prism.npz'
+            superposed_coords_cluster = []
         # Create densities for all subunits for both sample A and sample B
         # as well as separately.
         gmd1 = precision_rmsd.GetModelDensity(
@@ -411,9 +418,24 @@ def main():
                 # density map for sample B
                 gmd2.add_subunits_density(superposed_ps)
                 print(model_index, file=sampleB_file)
-
+            if args.prism:
+                superposed_coords = \
+                    [IMP.core.XYZ(s_ps).get_coordinates()
+                        for s_ps in superposed_ps]
+                superposed_coords_cluster.append(
+                    numpy.array(superposed_coords))
+        if args.prism:
+            mass = \
+                numpy.array(
+                    [IMP.atom.Mass(m_ps).get_mass() for m_ps in superposed_ps])
+            radii = \
+                numpy.array(
+                    [IMP.core.XYZR(r_ps).get_radius() for r_ps in superposed_ps])
+            numpy.savez(
+                prism_file,
+                numpy.array(superposed_coords_cluster),
+                mass, radii, numpy.array(ps_names))
         cluster_precision /= float(len(cluster_members[clus]) - 1.0)
-
         print("Cluster precision (average distance to cluster centroid) "
               "of cluster ", str(i), " is %.3f" % cluster_precision, "A",
               file=fpc)
