@@ -205,11 +205,12 @@ def parse_symmetric_groups_file(symm_groups_file):
 
         for fld in fields:
             # group that the current protein copy belongs to
-            member_to_symm_group[fld] = indx
+            for subfld in fld.split('/'):
+                member_to_symm_group[subfld] = indx
 
         # the first group member is special! We create a symm group list
         # of particles for the first group member
-        first_group_member.append(fields[0])
+        first_group_member.append(fields[0].split('/'))
 
     sgf.close()
 
@@ -346,7 +347,7 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
                 curr_particle_index_in_group[group_index] += 1
 
                 if protein_plus_copy \
-                        == first_group_member[group_index]:
+                        in first_group_member[group_index]:
                     symm_groups[group_index].append([i])
 
                 else:
