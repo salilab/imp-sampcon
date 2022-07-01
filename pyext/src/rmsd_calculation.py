@@ -407,6 +407,10 @@ def get_rmfs_coordinates_one_rmf(path, rmf_A, rmf_B,
                 print("Warning. Symmetry option specified but created "
                       "symmetry group is empty. Cross-check the "
                       "specification of symmetry groups.")
+            check = [len(x) for x in grp]
+            message = "Unequal no. of particles in same symm group."
+            message2 = "Cross-check the specification of symm groups."
+            assert len(set(check)) == 1, message + message2
 
     return ps_names, masses, radii, conform, symm_groups, models_name, n_models
 
