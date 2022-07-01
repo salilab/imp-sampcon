@@ -64,6 +64,10 @@ class Tests(IMP.test.TestCase):
         self.m = IMP.Model()
         self.symmetry = self.get_input_file_name(
             "ambiguity.txt")
+        self.symmetry_complex1 = self.get_input_file_name(
+            "ambiguitycomplex1.txt")
+        self.symmetry_complex2 = self.get_input_file_name(
+            "ambiguitycomplex2.txt")
 
         self.pts1 = get_particles(
             self.m,
@@ -98,13 +102,13 @@ class Tests(IMP.test.TestCase):
         for xyz in self.pts2sw:
             self.vec2sw.append(xyz.get_coordinates())
 
-    def get_rmsd_matrix(self, align, symmetry):
+    def get_rmsd_matrix(self, align, symmetry, name1='SampledA.rmf3', name2='SampledC.rmf3'):
         (ps, masses, radii,
          conforms, symm_groups, models_name,
          n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
              "./",
-             self.get_input_file_name("SampledA.rmf3"),
-             self.get_input_file_name("SampledC.rmf3"),
+             self.get_input_file_name(name1),
+             self.get_input_file_name(name2),
              None,
              symmetry,
              None,
@@ -174,6 +178,25 @@ class Tests(IMP.test.TestCase):
         rmsd = min(rmsd_00, rmsd_01, rmsd_10, rmsd_11)
         os.unlink("./Distances_Matrix.data.npy")
         self.assertAlmostEqual(rmsd, rmsd_ali_amb[0][2], delta=1e-3)
+
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
+    def test_rmsd_with_symm_group_complexes_no_alignment(self):
+        """Check for rmsd with complexes specified versus the original setup"""
+        rmsd_complex = self.get_rmsd_matrix(False, self.symmetry_complex1, "SampledAcomplex.rmf3", "SampledCcomplex.rmf3")[0][1]
+        rmsd_original = self.get_rmsd_matrix(False, self.symmetry_complex2, "SampledAcomplex.rmf3", "SampledCcomplex.rmf3")[0][1]
+        self.assertAlmostEqual(rmsd_complex, rmsd_original, delta=1e-4)
+        (ps, masses, radii,
+         conforms, symm_groups, models_name,
+         n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
+             "./",
+             self.get_input_file_name("SampledAcomplex.rmf3"),
+             self.get_input_file_name("SampledCcomplex.rmf3"),
+             None,
+             self.symmetry_complex1,
+             None,
+             1)
+        self.assertEqual(len(symm_groups), 1)
+        self.assertEqual(len(symm_groups[0]), 443)
 
 
 if __name__ == '__main__':

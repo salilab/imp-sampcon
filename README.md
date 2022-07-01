@@ -115,3 +115,18 @@ If a system has 2 copies of protein A and 1 copy of protein B, i.e. the proteins
 To implement this, pyRMSD takes an additional argument `symm_groups` which is a list of particle indices of equivalent particles. For the above case for instance, `symm_groups` has one symmetric group with the particle indices of A.0 and A.1. `symm_groups=[[[A.0.b0,A.1.b0],[A.0.b1,A.1.b1],[A.0.b2,A.1.b2]..[A.0.bn,A.1.bn]]]`. Here `A.X.bi` is the index of the i'th bead in protein A.X and the ith beads of the two protein copies are considered equivalent particles.
 
 To generate this list of symmetric groups, one needs to pass an additional file with the ambiguity option to the master exhaust script. The file contains one line per symmetric group, and components of symmetric groups are separated by white space. See also the example in `symminput`.
+
+Additionally, as different individual elements of a symm group, one can specify a complex of multiple molecules such that they are treated as a single unit while trying out different permutations to find the minimum RMSD. As an illustration, for a system with `A.0`, `A.1`, `A.2`, `B.0`, `B.1`, `B.2`, without complexes, the ambiguity file would look as follows:
+
+```
+A.0 A.1 A.2
+B.0 B.1 B.2
+```
+
+There are a total of 64 permutations/swaps to explore, i.e. the final RMSD is the minimum of the RMSD of these permutations. If `A.x` and `B.x` are complexed, specifying this should make the ambiguity file look as follows:
+
+```
+A.0/B.0 A.1/B.1 A.2/B.2
+```
+
+This has only 8 permutations to explore.
