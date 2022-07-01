@@ -102,7 +102,9 @@ class Tests(IMP.test.TestCase):
         for xyz in self.pts2sw:
             self.vec2sw.append(xyz.get_coordinates())
 
-    def get_rmsd_matrix(self, align, symmetry, name1='SampledA.rmf3', name2='SampledC.rmf3'):
+    def get_rmsd_matrix(self, align, symmetry, 
+                        name1='SampledA.rmf3', 
+                        name2='SampledC.rmf3'):
         (ps, masses, radii,
          conforms, symm_groups, models_name,
          n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
@@ -182,8 +184,14 @@ class Tests(IMP.test.TestCase):
     @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_rmsd_with_symm_group_complexes_no_alignment(self):
         """Check for rmsd with complexes specified versus the original setup"""
-        rmsd_complex = self.get_rmsd_matrix(False, self.symmetry_complex1, "SampledAcomplex.rmf3", "SampledCcomplex.rmf3")[0][1]
-        rmsd_original = self.get_rmsd_matrix(False, self.symmetry_complex2, "SampledAcomplex.rmf3", "SampledCcomplex.rmf3")[0][1]
+        rmsd_complex = self.get_rmsd_matrix(False, 
+                                            self.symmetry_complex1, 
+                                            "SampledAcomplex.rmf3", 
+                                            "SampledCcomplex.rmf3")[0][1]
+        rmsd_original = self.get_rmsd_matrix(False, 
+                                             self.symmetry_complex2, 
+                                             "SampledAcomplex.rmf3", 
+                                             "SampledCcomplex.rmf3")[0][1]
         self.assertAlmostEqual(rmsd_complex, rmsd_original, delta=1e-4)
         (ps, masses, radii,
          conforms, symm_groups, models_name,
