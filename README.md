@@ -135,3 +135,5 @@ A.0/B.0 A.1/B.1 A.2/B.2
 ```
 
 This has only 8 permutations to explore.
+
+**Note**: While using complexes (i.e. `A.0/B.0`), the script assumes that the order in which the selected particles are returned by the Selection on the model Hierarchy is regular, i.e. either `A.0 A.1 B.0 B.1` or `A.0 B.0 A.1 B.1` and any other arbitrary order might cause the symm groups to be incorrect.
