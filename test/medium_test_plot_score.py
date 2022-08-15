@@ -12,8 +12,10 @@ class Tests(IMP.test.TestCase):
         """Test plot_score.py with one score"""
         try:
             import matplotlib  # noqa: F401
+            import pandas  # noqa: F401
         except ImportError:
-            self.skipTest("this test requires the matplotlib Python module")
+            self.skipTest(
+                "this test requires the matplotlib and pandas Python modules")
         self.run_python_module(
             plot_score,
             [self.get_input_file_name('model_ids_scores.txt'),
@@ -24,8 +26,10 @@ class Tests(IMP.test.TestCase):
         """Test plot_score.py with all scores"""
         try:
             import matplotlib  # noqa: F401
+            import pandas  # noqa: F401
         except ImportError:
-            self.skipTest("this test requires the matplotlib Python module")
+            self.skipTest(
+                "this test requires the matplotlib and pandas Python modules")
         expected = [
             'ConnectivityRestraint_Rpb1.png',
             'CrossLinkingMassSpectrometryRestraint_Distance_.png',
@@ -42,8 +46,10 @@ class Tests(IMP.test.TestCase):
         """Test plot_score.py with bad score"""
         try:
             import matplotlib  # noqa: F401
+            import pandas  # noqa: F401
         except ImportError:
-            self.skipTest("this test requires the matplotlib Python module")
+            self.skipTest(
+                "this test requires the matplotlib and pandas Python modules")
         self.assertRaises(
             KeyError, self.run_python_module, plot_score,
             [self.get_input_file_name('model_ids_scores.txt'), 'garbage'])
