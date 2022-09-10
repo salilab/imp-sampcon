@@ -52,8 +52,11 @@ def get_particles_from_superposed(
                 calcSymmetryGroups=[],
                 fitSymmetryGroups=symm_groups)
     
-    if calculator_name == 'NOSUP_SERIAL_CALCULATOR':
-        # pairwise returns the superposed calc_coords if specified
+    check1 = (calculator_name == 'NOSUP_SERIAL_CALCULATOR')
+    check2 = not (symm_groups is None)
+    if check1 and check2:
+        # superposed calc_coords returned if calc-coords 
+        # specified while creating the calculator
         rmsd, superposed_fit, _calc_fit = calculator.pairwise(
             0, 1, get_superposed_coordinates=True)
     else:
