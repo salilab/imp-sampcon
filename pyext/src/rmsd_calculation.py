@@ -431,12 +431,21 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
 
     if symm_groups:
         print("We have ambiguity.")
-        s1 = parse_symm_groups_for_pyrmsd(symm_groups)
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
-            calculator_name,
-            fittingCoordsets=conforms,
-            calcSymmetryGroups=s1,
-            fitSymmetryGroups=s1)
+        if calculator_name == 'NOSUP_OMP_CALCULATOR':
+            # calc_symm_groups are enough without any fitting
+            s1 = parse_symm_groups_for_pyrmsd(symm_groups)
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                calculator_name,
+                fittingCoordsets=conforms,
+                calculationCoordsets=conforms,
+                calcSymmetryGroups=s1,
+                fitSymmetryGroups=[])
+        else:
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                calculator_name,
+                fittingCoordsets=conforms,
+                calcSymmetryGroups=[],
+                fitSymmetryGroups=symm_groups)
 
     else:
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
