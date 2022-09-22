@@ -21,7 +21,7 @@ class Tests(IMP.test.TestCase):
         self.m = IMP.Model()
         self.ps = []
         for i in range(20):
-            self.ps.append(self.setup_p(f'{i}'))
+            self.ps.append(self.setup_p('{' + str(i) + '}'))
         protein_skeleton = np.array([[0, 0, 0], [0, 1, 0], 
                                      [0, 0, 1], [1, 0, 0], 
                                      [1, 1, 1]])
