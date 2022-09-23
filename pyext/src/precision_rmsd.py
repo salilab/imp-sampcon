@@ -36,15 +36,32 @@ def get_particles_from_superposed(
             calculator_name,
             conforms)
     else:
-        s1 = parse_symm_groups_for_pyrmsd(symm_groups)
-        calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
-            calculator_name,
-            fittingCoordsets=conforms,
-            calcSymmetryGroups=s1,
-            fitSymmetryGroups=s1)
+        if calculator_name == 'NOSUP_SERIAL_CALCULATOR':
+            # calc_symm_groups are enough without any fitting
+            s1 = parse_symm_groups_for_pyrmsd(symm_groups)
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                calculator_name,
+                fittingCoordsets=conforms,
+                calculationCoordsets=conforms,
+                calcSymmetryGroups=s1,
+                fitSymmetryGroups=[])
+        else:
+            calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
+                calculator_name,
+                fittingCoordsets=conforms,
+                calcSymmetryGroups=[],
+                fitSymmetryGroups=symm_groups)
 
-    rmsd, superposed_fit = calculator.pairwise(
-        0, 1, get_superposed_coordinates=True)
+    check1 = (calculator_name == 'NOSUP_SERIAL_CALCULATOR')
+    check2 = symm_groups is not None
+    if check1 and check2:
+        # superposed calc_coords returned if calc-coords
+        # specified while creating the calculator
+        rmsd, superposed_fit, _calc_fit = calculator.pairwise(
+            0, 1, get_superposed_coordinates=True)
+    else:
+        rmsd, superposed_fit = calculator.pairwise(
+            0, 1, get_superposed_coordinates=True)
     # Get transformation from pyRMSD reference on the first call.
     # This is somewhat inefficient (since we are essentially repeating
     # the pyRMSD calculation) but pyRMSD doesn't appear to make its
