@@ -42,7 +42,7 @@ class Tests(IMP.test.TestCase):
                                [0, np.sin(t), np.cos(t)]])
         self.coords_symm_2_trans_rot = [np.concatenate([p0, p2], axis=0),
                                         np.matmul(rot_matrix,
-                                        np.concatenate([p2, p0], 
+                                        np.concatenate([p2, p0],
                                                        axis=0).T).T]
         self.coords_symm_n = [np.concatenate([p0, p2, p3, p4], axis=0),
                               np.concatenate([p4, p0, p3, p2], axis=0)]
@@ -135,7 +135,7 @@ class Tests(IMP.test.TestCase):
         self.assertAlmostEqual(rmsd, 0, delta=1e-5)
         coords = self.extract_coords(20)
         np.testing.assert_allclose(np.array(coords)[5:10, :],
-                                   self.protein_skeleton, rtol=0, 
+                                   self.protein_skeleton, rtol=0,
                                    atol=1e-5)
 
 
