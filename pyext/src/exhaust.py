@@ -30,9 +30,12 @@ def parse_args():
         choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
     parser.add_argument(
         '--cores', '-c', dest="cores", type=int,
-        help='number of cores for parallel clustering at '
-             'different thresholds and RMSD matrix calculations; '
+        help='number of cores for parallel RMSD matrix calculations; '
              'only for cpu_omp', default=1)
+    parser.add_argument(
+        '--cores2', '-c2', dest="cores", type=int,
+        help='number of cores for clustering at different thresholds'
+             ' and parallel IO; only for cpu_omp', default=1)
     parser.add_argument(
         '--resolution', '-r', dest="resolution", type=int,
         help='resolution at which to select proteins in a multiscale system',
@@ -208,7 +211,7 @@ def main():
                      args.symmetry_groups,
                      rmsd_custom_ranges,
                      args.resolution,
-                     args.cores)
+                     args.cores2)
 
         # If not, default to the Identities.txt file
         else:
@@ -274,7 +277,7 @@ def main():
         pvals, cvs, percents = clustering_rmsd.get_clusters(
             cutoffs_list, distmat_full, all_models, total_num_models,
             sampleA_all_models, sampleB_all_models, args.sysname,
-            args.cores)
+            args.cores2)
 
         # Now apply the rule for selecting the right precision based
         # on population of contingency table, pvalue and cramersv
