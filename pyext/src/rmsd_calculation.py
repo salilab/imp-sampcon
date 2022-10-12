@@ -465,6 +465,8 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
         gen = p.imap(calculator.oneVsFollowing, list(range(len(conforms) - 1)))
         for i in gen:
             rmsd += list(i)
+        p.close()
+        p.terminate()
     rmsd_matrix = CondensedMatrix(rmsd)
     inner_data = rmsd_matrix.get_data()
     np.save("Distances_Matrix.data", inner_data)
