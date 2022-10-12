@@ -33,7 +33,7 @@ def parse_args():
         help='number of cores for parallel RMSD matrix calculations; '
              'only for cpu_omp', default=1)
     parser.add_argument(
-        '--cores2', '-c2', dest="cores", type=int,
+        '--cores2', '-c2', dest="cores2", type=int,
         help='number of cores for clustering at different thresholds'
              ' and parallel IO; only for cpu_omp', default=1)
     parser.add_argument(
