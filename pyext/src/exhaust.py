@@ -29,11 +29,11 @@ def parse_args():
         '--mode', '-m', dest="mode", help='pyRMSD calculator',
         choices=['cuda', 'cpu_omp', 'cpu_serial'], default="cuda")
     parser.add_argument(
-        '--cores', '-c', dest="cores", type=int,
+        '--matrix-cores', '-c', dest="cores", type=int,
         help='number of cores for parallel RMSD matrix calculations; '
              'only for cpu_omp', default=1)
     parser.add_argument(
-        '--cores2', '-c2', dest="cores2", type=int,
+        '--cluster-cores', '-cc', dest="cores2", type=int,
         help='number of cores for clustering at different thresholds'
              ' and parallel IO; only for cpu_omp', default=1)
     parser.add_argument(
