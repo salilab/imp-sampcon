@@ -11,6 +11,7 @@ import IMP.atom
 import IMP.rmf
 import RMF
 import multiprocessing as mp
+import sys
 from itertools import combinations
 
 
@@ -451,13 +452,26 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
         calculator = pyRMSD.RMSDCalculator.RMSDCalculator(
             calculator_name, conforms)
 
-    # additionally set number of cores for parallel calculator
-    if mode == "cpu_omp":
-        calculator.setNumberOfOpenMPThreads(int(cores))
-
     if not symm_groups:
+        if mode == "cpu_omp":
+            # additionally set number of cores for parallel calculator
+            calculator.setNumberOfOpenMPThreads(cores)
         rmsd = calculator.pairwiseRMSDMatrix()
-    else:
+    elif sys.version_info[0] == 3:  # python 3 with symm groups
+        if mode == "cpu_omp":
+            # additionally set number of cores for parallel calculator
+            calculator.setNumberOfOpenMPThreads(1)
+        rmsd = []
+        p = mp.Pool(cores)
+        gen = p.imap(calculator.oneVsFollowing, list(range(len(conforms) - 1)))
+        for i in gen:
+            rmsd += list(i)
+        p.close()
+        p.terminate()
+    else:  # python 2 with symm groups
+        if mode == "cpu_omp":
+            # additionally set number of cores for parallel calculator
+            calculator.setNumberOfOpenMPThreads(cores)
         rmsd = []
         for i in range(len(conforms) - 1):
             rmsd += list(calculator.oneVsFollowing(i))
