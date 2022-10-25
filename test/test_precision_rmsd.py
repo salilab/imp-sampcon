@@ -4,7 +4,12 @@ import IMP.atom
 import IMP.test
 import IMP.algebra
 import numpy as np
-from IMP.sampcon import precision_rmsd as pr
+
+try:
+    import pyRMSD
+    from IMP.sampcon import precision_rmsd as pr
+except ImportError:
+    pyRMSD = None
 
 
 class Tests(IMP.test.TestCase):
@@ -58,6 +63,7 @@ class Tests(IMP.test.TestCase):
             coords.append(np.array(self.ps[i].get_coordinates()))
         return coords
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_get_particles_from_superposed_align(self):
         """Check get_particles_from_superposed with align"""
         c1, c2 = self.coords_trans_rot
@@ -72,6 +78,7 @@ class Tests(IMP.test.TestCase):
                                    self.protein_skeleton,
                                    rtol=0, atol=1e-5)
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_get_particles_from_superposed(self):
         """Check get_particles_from_superposed without align"""
         c1, c2 = self.coords_trans_rot
@@ -82,6 +89,7 @@ class Tests(IMP.test.TestCase):
                                                            None)
         self.assertGreater(rmsd, 0)
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_get_particles_from_superposed_align_symm(self):
         """Check get_particles_from_superposed with align and symm"""
         c1, c2 = self.coords_symm_2_trans_rot
@@ -108,6 +116,7 @@ class Tests(IMP.test.TestCase):
                                                            s)
         self.assertAlmostEqual(rmsd, 0, delta=1e-5)
 
+    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_get_particles_from_superposed_symm(self):
         """Check get_particles_from_superposed without align and symm"""
         c1, c2 = self.coords_symm_2_trans_rot
