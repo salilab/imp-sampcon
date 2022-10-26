@@ -7,6 +7,7 @@ import numpy as np
 
 try:
     import pyRMSD
+    import pyRMSD.symmTools
     from IMP.sampcon import precision_rmsd as pr
 except ImportError:
     pyRMSD = None
@@ -89,7 +90,11 @@ class Tests(IMP.test.TestCase):
                                                            None)
         self.assertGreater(rmsd, 0)
 
-    @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
+    @IMP.test.skipIf(pyRMSD is None
+                     or not hasattr(pyRMSD.symmTools,
+                                    'symm_groups_validation_new'),
+                     "Requires pyrmsd with support for symmetry groups "
+                     "with more than 2 elements")
     def test_get_particles_from_superposed_align_symm(self):
         """Check get_particles_from_superposed with align and symm"""
         c1, c2 = self.coords_symm_2_trans_rot
