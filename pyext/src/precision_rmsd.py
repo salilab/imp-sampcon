@@ -149,7 +149,7 @@ class GetModelDensity(object):
         """
 
         (bead_protein, bead_res_start,
-         bead_res_end, bead_copy) = bead_name.split("_")
+         bead_res_end, bead_copy) = bead_name.rsplit("_", 3)
 
         # protein name and copy number check
         if isinstance(domain, tuple):
