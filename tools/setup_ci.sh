@@ -24,5 +24,5 @@ if [ ${python_version} = "2.7" ]; then
   # isn't present in Python 2
   pip install pytest-cov 'coverage<=6.2' 'pytest-flake8<1.1'
 else
-  pip install pytest-cov 'coverage<=6.2' pytest-flake8
+  pip install pytest-cov coverage pytest-flake8
 fi
