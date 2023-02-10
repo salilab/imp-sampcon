@@ -30,7 +30,7 @@ jobs:
         mkdir build && cd build
         if test "${{ matrix.python-version }}" = "2.7" ; then PY2=on; else PY2=off; fi
         cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP -DUSE_PYTHON2=${PY2}
-        make
+        make || make
         ./setup_environment.sh pytest --cov=.. --cov-branch --cov-report=xml -v ../test/test_*.py ../test/medium_test_*.py test/*/*.py
         flake8 ../pyext/src/ ../test/
     - uses: codecov/codecov-action@v1
