@@ -23,14 +23,20 @@ jobs:
     - name: Setup conda and dependencies
       run: |
         tools/setup_ci.sh ${{ matrix.python-version }}
-    - name: Test
+    - name: Build
       run: |
         eval "$(conda shell.bash hook)"
         conda activate python${{ matrix.python-version }}
         mkdir build && cd build
         if test "${{ matrix.python-version }}" = "2.7" ; then PY2=on; else PY2=off; fi
         cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP -DUSE_PYTHON2=${PY2}
-        make -i
+        make
+    - name: Test
+      if: success() || failure()
+      run: |
+        eval "$(conda shell.bash hook)"
+        conda activate python${{ matrix.python-version }}
+        cd build
         ./setup_environment.sh pytest --cov=.. --cov-branch --cov-report=xml -v ../test/test_*.py ../test/medium_test_*.py test/*/*.py
         flake8 ../pyext/src/ ../test/
     - uses: codecov/codecov-action@v1
