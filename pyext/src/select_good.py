@@ -133,7 +133,7 @@ def main():
         create_score_files(subsets)
 
         print("Ready to calculate sampling precision with "
-              "Master_Sampling_Exhaustiveness_Analysis.py")
+              "`imp_sampcon exhaust`")
 
 
 if __name__ == "__main__":
