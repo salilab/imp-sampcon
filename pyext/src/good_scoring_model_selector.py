@@ -5,6 +5,7 @@ import os
 import shutil
 import random
 import glob
+import operator
 
 
 # If we have new enough IMP/RMF, do our own RMF slicing with provenance
@@ -72,6 +73,15 @@ class GoodScoringModelSelector(object):
         # list with each member as a tuple (run id,replica id,frame id)
         # corresponding to good-scoring models
         self.all_good_scoring_models = []
+
+    def _all_run_dirs(self):
+        """Yield (pathname, runid) for all run directories (unsorted)"""
+        for x in os.listdir(self.run_dir):
+            if x.startswith(self.run_prefix):
+                runid = x[len(self.run_prefix):]
+                fullpath = os.path.join(self.run_dir, x)
+                if os.path.isdir(fullpath) and runid.isdigit():
+                    yield (fullpath, runid)
 
     def _get_subfields_for_criteria(
             self, field_headers, selection_keywords_list,
@@ -232,12 +242,8 @@ class GoodScoringModelSelector(object):
         num_runs = 0
         total_num_frames = 0
 
-        for each_run_dir in sorted(
-                glob.glob(os.path.join(self.run_dir, self.run_prefix+"*")),
-                key=lambda x: int(x.split(self.run_prefix)[1])):
-
-            runid = each_run_dir.split(self.run_prefix)[1]
-
+        for each_run_dir, runid in sorted(self._all_run_dirs(),
+                                          key=operator.itemgetter(1)):
             num_runs += 1
 
             print("Analyzing", runid)
