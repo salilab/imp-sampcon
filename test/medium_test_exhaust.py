@@ -6,6 +6,7 @@ import IMP.rmf
 import RMF
 import IMP.test
 import sys
+import json
 from IMP.sampcon import exhaust, select_good
 
 # Skip gnuplot tests on Python 2.7; on our CI systems we get conflicts between
@@ -93,12 +94,15 @@ class Tests(IMP.test.TestCase):
                 self.assertEqual(cp.get_members(), 36)
                 self.assertAlmostEqual(cp.get_precision(), 0.42, delta=0.01)
                 self.assertEqual(cp.get_density(),
-                                 os.path.abspath('cluster.0/LPD_TestAll.mrc'))
+                                 os.path.abspath('test.output.json'))
                 # Next provenance should be filter, combine
                 prov, = prov.get_children()
                 self.assertTrue(fpf.get_is(prov))
                 prov, = prov.get_children()
                 self.assertTrue(cpf.get_is(prov))
+                # Make sure that output JSON is valid
+                with open('test.output.json') as fh:
+                    j = json.load(fh)
 
             # Check for expected files
             expected = [
@@ -113,7 +117,8 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
-                'cluster.0/Sample_B/LPD_TestAll.mrc']
+                'cluster.0/Sample_B/LPD_TestAll.mrc',
+                'test.output.json']
             if TEST_GNUPLOT:
                 expected.extend([
                     'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',

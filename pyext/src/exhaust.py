@@ -1,6 +1,7 @@
 from __future__ import print_function
 from IMP import ArgumentParser
 import os
+import json
 
 __doc__ = "Perform analysis to determine sampling convergence."
 
@@ -114,7 +115,7 @@ def parse_args():
 
 
 def make_cluster_centroid(infname, frame, outfname, cluster_index,
-                          cluster_size, precision, density, path):
+                          cluster_size, precision, metadata_fname, path):
 
     import RMF
     # If we have new enough IMP/RMF, do our own RMF slicing with provenance
@@ -144,7 +145,7 @@ def make_cluster_centroid(infname, frame, outfname, cluster_index,
         cp = cpf.get(newp)
         cp.set_members(cluster_size)
         cp.set_precision(precision)
-        cp.set_density(os.path.abspath(density))
+        cp.set_density(os.path.abspath(metadata_fname))
     else:
         # Otherwise, fall back to RMF's command line tool
         import subprocess
@@ -167,6 +168,12 @@ def main():
     from IMP.sampcon import rmsd_calculation, precision_rmsd
 
     import IMP
+
+    # Write output metadata in JSON format
+    metadata = {}
+    metadata_fname = "%s.output.json" % args.sysname
+    metadata['producer'] = {'name': 'IMP.sampcon',
+                            'version': IMP.sampcon.__version__}
 
     idfile_A = "Identities_A.txt"
     idfile_B = "Identities_B.txt"
@@ -199,6 +206,7 @@ def main():
         conforms, masses, radii, models_name = \
             rmsd_calculation.get_pdbs_coordinates(
                 args.path, idfile_A, idfile_B)
+        metadata['input_frames'] = models_name
     else:
         args.extension = "rmf3"
         if args.selection is not None:
@@ -208,6 +216,7 @@ def main():
             rmsd_custom_ranges = None
         # If we have a single RMF file, read conformations from that
         if args.rmf_A is not None:
+            metadata['input_files'] = {'A': args.rmf_A, 'B': args.rmf_B}
             (ps_names, masses, radii, conforms, symm_groups, models_name,
                 n_models) = rmsd_calculation.get_rmfs_coordinates_one_rmf(
                      args.path, args.rmf_A, args.rmf_B,
@@ -225,6 +234,7 @@ def main():
                      args.path, idfile_A, idfile_B, args.subunit,
                      selection=rmsd_custom_ranges,
                      resolution=args.resolution)
+            metadata['input_frames'] = models_name
 
     print("Size of conformation matrix", conforms.shape)
 
@@ -282,6 +292,11 @@ def main():
             cutoffs_list, distmat_full, all_models, total_num_models,
             sampleA_all_models, sampleB_all_models, args.sysname,
             args.cores2)
+        metadata['chi_square_grid_stats'] = {
+            'cutoffs': list(cutoffs_list),
+            'p_value': pvals,
+            'cramers_v': cvs,
+            'percent_clustered': percents}
 
         # Now apply the rule for selecting the right precision based
         # on population of contingency table, pvalue and cramersv
@@ -310,9 +325,16 @@ def main():
             print("", file=fpv)
 
         final_clustering_threshold = sampling_precision
+        metadata['precision'] = {
+            'sampling_precision': sampling_precision,
+            'p_value': pval_converged,
+            'cramers_v': cramersv_converged,
+            'percent_clustered': percent_converged}
 
     else:
         final_clustering_threshold = args.cluster_threshold
+
+    metadata['clustering_threshold'] = final_clustering_threshold
 
     # Perform final clustering at the required precision
     print("Clustering at threshold %.3f" % final_clustering_threshold)
@@ -323,6 +345,7 @@ def main():
             len(cluster_centers), cluster_members, all_models,
             sampleA_all_models, sampleB_all_models)
     print("Contingency table:", ctable)
+    # metadata['contingency_table'] = ctable
     # Output the number of models in each cluster and each sample
     with open("%s.Cluster_Population.txt" % args.sysname, 'w+') as fcp:
         for rows in range(len(ctable)):
@@ -330,13 +353,16 @@ def main():
 
     # Obtain the subunits for which we need to calculate densities
     density_custom_ranges = precision_rmsd.parse_custom_ranges(args.density)
+    metadata['density_custom_ranges'] = density_custom_ranges
 
     # Output cluster precisions
     fpc = open("%s.Cluster_Precision.txt" % args.sysname, 'w+')
 
+    metadata['clusters'] = []
     # For each cluster, output the models in the cluster
     # Also output the densities for the cluster models
     for i in range(len(retained_clusters)):
+        cmeta = {'name': 'cluster.%d' % i}
         clus = retained_clusters[i]
 
         # The cluster centroid is the first conformation.
@@ -391,6 +417,12 @@ def main():
         # to the cluster center
         cluster_precision = 0.0
 
+        cmeta['members'] = {
+            'A': [int(x) for x in cluster_members[clus]
+                  if x in sampleA_all_models],
+            'B': [int(x) for x in cluster_members[clus]
+                  if x in sampleB_all_models]}
+
         # transformation from internal pyRMSD orientation
         trans = None
         # for each model in the cluster
@@ -439,6 +471,7 @@ def main():
                 numpy.array(radii),
                 numpy.array(ps_names))
         cluster_precision /= float(len(cluster_members[clus]) - 1.0)
+        cmeta['precision'] = cluster_precision
         print("Cluster precision (average distance to cluster centroid) "
               "of cluster ", str(i), " is %.3f" % cluster_precision, "A",
               file=fpc)
@@ -448,30 +481,31 @@ def main():
         sampleB_file.close()
 
         # Output density files for the cluster
-        density = gmdt.write_mrc(path="./cluster.%s" % i, file_prefix="LPD")
-        gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i, file_prefix="LPD")
-        gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i, file_prefix="LPD")
+        cmeta['density'] = gmdt.write_mrc(path="./cluster.%s" % i,
+                                          file_prefix="LPD")
+        cmeta['densityA'] = gmd1.write_mrc(path="./cluster.%s/Sample_A/" % i,
+                                           file_prefix="LPD")
+        cmeta['densityB'] = gmd2.write_mrc(path="./cluster.%s/Sample_B/" % i,
+                                           file_prefix="LPD")
 
         # Add the cluster center model RMF to the cluster directory
         cluster_center_index = cluster_members[clus][0]
         if args.rmf_A is not None:
+            outfname = os.path.join("cluster.%d" % i,
+                                    "cluster_center_model.rmf3")
             cluster_center_model_id = cluster_center_index
             if cluster_center_index < n_models[0]:
                 make_cluster_centroid(
                     os.path.join(args.path, args.rmf_A),
                     cluster_center_index,
-                    os.path.join("cluster.%d" % i,
-                                 "cluster_center_model.rmf3"),
-                    i, len(cluster_members[clus]),
-                    cluster_precision, density, args.path)
+                    outfname, i, len(cluster_members[clus]),
+                    cluster_precision, metadata_fname, args.path)
             else:
                 make_cluster_centroid(
                     os.path.join(args.path, args.rmf_B),
                     cluster_center_index - n_models[0],
-                    os.path.join("cluster.%d" % i,
-                                 "cluster_center_model.rmf3"),
-                    i, len(cluster_members[clus]),
-                    cluster_precision, density, args.path)
+                    outfname, i, len(cluster_members[clus]),
+                    cluster_precision, metadata_fname, args.path)
         else:
             # index to Identities file.
             cluster_center_model_id = all_models[cluster_center_index]
@@ -481,12 +515,14 @@ def main():
                 make_cluster_centroid(
                         models_name[cluster_center_model_id], 0, outfname,
                         i, len(cluster_members[clus]),
-                        cluster_precision, density, args.path)
+                        cluster_precision, metadata_fname, args.path)
             else:
                 shutil.copy(models_name[cluster_center_model_id], outfname)
-
-    fpc.close()
-
+        cmeta['centroid'] = {'index': cluster_center_index,
+                             'file': outfname}
+        metadata['clusters'].append(cmeta)
+    with open(metadata_fname, 'w') as jfh:
+        json.dump(metadata, jfh)
     # generate plots for the score and structure tests
     if args.gnuplot:
         import subprocess
