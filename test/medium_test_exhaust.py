@@ -102,7 +102,7 @@ class Tests(IMP.test.TestCase):
                 self.assertTrue(cpf.get_is(prov))
                 # Make sure that output JSON is valid
                 with open('test.output.json') as fh:
-                    j = json.load(fh)
+                    _ = json.load(fh)
 
             # Check for expected files
             expected = [
