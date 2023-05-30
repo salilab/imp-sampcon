@@ -172,8 +172,11 @@ def main():
     # Write output metadata in JSON format
     metadata = {}
     metadata_fname = "%s.output.json" % args.sysname
+    # Increment file_version whenever incompatible changes are made to
+    # the JSON output
     metadata['producer'] = {'name': 'IMP.sampcon',
-                            'version': IMP.sampcon.__version__}
+                            'version': IMP.sampcon.__version__,
+                            'file_version': 1}
 
     idfile_A = "Identities_A.txt"
     idfile_B = "Identities_B.txt"
