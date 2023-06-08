@@ -322,6 +322,11 @@ class GoodScoringModelSelector(object):
                         printing_criteria_values = []
                         for si, score_type in enumerate(
                                 printing_keywords_list):
+                            if fields_for_printing[si] < 0:
+                                raise KeyError(
+                                    "Bad stat file key '%s': use `imp_sampcon "
+                                    "show_stat <stat file>` to see all "
+                                    "acceptable keys" % score_type)
                             score_value = float(dat[fields_for_printing[si]])
                             printing_criteria_values.append(score_value)
 
