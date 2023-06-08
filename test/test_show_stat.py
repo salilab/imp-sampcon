@@ -26,9 +26,9 @@ class Tests(IMP.test.TestCase):
             sys.stdout = old_stdout
         fields = frozenset(o.split("\n"))
         expected_keys = frozenset([
-            'ConnectivityRestraint_Rpb1',
+            'ConnectivityRestraint_Score_Rpb1',
             'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-            'ExcludedVolumeSphere_None',
+            'ExcludedVolumeSphere_Score',
             'MonteCarlo_Nframe',
             'MonteCarlo_Temperature',
             'ReplicaExchange_CurrentTemp',
