@@ -19,9 +19,9 @@ class Tests(IMP.test.TestCase):
                 select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-                 '-pl', 'ConnectivityRestraint_Rpb1',
+                 '-pl', 'ConnectivityRestraint_Score_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-                 'ExcludedVolumeSphere_None', 'Total_Score',
+                 'ExcludedVolumeSphere_Score', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
             model_ids = os.path.join(mod_dir, 'filter', 'model_ids_scores.txt')
             with open(model_ids) as fh:
@@ -41,14 +41,14 @@ class Tests(IMP.test.TestCase):
                 select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-                 '-pl', 'ConnectivityRestraint_Rpb1',
+                 '-pl', 'ConnectivityRestraint_Score_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-                 'ExcludedVolumeSphere_None', 'Total_Score',
+                 'ExcludedVolumeSphere_Score', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '30.0'])
             model_ids = os.path.join(mod_dir, 'filter', 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 49)
+            self.assertEqual(wc, 47)
             os.unlink(model_ids)
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
@@ -61,13 +61,13 @@ class Tests(IMP.test.TestCase):
                 select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-                 '-pl', 'ConnectivityRestraint_Rpb1',
+                 '-pl', 'ConnectivityRestraint_Score_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-                 'ExcludedVolumeSphere_None', 'Total_Score',
+                 'ExcludedVolumeSphere_Score', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '12.0',
                  '-e'])
             gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
-            for score, num in (('A', 5), ('B', 4)):
+            for score, num in (('A', 2), ('B', 2)):
                 score_file = os.path.join(gsm_dir, 'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -76,13 +76,13 @@ class Tests(IMP.test.TestCase):
             model_ids = os.path.join(gsm_dir, 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 10)
+            self.assertEqual(wc, 5)
             os.unlink(model_ids)
 
             model_ids = os.path.join(gsm_dir, 'model_sample_ids.txt')
             with open(model_ids) as fh:
                 lines = fh.readlines()
-            self.assertEqual(len(lines), 9)
+            self.assertEqual(len(lines), 4)
             for line in lines:
                 num, sample = line.rstrip('\r\n').split()
                 rmf = os.path.join(gsm_dir, 'sample_%s' % sample,
@@ -91,6 +91,7 @@ class Tests(IMP.test.TestCase):
                     r = RMF.open_rmf_file_read_only(rmf)
                     cpf = RMF.CombineProvenanceConstFactory(r)
                     fpf = RMF.FilterProvenanceConstFactory(r)
+                    spf = RMF.ScriptProvenanceConstFactory(r)
                     rn = r.get_root_node().get_children()[0]
                     # Should be one Provenance node
                     prov, = [n for n in rn.get_children()
@@ -99,13 +100,20 @@ class Tests(IMP.test.TestCase):
                     self.assertTrue(fpf.get_is(prov))
                     fp = fpf.get(prov)
                     self.assertEqual(fp.get_method(), "Best scoring")
-                    self.assertEqual(fp.get_frames(), 9)
+                    self.assertEqual(fp.get_frames(), 4)
                     # Next provenance should be CombineProvenance
                     prov, = prov.get_children()
                     self.assertTrue(cpf.get_is(prov))
                     cp = cpf.get(prov)
                     self.assertEqual(cp.get_runs(), 2)
                     self.assertEqual(cp.get_frames(), 100)
+                    # Next-next provenance should be ScriptProvenance
+                    prov, = prov.get_children()
+                    prov, = prov.get_children()
+                    self.assertTrue(spf.get_is(prov))
+                    sp = spf.get(prov)
+                    self.assertTrue(
+                        os.path.exists(sp.get_filename() + '.orig'))
                 os.unlink(rmf)
             os.unlink(model_ids)
             os.rmdir(os.path.join(gsm_dir, 'sample_A'))
@@ -124,13 +132,13 @@ class Tests(IMP.test.TestCase):
                 select_good,
                 ['-rd', mod_dir, '-rp', 'run',
                  '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-                 '-pl', 'ConnectivityRestraint_Rpb1',
+                 '-pl', 'ConnectivityRestraint_Score_Rpb1',
                  'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-                 'ExcludedVolumeSphere_None', 'Total_Score',
+                 'ExcludedVolumeSphere_Score', 'Total_Score',
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '12.0',
                  '-e'])
             gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
-            for score, num in (('A', 2), ('B', 3)):
+            for score, num in (('A', 1), ('B', 1)):
                 score_file = os.path.join(gsm_dir, 'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -139,13 +147,13 @@ class Tests(IMP.test.TestCase):
             model_ids = os.path.join(gsm_dir, 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 6)
+            self.assertEqual(wc, 3)
             os.unlink(model_ids)
 
             model_ids = os.path.join(gsm_dir, 'model_sample_ids.txt')
             with open(model_ids) as fh:
                 lines = fh.readlines()
-            self.assertEqual(len(lines), 5)
+            self.assertEqual(len(lines), 2)
             for line in lines:
                 num, sample = line.rstrip('\r\n').split()
                 os.unlink(os.path.join(gsm_dir, 'sample_%s' % sample,

@@ -31,6 +31,7 @@ import IMP.pmi.samplers
 import IMP.pmi.output
 import IMP.pmi.macros
 import IMP.pmi.topology
+import ihm.cross_linkers
 
 import os
 import sys
@@ -88,9 +89,9 @@ mols = IMP.pmi.tools.get_molecules(root_hier)
 for mol in mols:
     molname=mol.get_name()
     IMP.pmi.tools.display_bonds(mol)
-    cr = IMP.pmi.restraints.stereochemistry.ConnectivityRestraint(mol,scale=2.0)
+    cr = IMP.pmi.restraints.stereochemistry.ConnectivityRestraint(
+        mol, scale=2.0, label=molname)
     cr.add_to_model()
-    cr.set_label(molname)
     outputobjects.append(cr)
 
 # Excluded Volume Restraint
@@ -112,12 +113,13 @@ xl2db.create_set_from_file('polii_juri.csv')
 
 xl2 = IMP.pmi.restraints.crosslinking.CrossLinkingMassSpectrometryRestraint(
                                    root_hier=root_hier,
-                                   CrossLinkDataBase=xl2db,
+                                   database=xl2db,
                                    length=21.0,
                                    slope=0.01,
                                    resolution=1.0,
                                    label="Chen",
-                                   weight=1.)
+                                   weight=1.,
+                                   linker=ihm.cross_linkers.dss)
 xl2.add_to_model()
 outputobjects.append(xl2)
 
@@ -133,11 +135,10 @@ num_frames = 50
 num_mc_steps = 10
 
 # This object defines all components to be sampled as well as the sampling protocol
-mc1=IMP.pmi.macros.ReplicaExchange0(m,
+mc1=IMP.pmi.macros.ReplicaExchange(m,
                                     root_hier=root_hier,
                                     monte_carlo_sample_objects=dof.get_movers(),
                                     output_objects=outputobjects,
-                                    crosslink_restraints=[xl2],    # allows XLs to be drawn in the RMF files
                                     monte_carlo_temperature=1.0,
                                     simulated_annealing=True,
                                     simulated_annealing_minimum_temperature=1.0,
@@ -149,7 +150,7 @@ mc1=IMP.pmi.macros.ReplicaExchange0(m,
                                     number_of_best_scoring_models=10,
                                     monte_carlo_steps=num_mc_steps,
                                     number_of_frames=num_frames,
-                                    global_output_directory="output")
+                                    global_output_directory="run2/output")
 
 # Start Sampling
 mc1.execute_macro()

@@ -600,34 +600,45 @@ Objavro.codecnullavro.schemaÇ∏{
         }
     ]
 }
- •Ö%KŒD}–2BPı≥P”]Ë ,IMP develop-d9b88ed5a1IMPIMP restraint&IMP restraint files
+ Lw≤úä/+ÏÁÉR ›∏y∏÷- ,IMP develop-3f979581eeIMPIMP restraint&IMP restraint files
 alias alternativesfeature
 physicsprovenancesequence
-shape     root  System  State_0 Rpb1 Frag_1-20 
+shapeuncertainty    D root  System  State_0 Rpb1 Frag_1-20 
 "Frag_1-20: Res 10 1-10_bead
  11-20_bead
  
-bonds bond >|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|   d  filter threshold&explicit resolutionmass
-radius
-*diffusion coefficient
+bonds bond (ExcludedVolumeSphere   PairsRestraint 0 TCrossLinkingMassSpectrometryRestraint_Data  LogWrapper 0 >|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI| sigmas  
+SIGMA "
+SIGMA $psis &PSI$ (endpoints *1-10_bead( ,11-20_bead( .\CrossLinkingMassSpectrometryRestraint_PriorPsi  0UniformPrior1. 2particle0 4PSI2 6*JeffreysRestraint_PSI. 8\CrossLinkingMassSpectrometryRestraint_PriorSig  :UniformPrior08 <particle: >
+SIGMA< @XCrossLinkingMassSpectrometryRestraint_Linear  B>|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|@  é  filter threshold"cluster precision&explicit resolutionmass
+radius
 
-
-scoreweight 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
+*diffusion coefficient
+
+score
+scalescale lowerscale upperweightlinker length
+slopeforce constantlower boundupper bound 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
 combined frames filter frames cluster members external frame aliased element
  residue index copy index &first residue index $last residue index state index  reference "molecule $bonded 0
  &bonded 1
- ( rigid body index  $structure filenamestructure chainsampling methodfilter methodscript filename
-software name software version"software locationresidue typechain idsequencechain typetype name 
+ ( rigid body index *residue1 ,residue2  $structure filenamestructure chainsampling methodfilter methodcluster density
+script filenamesoftware name software version"software locationresidue typechain idsequencechain typetype nametype$linker author name (linker chemical name"linker smiles$linker inchi& linker inchi key(filename*protein1,protein2 
 types 
 roots residue indexesrepresentation coordinates
 rgb colorvariances
 translation
  rotation
-     " $ & (
-8     A  ÄâD ÄâD ®Ωø@®Ωø@   Ä?  A (MVGQQMVGQQMVGQQMVGQQ  UnknownChainType            Ä?          Ä?    "$&( 
+ 
+> 4&,*"      " $ & (
+6 * ,$     A  ÄâD ÄâD ®Ωø@®Ωø@ &  Ä>    @ &ïø÷3 ïø÷3 &˝ˇˇ>   zD B  Ä?@  Ä?:  Ä?8  Ä?0  Ä?.  Ä?  Ä?  Ä?  Ä?  Ä?6  Ä?  Ä?   ®A 
+◊#< :(knN0(knN :
+◊#<0
+◊#< :  »B0H·˙>  A (MVGQQMVGQQMVGQQMVGQQ LPolypeptide :(IMP.isd.UniformPrior0(IMP.isd.UniformPriorZIMP.pmi.CrossLinkingMassSpectrometryRestraint DSS  .disuccinimidyl suberate "\C1CC(=O)N(C1=O)OC(=O)CCCCCCC(=O)ON2C(=O)CCC2=O $¬1S/C16H20N2O8/c19-11-7-8-12(20)17(11)25-15(23)5-3-1-2-4-6-16(24)26-18-13(21)9-10-14(18)22/h1-10H2 &6ZWIBGKZDAWNIFC-UHFFFAOYSA-N ((../../polii_juri.csv *Rpb1 ,Rpb1            Ä?          Ä?    "$&( 
  
 (
  "$&( (
- "$&(                   [π¥¿÷‘1¬ =¡WŒ≤Aù7AeEe¿ 
-               
-  Ä?                   •Ö%KŒD}–2BPı≥P”]  •Ö%KŒD}–2BPı≥P”]
+ "$&(  B @ :  8  0& .&  &  &  &  6&               
+6r±ø.r±øÀº÷=Àº÷=Àº÷=    Ô¬∞g™¡—ÏQ¡™óA\Ó1Bê¿ 
+œ¨B
+ßÚA8≤±@   
+1`w?SZæƒC¡<f£æ       Lw≤úä/+ÏÁÉR ›∏y∏  Lw≤úä/+ÏÁÉR ›∏y∏

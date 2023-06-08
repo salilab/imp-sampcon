@@ -600,142 +600,202 @@ Objavro.codecnullavro.schema‚¸{
         }
     ]
 }
- vpH“ýêeÖ9ìœÞm/`f¶[ ,IMP develop-d9b88ed5a1IMPIMP restraint&IMP restraint files
+ ÷ø3½Wý¨ÕxîaAx»fòˆ ,IMP develop-3f979581eeIMPIMP restraint&IMP restraint files
 alias alternativesfeature
 physicsprovenancesequence
-shape     root  System  State_0 Rpb1 Frag_1-20 
+shapeuncertainty    L root  System  State_0 Rpb1 Frag_1-20 
 "Frag_1-20: Res 10 1-10_bead
  11-20_bead
  sampling script software software 
-bonds bond >|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|   d  filter threshold&explicit resolutionmass
-radius
-*diffusion coefficient
+bonds bond (ExcludedVolumeSphere   PairsRestraint 0  TCrossLinkingMassSpectrometryRestraint_Data  "LogWrapper 0  $>|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|" &sigmas$ (
+SIGMA& *
+SIGMA& ,psis$ .PSI, 0endpoints$ 21-10_bead0 411-20_bead0 6\CrossLinkingMassSpectrometryRestraint_PriorPsi  8UniformPrior16 :particle8 <PSI: >*JeffreysRestraint_PSI6 @\CrossLinkingMassSpectrometryRestraint_PriorSig  BUniformPrior0@ DparticleB F
+SIGMAD HXCrossLinkingMassSpectrometryRestraint_Linear  J>|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|H  Ž  filter threshold"cluster precision&explicit resolutionmass
+radius
 
-
-scoreweight 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
+*diffusion coefficient
+
+score
+scalescale lowerscale upperweightlinker length
+slopeforce constantlower boundupper bound 0structure residue offset sampling frames &sampling iterations "sampling replicas combined runs 
 combined frames filter frames cluster members external frame aliased element
  residue index copy index &first residue index $last residue index state index  reference "molecule $bonded 0
  &bonded 1
- ( rigid body index  $structure filenamestructure chainsampling methodfilter methodscript filename
-software name software version"software locationresidue typechain idsequencechain typetype name 
+ ( rigid body index *residue1 ,residue2  $structure filenamestructure chainsampling methodfilter methodcluster density
+script filenamesoftware name software version"software locationresidue typechain idsequencechain typetype nametype$linker author name (linker chemical name"linker smiles$linker inchi& linker inchi key(filename*protein1,protein2 
 types 
 roots residue indexesrepresentation coordinates
 rgb colorvariances
 translation
  rotation
- d       " $ & (
-8     A  €‰D €‰D ¨½¿@¨½¿@   €?  Monte Carlo "../../modeling.py 
-FIntegrative Modeling Platform (IMP)IMP PMI module $develop-d9b88ed5a1$develop-d9b88ed5a1 >https://integrativemodeling.org>https://integrativemodeling.org A (MVGQQMVGQQMVGQQMVGQQ  UnknownChainType            €?          €?    "$&( 
+ d   
+F(<.42*(     " $ & (
+6 *$ ,$$     A  €‰D €‰D ¨½¿@¨½¿@ .  €>(   @ .•¿Ö3(•¿Ö3 .ýÿÿ>(  zD J  €?B  €?@  €?>  €?8  €?H  €?6  €?$  €?"  €?   €?  €?  €?    ¨A  
+×#< B(knN8(knN B
+×#<8
+×#< B  ÈB8Háú>  "Monte Carlo 
+(../../../modeling.py FIntegrative Modeling Platform (IMP)IMP PMI module $develop-3f979581ee$develop-3f979581ee >https://integrativemodeling.org>https://integrativemodeling.org A (MVGQQMVGQQMVGQQMVGQQ LPolypeptide B(IMP.isd.UniformPrior8(IMP.isd.UniformPrior ZIMP.pmi.CrossLinkingMassSpectrometryRestraint  DSS   .disuccinimidyl suberate " \C1CC(=O)N(C1=O)OC(=O)CCCCCCC(=O)ON2C(=O)CCC2=O $ Â1S/C16H20N2O8/c19-11-7-8-12(20)17(11)25-15(23)5-3-1-2-4-6-16(24)26-18-13(21)9-10-14(18)22/h1-10H2 & 6ZWIBGKZDAWNIFC-UHFFFAOYSA-N ( .../../../polii_juri.csv *$Rpb1 ,$Rpb1            €?          €?    "$&( 
  
 (
  "$&( (
- "$&(                   NÁ3Üß@ØŠÁŠ¨ÀjÊ?0
-êA 
-Ù„ì?jiNÁç“¿@   
-áÞ|?)±‚=Ðf>gm<                =ñÁwÞ!@š¸Á´«ÞÀKÆà@•©²A 
-S®üÀHŽ’Á·À?A   
-%Co?c™=KŽ£>º¾                ÝÜóÀ-Ÿ…@üI&ÀvŸÀYë@b‰A 
-¡)ëÀŽòÎÁò`A   
-0dd?Ñ3ž¾w—ˆ>ÆF>                -o@ÁÜ°? ø?*;ÁÎu§@6NA 
-®T[ÁÂ#ØÁ!&
-A   
-õÅV?bM¿…'
->¼ô¨=                ð_ÁÄÃ¡¿wÁÃ=ë´±À–:R@J|uA 
-EÁƒ§Â4­A   
-€»D?¹¿×>h½û<        
-        °ý‚Á>#åÀ£>£?CÂ®À_lAš/Î@ 
-{åzÁå4Â¡mA   
- Å?r/7¿ÙÏ>5J>                æN‚Áz®ÇÀ;1±@ÚHÁriA~U%A 
-l PÁºµæÁÖR²¿   
-ý4?lö¾kþ?)æ>                o.ÉÀeèÁ»É@ä.TÁ¯•@Q@—@ 
-V”ÀH{ÔÁ„å‡@   
-ù™?©.Í¾QÓ>(µ%?                òs	ÁÏ(Áß·Q?À«|Á"?É0A 
-WôDÁ#Â¬ÁíyŸ½   
-pL?´‚-¾Þ¹>ìÝ?                6Ð,Áíg	ÁØè@Áy{?Ê6Õ@ 
-qZÁ`›ÂnOGA   
-&7?ºŽÃ¾_!œ>H£ÿ>                t×UÁëÒtÀLŠ+AµJ¢ÁsG!ÁÑÏf@ 
-ÑëÁ` Â ‘A   
-¸?Î~Î¾±ý>"Q?                ŽŸÁªf¿ÅrAÔ’Á½‰âÀ2Q@ 
-ó_ËÁxÇÂ•rA   
-Õ%?1Ý¾ëÊ?
-øŒ>                w©¨Á¶	s?’·‡AŠAÄÁÒxIÁb”@ 
-€Áo2Âˆ8öA   
-Ÿ‹+?ª¿ÿ^ ?ˆÔö=                LØ‚Á_ˆ5ÀîVAì=ÑÁ£1Á\ÞCA 
-,ÒÁ©¨aÂþcîA   
-4«?Ü<¿áÛ—>fWa¾                †tJÁ"eÉ?ùJcA¸ßÁŒíåÀI^‡A 
-±{óÁ–GÂHÍA   
-’YL?E)¿Ù<m>lþ‘=                m¨KÁY×\¿$ÅATJ¸Á‚'ÁfõŠA 
-åá!ÂP;èÁ’OÒA   
-þC1?´ší¾îQ›> _ì>                 õYÁ‰,÷@ÂŽQA7ŽŽÁ0g°À“¿¾A 
-<VäÁéßÂULŠA   
-p?`Ôc¾½† =7XM?        "        }ÐÁææ7AcÙ˜AÔ°«ÁÍòš>ÖtvA 
-.*Âe/Âç»™A   
-Cëè>œC„¾Ïeø>H_3?        $        s}´ÁªBjAJQA–º›ÁLÍ”@Òmn@ 
-¦(+ÂæÂ ÓjA   
-À?lG–¾z¨:>??        &        ò®ÁÒ¹@*XA¤ïâÁÞ&ANÇà¾ 
-ŸòOÂöRÂÁ*ßA   
-ätó>Òð¾4ÿ=¾3Ž8?        (        7¶Á£€Â@æÏA¶&ÂQÒé@#¶‚À 
-d3Âæn¿ÁÃˆãA   
-uñ>ëË¾ë2Ø¾™1*?        *        ÎÅÌÁW•?žtÁ@wøÁI\AJRÐÀ 
-(L€ÂcÔÂ€:"B   
-û=H?s¯¾i5Ä¾l´>        ,        áÁÎ£ð>~vAc€ÂõCÖ@¸ãdÀ 
-ÆÅ€Â@çõÁµèùA   
-4S4?“–¾¸v ½ã($?        .        (ÂµÁm']ÀcÔ-A¿€þÁ.–@I? 
-.ú\ÂÄÀÂ_=2B   
-ÁËl?wÑ³½8‰¾\…‚>        0        ‰d¯ÁJÁÝóî@ãéÁqI×@fÏ@ 
-{´ÂuÛºÁ*¯CB   
-ûde?T„>á‘À¾l*I>        2        •ºaÁÈ’ôÀŸCAAÓóÁƒLþ?»žzA 
-GÂ
-g¦Á9E1B   
-£9I?¡S>ïV¿Í*€=        4        \ÁBÁcŸ?ÄC¢A”>ßÁHäô@àWA 
-nÂ„ë¡Á»gB   
-HB"?3{>²×¿†Ë>        6        Q%Ád @UQCAÀþ³Á½¸°¿þËA 
-á¢7Â9æÁ¸woB   
-ÑhD?2±$>nû¾l…Â>        8        œtÁ¸˜;A¡Çú@Í®Áß÷?ÆÅ­A 
-9Â9$Â¢AB   
-—Õ7?%Y>¾ON¾±¨!?        :        ÚTIÁ8ChAÃ;Aƒ¸ Ák0¢@-»A 
--M'Âÿm&Â"wOB   
-k‘:?2>Œ´à¾aÆ?        <        O-+Áó/=ApuÉ@ØO|Á¯‡.AOÚÂA 
-ÅkÂÆ;,Â·gB   
-ß&¼>ªr>š¿i§*?        >        Ò&lÁ`üsAì¶A[Ù/ÁÁßKA¿A A 
-êµðÁ,ºÂ ´GB   
-dÌ›>ñ)É=€´¾'%a?        @        –aaÁ…å‰A÷\@ì{Á-ÿ†AJ$‚A 
-5ñÛÁûß ÂvB   
-´¸Ì=ßë«>Øð@½¥xo?        B        þ¥²Á› °AÄrÏ@8ÆÀQ “A¡–0A 
-I:Âé ÂÜB   
-tV>t‘æ>Mã¬=‹*Z?        D        u­7ÁI¬¶AŠ.ƒ?ž£À	·°At:OA 
-,GJÂX\LÂf`A   
-u^]>Å¸û>˜lÄ>µQ@?        F        =YÁ|€Aw¿|OÀ@œáAá»ê@ 
-2™WÂº#WÂŠEA   
-±>·UV>ê¿Ý>p!R?        H        ÏŒlÀhIUAåi:@q[ÇÀÀ=ÂAhÛ@ 
-¨¿@ÂjfQÂ¹%åA   
-‚¾?ýÅT>f™#?]?        J        †	?ä€AõLK¿š·Ár«­AÑû3A 
-Ïü†Â`SGÂH+ÀA   
-â%?^Ó?Ÿë?k^y=        L        gÏAßOÊAj<è¿d,Àï6œA:,A 
-ÏuˆÂ1‰#ÂÿoÙA   
-þÿR?Iüs>¡yÆ>©•¬>        N        ]Üû@´~ßAF£Œ>A=‰@:£AP»FA 
-û"ŽÂ>ß+Â¾ûÎA   
-›‡?jë¾›Âð>g4?        P        ”Œ(A¡(øA5ß‚À!D@|š±AiÕ@ 
-}˜ÂV>KÂkºXA   
-FÃ=ì‹¾»ÓJ?‹€	?        R        ù©ƒÀ–BË—ÀÀÙâÀÖøÊA&ä¥@ 
-jrŸÂ p„Âp8¡@   
-EŠ¾=€ÑÖ½\<?à)?        T        z)7ÁÁ3B2úÀr£ÀM[§Ajy@ 
-öUƒÂÀ”Âîõø>   
-ËŒÏ<ÞË°¾ƒ#*?µ)?        V        n'À$ÕüAj.9Á¢IA@BâBÌ‹g? 
-;ZÂ½×ÂA·?   
-+>ùÐ!¾;„?ÊÑC?        X        7ä@¶
-B¼TNÁiZþ@êËAê@ 
-àý†ÂŒ]Â­b©À   
-R
-.>¢-½I™?OõV?        Z         AðuäA]"OÁ{FA‚ý€A¾[HÁ 
-éošÂL‡Â'£k¿   
-ú_‹>–Â¾´4€>%(Y?        \        RKAs•ðA˜…?Á¥7A¨DAXx~Á 
-Î°ÂWW†Â.©‘@   
-€&‹>3¿Ÿ½<ŠsG?        ^        ‹¹9A˜ÎA‡;EÁtB5A½ÌŒA!F‰Á 
-¨ÑºÂ>U“ÂK3jA   
-ÇÊ¤>WùÚ¾//¹»<X?        `        ÞcŽAd8ÙA°]ÿÀìsaAá°A¾v°Á 
-fÐÂz
-pÂ€YVA   
-gA‘>»–Ë¾ÑòŸ<>S_?        b        ·ƒ AE4•A­™èÀý`A…•‰A8¨‘Á 
-ûÜÈÂ­ÍyÂ@Â¦A   
-¿¥>y®4¿ÏöŸ=í> ?       vpH“ýêeÖ9ìœÞm/`  vpH“ýêeÖ9ìœÞm/`
+ "$&(  J B( @( >. 8. H 6. $(. "(.  (.                
+>r±¿6r±¿$
+ƒE>"
+ƒE> 
+ƒE>    ná?ñ´¯ÁÈ@RÁ1+AË¾ÄÁV[Â 
+§\KAL¾›Á)Á   
+ƒ4c? e>ˆƒ=»žÜ¾             
+>r±¿6r±¿$·%?"·%? ·%?    æj/@õížÁ@A}Ái°µ@ÍÓÁnNÂ 
+E6A×Ò„Áþ£)Á   
+,]Q?fk½¾’1²>B|Š¾             
+>r±¿6r±¿$Þ#?"Þ#? Þ#?    ›`¡>°–ÁÊË’Á>H7A¥½ÂÁ0æçÁ 
+Ó™ô>]è¤À,k¥?   
+é)9?C?í¾êª?ÌÏ#½             
+>r±¿6r±¿$”Ñ#?"”Ñ#? ”Ñ#?    Ç±ÀäÒ~Áf­Áe˜Ÿ@1—ÉÁ%ˆèÁ 
+bÝ‡@.7¨Á®Æ¾   
+îgò>I×¿4Ð,?ÔKÊ»             
+>r±¿6r±¿$ò ?"ò ? ò ?    ´ã—@:EOÁó_žÁ8²»@xæÁ}÷Á 
+ÕÜ©À¸·ãÁñAA   
+³À4?…®.¾‰\!?lHŒ>        
+     
+>r±¿6r±¿$ŽG?"ŽG? ŽG?    Š9>Àæ¯LÁ°q¸Á¢AûèÚÁäÁ 
+ãÒ‚À´ÂL)A   
+âÊD?÷¾ˆ˜?1B´½             
+>r±¿6r±¿$ °?" °?  °?    ,ÇÀ†™[Á+Ý	ÂkØAó¸Á§ÖÑÁ 
+M‹ÁPù;Â§(?@   
+qû5?šO^¾v?'?Úc¾             
+>r±¿6r±¿$ê%?"ê%? ê%?    /ÉÙÀášÁWÂ>mê@[¯Á-ÇÂ 
+¡ÁÍ;íÁú>?   
+Ð>-Ú¿hË?A¶¾             
+>r±¿6r±¿$œD?"œD? œD?    ÄÀj£ÁXÂQµ,AZÁ«æøÁ 
+@Ö9ÀÕäÂ²ì>À   
+¤»I?Øh¾óx?¹^Ä½             
+>r±¿6r±¿$ÄŠ?"ÄŠ? ÄŠ?    òWÄÀ*í²Á-Âc±Ê@<¶ƒÁy…ÛÁ 
+#@EgÂ¢†=Á   
+ö(?4~¿«U‡>öx¿             
+>r±¿6r±¿$›\ ?"›\ ? ›\ ?    !±•ÀB&¸Á~ÕÂ¥aA#tnÁíÕâÁ 
+l™s@i¼Â û™À   
+È’G?
+y1¾wÞH¼
+¿             
+>r±¿6r±¿$¦?"¦? ¦?    ”VÁõÈLÁcAÂ7hA¢=ƒÁ:‘êÁ 
+¾ð{@ñÅvÂ}eäÀ   
+2*?†G>~‚I=k—I¿             
+>r±¿6r±¿$Ó$?"Ó$? Ó$?    oüªÀ®Ö„Á§› Â/<·@¸¡ÁèLËÁ 
+D½?‡Âq«›Á   
+º~'?”‰À>R=Ä'¿             
+>r±¿6r±¿$¡¶$?"¡¶$? ¡¶$?    t'Áú„Á1‘þÁ=”¿VÁèÁ 
+û5@“†·Âf¯Á   
+Þß=?qE×>Ã!q>¤Ýî¾             
+>r±¿6r±¿$ò#?"ò#? ò#?    òýÀN‘Á÷höÁRnÁBcÁ¯ç„Á 
+„kDAp0®ÂÃÿžÁ   
+!™ ?ç–?ž*º>Ð•¾             
+>r±¿6r±¿$rÏ!?"rÏ!? rÏ!?    ›gnÁ>®rÁà÷	Â£O]Á—µ€ÁÓ‹‹Á 
+e¶;AhgÏÂ;ò×Á   
+ÿ§>³Ü>…ßÚ>‚OH¿              
+>r±¿6r±¿$a&?"a&? a&?    ÌIÁr¦¬Á„öÁTé¨ÁžÒ?Á«cÃÁ 
+ºy­A¼‘àÂ¥„HÂ   
+UÏÆ>Dˆ?æ
+Œ>yÎ,¿        "     
+>r±¿6r±¿$wÂ#?"wÂ#? wÂ#?    Îµ1ÁÆs¹ÁÑQÂcd®Á>U©Á”Ç¿Á 
+IÅA[FÐÂðWÂ   
+uÃ>qÊD?Ëuç>æ¿¾        $     
+>r±¿6r±¿$Ä×$?"Ä×$? Ä×$?    ¦q”Ás$•Á;äÁ¿¥÷Áê˜ºÁ¹å§Á 
+ñÎA;éÈÂM`qÂ   
+oo9>K'?=ê?,è¾        &     
+>r±¿6r±¿$·Å'?"·Å'? ·Å'?    l
+‚ÁqæÁÒ|œÁ_†ëÁ.bÏÁHTšÁ 
+"Ä§@B-ÅÂÅ~mÂ   
+·´=60„> <?ô¿        (     
+>r±¿6r±¿$ñ4!?"ñ4!? ñ4!?    }U|Á#æÂkmžÁúÂ—¬ôÁz¶’Á 
+ÙËA—iºÂ /SÂ   
+vê*=Gû= ÑA?¶í#¿        *     
+>r±¿6r±¿$ë !?"ë !? ë !?    í…Á¾øîÁ~mÁý<ÂÙ¡¸Á/H”Á 
+¨ŸAÓ¨Â½ï4Â   
+3ò…>Í6J>¥5B?ö$¿        ,     
+>r±¿6r±¿$}Ì$?"}Ì$? }Ì$?    é“ÁøÁHÁ¸SõÁêRöÁ¥¹¬Á 
+ï¾:AT“ ÂØé0Â   
+z>Ÿ1…>At?|Ép<        .     
+>r±¿6r±¿$>_!?">_!? >_!?    ï]8Á’žÂ•QCÁ:CÞÁÓÈÂsQŽÁ 
+d“A¨•ŸÂÛ¢)Â   
+áÄ?+À>º,-?4Ì¾        0     
+>r±¿6r±¿$Gä(?"Gä(? Gä(?    Á+üØÁm#^Á¿ý§Á2ÊæÁFŽÁ 
+üÖÍAá©Â:n9Â   
+	Œ?£â>>ƒú?6õï¾        2     
+>r±¿6r±¿$Qg?"Qg? Qg?    €_;ÁqÛ¯ÁÑBVÁMƒåÁSöÊÁœ-®Á 
+¡…¼A ‚¡Â°ñ.Â   
+¨f<?ID½ƒíü>^Æë¾        4     
+>r±¿6r±¿$¥!?"¥!? ¥!?    —÷ÀxZÂëÐ
+ÁqØ¨Áæ÷Á`ÕŠÁ 
+¿åÔA±s›Â¹ %Â   
+v0H?¨gD>MèÈ>o«ã¾        6     
+>r±¿6r±¿$ÇÙ'?"ÇÙ'? ÇÙ'?    ÀNÁ˜Â’ù¿çýaÁ
+iÂgˆ`Á 
+‚ç?äÂ½ìJÂ   
+j1?ÛõW¾žÐ?Ëô¿        8     
+>r±¿6r±¿$š&?"š&? š&?    OÅ™Àp@Â"õ¨?ÛqÁsœ3Â€TßÀ 
+¡¡â@F‹Â8s3Â   
+Ç>Ç˜è¾ø¼Î>ê1¿        :     
+>r±¿6r±¿$	k ?"	k ? 	k ?    ÞuúÀÑ¸4Â8ñØ¿’<ÁOB#ÂÅ`•Á 
+ëÐŽ?Òh’Âê_´Á   
+@†>j¶ó>èºË¾¶8=?        <     
+>r±¿6r±¿$L ?"L ? L ?    |%ßÀEoÂIHAJ¯ÀÕÂ,5Á 
+qb¿9ôÃÂ8+ßÁ   
+Ï!> +(?´ÕÏ=.y<?        >     
+>r±¿6r±¿$·Ø&?"·Ø&? ·Ø&?    ‘ßÁˆ›Âòæz@¹Ñ‹ÀÙ	Â	Á 
+¨nÀ½®Â…Â   
+ê¥<ŒýL¿pï?§‰¾        @     
+>r±¿6r±¿$5þ"?"5þ"? 5þ"?    ØÚÁùÁ³*¼@ùB¥@ÖíÁ¾¿ 
+`Í)ÀÓ}²Â´ÊÂ   
+ÅM^>IxO?%O¿¦Žå½        B     
+>r±¿6r±¿$kˆ?"kˆ? kˆ?    &é*ÁŸ[Âœjš>YZþ@¼®øÁ»sË? 
+™,½@‚ÔÂÉËõÁ   
+”ú|>±´ ?QãÔ¾#¿        D     
+>r±¿6r±¿$g`%?"g`%? g`%?    Íœ¨À,÷Áô'¿|9AòÂ½z÷? 
+…PÀFßÂ}#Â   
+!>"ìí¾‚ò•>æyS?        F     
+>r±¿6r±¿$=´$?"=´$? =´$?     =®À5ÜðÁfcJÀºò	AÅ÷ÂRk> 
+¿[À7‹ÔÂ¶ ]Â   
+Îèš>lr¿ä,q=eJ?        H     
+>r±¿6r±¿$ÄŽ(?"ÄŽ(? ÄŽ(?    Š»ÀïüòÁºÆ¨À1×	A–x Â²ß? 
+sŒ0Áú ÊÂXVMÂ   
+Ð’=žž/?}™¾’»(¿        J     
+>r±¿6r±¿$Z}&?"Z}&? Z}&?    ¾úÊ?=¨'ÂböÀúAþëÂM±G@ 
+0ÚÛ>nyÈÂçŠJÂ   
+Ø5=÷:¿•1P>I¬&?        L     >r±¿6r±¿$ÔÝ*?"ÔÝ*? ÔÝ*?ž
+U=ž
+U=    wA'@23ÂïJˆÀ\hÀ}u"Â {¯@ 
+¢p…ÀlÜÈÂY`lÂ   
+¨C=>ƒV?Lò¾Vôü¾        N     
+>r±¿6r±¿$½/?"½/? ½/?    :ë@ˆ7ÂMô	Á`1ãÀDÑ/Â'0Á@ 
+úš"ÁÂxÑÂ¤Ž¤Â   
+}iÊ=¡k?‹õ ¾h!°¾        P     
+>r±¿6r±¿$t×'?"t×'? t×'?    „¹¤¿V÷&Â$&=ÀÆiYÁ]›'Â1]@ 
+©§iÀÄûÚÂ:/¤Â   
+¥©Ø<Ò…]¿K ‘=Ñ®ý>        R     
+>r±¿6r±¿$V&?"V&? V&?    “Þ_ÀWG2Â0ü"ÀKî°Áq1ÂÅ{e¾ 
+i®;À)ÓÂY6»Â   
+ju=÷|?f†Ï=XôÉ½        T     >r±¿6r±¿$i,?"i,? i,?Ë.??Ë.??    ^ÄÁå²4ÂuãiÀ‰[™ÁòýEÂr~ÖÀ 
+ZPÁgËÕÂgM™Â   
+cP¶=QÍ{¿sï½’$Ö=        V     
+>r±¿6r±¿$H¿%?"H¿%? H¿%?    ‡Áˆh+Âo±ðÀÂÔÁp~\ÂéGñÀ 
+¤öª?OìÂ§FÂ   
+îó= ºx?¿5Ì=ÆÍ6¾        X     
+>r±¿6r±¿$¶×?"¶×? ¶×?    _ü¯Àd+0Âyw2Á ‘]ÁIÂ@ã{@ 
+Ö@=¯ÐÂÎUƒÂ   
+…HŸ=íti?%[µ>O’D>        Z     
+>r±¿6r±¿$‰%?"‰%? ‰%?    të"¿À®:Âî5ïÀíŒAÁL°]ÂW<€À 
+»±†AEÊÂÛ–›Â   
+Ñ¡?)%¿û¨×¾Ã˜¸¾        \     
+>r±¿6r±¿$xÝ&?"xÝ&? xÝ&?    MQ¿ÖÒMÂç¥ìÀW#ùÀ_E^Â…Þz@ 
+ƒ@ÛA‚ßÉÂZ‡Â   
+îM??›~¾‡wy¾?5¿        ^     
+>r±¿6r±¿$í?"í? í?    ¦¸T@£ÌKÂëí+Á’ã¡ÀG,8Â*¹@ 
+—±A×ŽÂÂ§®Â   
+¦½?‡1¿oQu;±(¿        `     
+>r±¿6r±¿$ÉÙ?"ÉÙ? ÉÙ?    —á:AåGÂ°´Á\öWÀz3ÂðQf? 
+¦iÝÀZÃÂÚ¤Â   
+;Ô¤>÷ka¿d)>ï œ¾        b     
+>r±¿6r±¿$Î±%?"Î±%? Î±%?    „JAÕö8Â0“æÀQ]AK"ÂË@ 
+ŸxÁ—ŠÏÂ‘Å¤Â   
+«€>xV¿H±M¾á°á¾       ÷ø3½Wý¨ÕxîaAx»  ÷ø3½Wý¨ÕxîaAx»
