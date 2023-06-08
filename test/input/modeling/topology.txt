@@ -1,2 +1,2 @@
 |molecule_name  |color     |fasta_fn          |fasta_id|pdb_fn             |chain|residue_range|pdb_offset|bead_size|em_residues_per_gaussian|rigid_body|super_rigid_body|chain_of_super_rigid_bodies|
-|Rpb1           |blue      |1WCM_new.fasta.txt|1WCM:A  |BEADS              |     |1,20         |0         |10       |0                       |1         | 1              |                           |
+|Rpb1           |blue      |1WCM_new.fasta.txt|1WCM:A  |BEADS              |     |1,20         |0         |7        |0                       |1         | 1              |                           |

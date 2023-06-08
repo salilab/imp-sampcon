@@ -600,17 +600,18 @@ Objavro.codecnullavro.schema‚¸{
         }
     ]
 }
- ®ıĞN¥®WØÃÚ4ˆ/×Ö- ,IMP develop-3f979581eeIMPIMP restraint&IMP restraint files
+ ó§ı†Ç÷¯Ûı3Ú¤9Ü. ,IMP develop-3f979581eeIMPIMP restraint&IMP restraint files
 alias alternativesfeature
 physicsprovenancesequence
-shapeuncertainty    D root  System  State_0 Rpb1 Frag_1-20 
-"Frag_1-20: Res 10 1-10_bead
- 11-20_bead
- 
-bonds bond (ExcludedVolumeSphere   PairsRestraint 0 TCrossLinkingMassSpectrometryRestraint_Data  LogWrapper 0 >|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI| sigmas  
-SIGMA "
-SIGMA $psis &PSI$ (endpoints *1-10_bead( ,11-20_bead( .\CrossLinkingMassSpectrometryRestraint_PriorPsi  0UniformPrior1. 2particle0 4PSI2 6*JeffreysRestraint_PSI. 8\CrossLinkingMassSpectrometryRestraint_PriorSig  :UniformPrior08 <particle: >
-SIGMA< @XCrossLinkingMassSpectrometryRestraint_Linear  B>|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|@    filter threshold"cluster precision&explicit resolutionmass
+shapeuncertainty    H root  System  State_0 Rpb1 Frag_1-20 
+ Frag_1-20: Res 7 1-7_bead
+ 8-14_bead
+ 15-20_bead
+ 
+bonds bond bond (ExcludedVolumeSphere   PairsRestraint 0 TCrossLinkingMassSpectrometryRestraint_Data  LogWrapper 0  >|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI| "sigmas  $
+SIGMA" &
+SIGMA" (psis  *PSI( ,endpoints  .1-7_bead, 015-20_bead, 2\CrossLinkingMassSpectrometryRestraint_PriorPsi  4UniformPrior12 6particle4 8PSI6 :*JeffreysRestraint_PSI2 <\CrossLinkingMassSpectrometryRestraint_PriorSig  >UniformPrior0< @particle> B
+SIGMA@ DXCrossLinkingMassSpectrometryRestraint_Linear  F>|Chen|0.1|Rpb1|1|Rpb1|18|0|PSI|D    filter threshold"cluster precision&explicit resolutionmass
 radius
 
 *diffusion coefficient
@@ -629,16 +630,16 @@ roots residue indexesrepresentation coordinates
 translation
  rotation
  
-> 4&,*"      " $ & (
-6 * ,$     A  €‰D €‰D ¨½¿@¨½¿@ &  €>    @ &•¿Ö3 •¿Ö3 &ıÿÿ>   zD B  €?@  €?:  €?8  €?0  €?.  €?  €?  €?  €?  €?6  €?  €?   ¨A 
-×#< :(knN0(knN :
-×#<0
-×#< :  ÈB0Háú>  A (MVGQQMVGQQMVGQQMVGQQ LPolypeptide :(IMP.isd.UniformPrior0(IMP.isd.UniformPriorZIMP.pmi.CrossLinkingMassSpectrometryRestraint DSS  .disuccinimidyl suberate "\C1CC(=O)N(C1=O)OC(=O)CCCCCCC(=O)ON2C(=O)CCC2=O $Â1S/C16H20N2O8/c19-11-7-8-12(20)17(11)25-15(23)5-3-1-2-4-6-16(24)26-18-13(21)9-10-14(18)22/h1-10H2 &6ZWIBGKZDAWNIFC-UHFFFAOYSA-N ((../../polii_juri.csv *Rpb1 ,Rpb1            €?          €?    "$&( 
- 
+B$8*0.&$     " $ & (
+8 *  , $    à@   %D €@D €@D s¸¡@Z?ª@Z?ª@ *  €>$   @ *•¿Ö3$•¿Ö3 *ıÿÿ>$  zD D  €?<  €?>  €?4  €?2  €?F  €?:  €?   €?  €?  €?  €?  €?   ¨A 
+×#< >(knN4(knN >
+×#<4
+×#< >  ÈB4Háú>  A (MVGQQMVGQQMVGQQMVGQQ LPolypeptide >(IMP.isd.UniformPrior4(IMP.isd.UniformPriorZIMP.pmi.CrossLinkingMassSpectrometryRestraint DSS  .disuccinimidyl suberate "\C1CC(=O)N(C1=O)OC(=O)CCCCCCC(=O)ON2C(=O)CCC2=O $Â1S/C16H20N2O8/c19-11-7-8-12(20)17(11)25-15(23)5-3-1-2-4-6-16(24)26-18-13(21)9-10-14(18)22/h1-10H2 &6ZWIBGKZDAWNIFC-UHFFFAOYSA-N ((../../polii_juri.csv * Rpb1 , Rpb1            €?          €?          €?   
+ "$&(  
+ 
 (
  "$&( (
- "$&(  B @ :  8  0& .&  &  &  &  6&               
-6r±¿.r±¿äÓ4>äÓ4>äÓ4>    «Sè¿´=ÇÁ’à
-ÁxiA£ÚÁ“óÂ 
-™–AÕ¦³ÁÓŠÁ   
-T´~?¤üÏ¼ôŠª½ŠM=       ®ıĞN¥®WØÃÚ4ˆ/×  ®ıĞN¥®WØÃÚ4ˆ/×
+ "$&(  D <$ >$ 4* 2* F :*  $* $* $*                
+2r±¿:r±¿ A.õ=A.õ=A.õ=    í¨A/„ŞAŞBŒ+G@+YÃ@~0íÀI0¿ª+Â vA 
+åD@”k?ÜA   
+”ùz?Œ½×½-»'>       ó§ı†Ç÷¯Ûı3Ú¤9  ó§ı†Ç÷¯Ûı3Ú¤9

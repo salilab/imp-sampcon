@@ -26,7 +26,7 @@ class Tests(IMP.test.TestCase):
             model_ids = os.path.join(mod_dir, 'filter', 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 97)
+            self.assertEqual(wc, 91)
             os.unlink(model_ids)
             os.rmdir(os.path.join(mod_dir, 'filter'))
 
@@ -67,7 +67,7 @@ class Tests(IMP.test.TestCase):
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '12.0',
                  '-e'])
             gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
-            for score, num in (('A', 2), ('B', 2)):
+            for score, num in (('A', 8), ('B', 6)):
                 score_file = os.path.join(gsm_dir, 'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -76,13 +76,13 @@ class Tests(IMP.test.TestCase):
             model_ids = os.path.join(gsm_dir, 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 5)
+            self.assertEqual(wc, 15)
             os.unlink(model_ids)
 
             model_ids = os.path.join(gsm_dir, 'model_sample_ids.txt')
             with open(model_ids) as fh:
                 lines = fh.readlines()
-            self.assertEqual(len(lines), 4)
+            self.assertEqual(len(lines), 14)
             for line in lines:
                 num, sample = line.rstrip('\r\n').split()
                 rmf = os.path.join(gsm_dir, 'sample_%s' % sample,
@@ -100,7 +100,7 @@ class Tests(IMP.test.TestCase):
                     self.assertTrue(fpf.get_is(prov))
                     fp = fpf.get(prov)
                     self.assertEqual(fp.get_method(), "Best scoring")
-                    self.assertEqual(fp.get_frames(), 4)
+                    self.assertEqual(fp.get_frames(), 14)
                     # Next provenance should be CombineProvenance
                     prov, = prov.get_children()
                     self.assertTrue(cpf.get_is(prov))
@@ -138,7 +138,7 @@ class Tests(IMP.test.TestCase):
                  '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '12.0',
                  '-e'])
             gsm_dir = os.path.join(mod_dir, 'good_scoring_models')
-            for score, num in (('A', 1), ('B', 1)):
+            for score, num in (('A', 4), ('B', 4)):
                 score_file = os.path.join(gsm_dir, 'scores%s.txt' % score)
                 with open(score_file) as fh:
                     wc = len(fh.readlines())
@@ -147,13 +147,13 @@ class Tests(IMP.test.TestCase):
             model_ids = os.path.join(gsm_dir, 'model_ids_scores.txt')
             with open(model_ids) as fh:
                 wc = len(fh.readlines())
-            self.assertEqual(wc, 3)
+            self.assertEqual(wc, 9)
             os.unlink(model_ids)
 
             model_ids = os.path.join(gsm_dir, 'model_sample_ids.txt')
             with open(model_ids) as fh:
                 lines = fh.readlines()
-            self.assertEqual(len(lines), 2)
+            self.assertEqual(len(lines), 8)
             for line in lines:
                 num, sample = line.rstrip('\r\n').split()
                 os.unlink(os.path.join(gsm_dir, 'sample_%s' % sample,

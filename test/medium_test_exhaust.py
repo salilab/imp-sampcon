@@ -91,8 +91,8 @@ class Tests(IMP.test.TestCase):
                 # Top-level provenance should be ClusterProvenance
                 self.assertTrue(clpf.get_is(prov))
                 cp = clpf.get(prov)
-                self.assertEqual(cp.get_members(), 36)
-                self.assertAlmostEqual(cp.get_precision(), 0.42, delta=0.01)
+                self.assertEqual(cp.get_members(), 27)
+                self.assertAlmostEqual(cp.get_precision(), 1.70, delta=0.01)
                 self.assertEqual(cp.get_density(),
                                  os.path.abspath('test.output.json'))
                 # Next provenance should be filter, combine
