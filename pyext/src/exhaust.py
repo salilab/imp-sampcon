@@ -524,6 +524,7 @@ def main():
         cmeta['centroid'] = {'index': cluster_center_index,
                              'file': outfname}
         metadata['clusters'].append(cmeta)
+    fpc.close()
     with open(metadata_fname, 'w') as jfh:
         json.dump(metadata, jfh)
     # generate plots for the score and structure tests
