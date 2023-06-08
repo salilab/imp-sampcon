@@ -41,9 +41,9 @@ class Tests(IMP.test.TestCase):
             select_good,
             ['-rd', mod_dir, '-rp', 'run',
              '-sl', 'CrossLinkingMassSpectrometryRestraint_Distance_',
-             '-pl', 'ConnectivityRestraint_Rpb1',
+             '-pl', 'ConnectivityRestraint_Score_Rpb1',
              'CrossLinkingMassSpectrometryRestraint_Data_Score_Chen',
-             'ExcludedVolumeSphere_None', 'Total_Score',
+             'ExcludedVolumeSphere_Score', 'Total_Score',
              '-alt', '1.0', '-aut', '1.0', '-mlt', '0.0', '-mut', '15.0',
              '-e'])
         if make_rmf:
