@@ -172,9 +172,15 @@ class GoodScoringModelSelector(object):
         return False
 
     def _extract_models_from_trajectories(self, output_dir, num_runs,
-                                          total_num_frames):
+                                          total_num_frames, sampleA_set):
         '''Given the list of all good-scoring model indices, extract
-           their frames and store them ordered by the list index.'''
+           their frames and store them ordered by the list index.
+           Store the models in two sample subdirectories.'''
+        sampleA_dir = os.path.join(output_dir, "sample_A")
+        sampleB_dir = os.path.join(output_dir, "sample_B")
+        os.mkdir(sampleA_dir)
+        os.mkdir(sampleB_dir)
+
         num_gsm = sum(1 for e in self.all_good_scoring_models)
         print("Extracting", num_gsm, "good scoring models.")
         model_num = 1
@@ -189,8 +195,9 @@ class GoodScoringModelSelector(object):
             trajfile = os.path.join(self.run_dir, self.run_prefix+runid,
                                     'output', 'rmfs', replicaid+'.rmf3')
 
+            sample_dir = sampleA_dir if i in sampleA_set else sampleB_dir
             rmf_slice(trajfile, frameid,
-                      os.path.join(output_dir, str(i)+'.rmf3'),
+                      os.path.join(sample_dir, str(i)+'.rmf3'),
                       num_runs, total_num_frames,
                       len(self.all_good_scoring_models))
 
@@ -335,17 +342,18 @@ class GoodScoringModelSelector(object):
         outf.close()
 
         if extract:
-            self._extract_models_from_trajectories(
-                output_dir, num_runs, total_num_frames)
-
-            return self._split_good_scoring_models_into_two_subsets(
-                output_dir, num_runs,
+            sampA, sampB = self._split_good_scoring_models_into_two_subsets(
+                num_runs,
                 split_type="divide_by_run_ids" if num_runs > 1 else "random")
+            self._extract_models_from_trajectories(
+                output_dir, num_runs, total_num_frames, frozenset(sampA))
+            return sampA, sampB
+
 
     def _split_good_scoring_models_into_two_subsets(
-            self, output_dir, num_runs, split_type="divide_by_run_ids"):
-        ''' Get the listof good scoring models and split them into two samples,
-        keeping the models in separate directories. Return the two subsets.
+            self, num_runs, split_type="divide_by_run_ids"):
+        ''' Get the list of good scoring models and split them into two
+            samples. Return the two subsets.
 
         @param split_type how to split good scoring models into two samples.
                Current options are:
@@ -377,22 +385,10 @@ class GoodScoringModelSelector(object):
                 if i not in sampleA_indices]
 
         # write model and sample IDs to a file
-        f = open(os.path.join(self.run_dir, 'good_scoring_models',
-                              'model_sample_ids.txt'), 'w')
-
-        # move models to corresponding sample directory
-        sampleA_dir = os.path.join(output_dir, "sample_A")
-        sampleB_dir = os.path.join(output_dir, "sample_B")
-        os.mkdir(sampleA_dir)
-        os.mkdir(sampleB_dir)
-
-        for i in sampleA_indices:
-            print(i, "A", file=f)
-            shutil.move(os.path.join(output_dir, str(i)+'.rmf3'),
-                        os.path.join(sampleA_dir, str(i)+'.rmf3'))
-        for i in sampleB_indices:
-            print(i, "B", file=f)
-            shutil.move(os.path.join(output_dir, str(i)+'.rmf3'),
-                        os.path.join(sampleB_dir, str(i)+'.rmf3'))
-        f.close()
+        with open(os.path.join(self.run_dir, 'good_scoring_models',
+                               'model_sample_ids.txt'), 'w') as f:
+            for i in sampleA_indices:
+                print(i, "A", file=f)
+            for i in sampleB_indices:
+                print(i, "B", file=f)
         return sampleA_indices, sampleB_indices
