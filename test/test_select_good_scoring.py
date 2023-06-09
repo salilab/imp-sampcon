@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import RMF
 import IMP.test
@@ -112,8 +113,10 @@ class Tests(IMP.test.TestCase):
                     prov, = prov.get_children()
                     self.assertTrue(spf.get_is(prov))
                     sp = spf.get(prov)
-                    self.assertTrue(
-                        os.path.exists(sp.get_filename() + '.orig'))
+                    # On Windows, filenames are not altered
+                    if sys.platform != 'win32':
+                        self.assertTrue(
+                            os.path.exists(sp.get_filename() + '.orig'))
                 os.unlink(rmf)
             os.unlink(model_ids)
             os.rmdir(os.path.join(gsm_dir, 'sample_A'))
