@@ -115,8 +115,9 @@ class Tests(IMP.test.TestCase):
                     sp = spf.get(prov)
                     # On Windows, filenames are not altered
                     if sys.platform != 'win32':
-                        self.assertTrue(
-                            os.path.exists(sp.get_filename() + '.orig'))
+                        realpath = sp.get_filename() + '.orig'
+                        self.assertTrue(os.path.exists(realpath),
+                                        "%s does not exist" % realpath)
                 os.unlink(rmf)
             os.unlink(model_ids)
             os.rmdir(os.path.join(gsm_dir, 'sample_A'))
