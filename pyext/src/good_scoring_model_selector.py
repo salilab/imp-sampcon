@@ -354,7 +354,6 @@ class GoodScoringModelSelector(object):
                 output_dir, num_runs, total_num_frames, frozenset(sampA))
             return sampA, sampB
 
-
     def _split_good_scoring_models_into_two_subsets(
             self, num_runs, split_type="divide_by_run_ids"):
         ''' Get the list of good scoring models and split them into two
