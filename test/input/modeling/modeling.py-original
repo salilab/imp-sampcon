@@ -1,5 +1,5 @@
 # This script was used to generate the sample runs used in the tests.
-# It was renamed to *.orig as otherwise IMP's build system will try to
+# It was renamed to *.py-original as otherwise IMP's build system will try to
 # run it as a test case.
 
 """
