@@ -77,7 +77,7 @@ def precision_cluster(distmat, numModels, rmsd_cutoff):
         # update neighbors
         for n in neighbors[currcenter]:
             # removes the neighbor from the pool
-            unclustered.remove(n)  # first occurence of n is removed.
+            unclustered.remove(n)  # first occurrence of n is removed.
             boolUnclustered[n] = False  # clustered
 
         for n in neighbors[currcenter]:
