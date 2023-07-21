@@ -154,6 +154,16 @@ def make_cluster_centroid(infname, frame, outfname, cluster_index,
                          outfname])
 
 
+def _read_scores(fname, sample_name):
+    scores = []
+    with open(fname, 'r') as f:
+        for line in f:
+            scores.append(float(line.strip("\n")))
+    if len(scores) == 0:
+        raise ValueError("%s (file %s) is empty" % (sample_name, fname))
+    return scores
+
+
 def main():
     args = parse_args()
 
@@ -182,17 +192,8 @@ def main():
     idfile_B = "Identities_B.txt"
 
     # Step 0: Compute Score convergence
-    score_A = []
-    score_B = []
-
-    with open(os.path.join(args.path, args.scoreA), 'r') as f:
-        for line in f:
-            score_A.append(float(line.strip("\n")))
-
-    with open(os.path.join(args.path, args.scoreB), 'r') as f:
-        for line in f:
-            score_B.append(float(line.strip("\n")))
-
+    score_A = _read_scores(os.path.join(args.path, args.scoreA), "Sample A")
+    score_B = _read_scores(os.path.join(args.path, args.scoreB), "Sample B")
     scores = score_A + score_B
 
     # Get the convergence of the best score

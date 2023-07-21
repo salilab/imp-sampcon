@@ -229,6 +229,22 @@ class Tests(IMP.test.TestCase):
                 ['-n', 'test', '-p', gsm_dir,
                  '-m', 'cpu_omp', '-c', '8', '-a', '-g', '0.5', '-e', 'pdb'])
 
+    def test_read_scores(self):
+        """Test _read_scores function"""
+        with IMP.test.temporary_directory() as tmpdir:
+            fname = os.path.join(tmpdir, 'scoresA.txt')
+            with open(fname, 'w') as fh:
+                pass
+            self.assertRaises(ValueError, exhaust._read_scores,
+                              fname, "Sample A")
+            with open(fname, 'w') as fh:
+                fh.write("1.0\n2.5\n42.6\n")
+            scores = exhaust._read_scores(fname, "Sample A")
+            self.assertEqual(len(scores), 3)
+            self.assertAlmostEqual(scores[0], 1.0, delta=0.01)
+            self.assertAlmostEqual(scores[1], 2.5, delta=0.01)
+            self.assertAlmostEqual(scores[2], 42.6, delta=0.01)
+
 
 if __name__ == '__main__':
     IMP.test.main()
