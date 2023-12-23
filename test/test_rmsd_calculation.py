@@ -181,6 +181,14 @@ class Tests(IMP.test.TestCase):
         os.unlink("./Distances_Matrix.data.npy")
         self.assertAlmostEqual(rmsd, rmsd_ali_amb[0][2], delta=1e-3)
 
+    @IMP.test.skipIf(pyRMSD is not None, "We have pyrmsd")
+    def test_pyrmsd_is_missing(self):
+        """Check that the pyRMSD library is missing"""
+        # This test is a noop; it is here simply so that not all tests are
+        # skipped when PyRMSD is missing (Python 3.12 flags all tests being
+        # skipped as an error)
+        pass
+
     @IMP.test.skipIf(pyRMSD is None, "Requires pyrmsd")
     def test_rmsd_with_symm_group_complexes_no_alignment(self):
         """Check for rmsd with complexes specified versus the original setup"""
