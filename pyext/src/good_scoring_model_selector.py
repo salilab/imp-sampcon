@@ -137,14 +137,14 @@ class GoodScoringModelSelector(object):
             crosslink_percentage_lower_threshold,
             crosslink_percentage_upper_threshold,
             xlink_distance_lower_threshold, xlink_distance_upper_threshold):
-        '''For crosslinks, we want models with atleast x% (e.g. 90%) or more
+        '''For crosslinks, we want models with at least x% (e.g. 90%) or more
         crosslink satisfaction. A crosslink is satisfied if the distance
         is between the lower and upper distance thresholds
         @param crosslink_distance_values values of distances in the
                current model
-        @param crosslink_percentage_lower_threshold atleast x% of crosslinks
+        @param crosslink_percentage_lower_threshold at least x% of crosslinks
                should be within the below distance thresholds
-        @param crosslink_percentage_upper_threshold atmost x% of crosslinks
+        @param crosslink_percentage_upper_threshold at most x% of crosslinks
                should be within the below distance thresholds
                (usually 100%: dummy parameter)
         @param xlink_distance_lower_threshold a crosslink should be at least
