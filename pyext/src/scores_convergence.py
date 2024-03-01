@@ -1,3 +1,6 @@
+"""@namespace IMP.sampcon.scores_convergence
+   Utilities to manage distributions of scores."""
+
 from __future__ import print_function
 import numpy as np
 

@@ -1,3 +1,6 @@
+"""@namespace IMP.sampcon.precision_rmsd
+   Calculation of precision and RMSD."""
+
 from __future__ import print_function
 import os
 import numpy

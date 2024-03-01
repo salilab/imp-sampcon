@@ -1,3 +1,6 @@
+"""@namespace IMP.sampcon.clustering_rmsd
+   Utilities to cluster and calculate RMSD and precision"""
+
 from __future__ import print_function
 import numpy
 import math

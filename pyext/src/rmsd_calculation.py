@@ -1,3 +1,6 @@
+"""@namespace IMP.sampcon.rmsd_calculation
+   Utilities to help with RMSD calculation."""
+
 from __future__ import print_function
 import pyRMSD.RMSDCalculator
 from pyRMSD.condensedMatrix import CondensedMatrix
