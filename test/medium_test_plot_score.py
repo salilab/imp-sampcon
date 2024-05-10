@@ -1,3 +1,8 @@
+try:
+    import matplotlib
+    import pandas
+except ImportError:
+    pandas = None
 import os
 import IMP.test
 from IMP.sampcon import plot_score
@@ -10,10 +15,7 @@ class Tests(IMP.test.TestCase):
 
     def test_plot_score_one(self):
         """Test plot_score.py with one score"""
-        try:
-            import matplotlib  # noqa: F401
-            import pandas  # noqa: F401
-        except ImportError:
+        if pandas is None:
             self.skipTest(
                 "this test requires the matplotlib and pandas Python modules")
         self.run_python_module(
@@ -24,10 +26,7 @@ class Tests(IMP.test.TestCase):
 
     def test_plot_score_all(self):
         """Test plot_score.py with all scores"""
-        try:
-            import matplotlib  # noqa: F401
-            import pandas  # noqa: F401
-        except ImportError:
+        if pandas is None:
             self.skipTest(
                 "this test requires the matplotlib and pandas Python modules")
         expected = [
@@ -44,10 +43,7 @@ class Tests(IMP.test.TestCase):
 
     def test_plot_score_bad(self):
         """Test plot_score.py with bad score"""
-        try:
-            import matplotlib  # noqa: F401
-            import pandas  # noqa: F401
-        except ImportError:
+        if pandas is None:
             self.skipTest(
                 "this test requires the matplotlib and pandas Python modules")
         self.assertRaises(
