@@ -1,6 +1,6 @@
 try:
-    import matplotlib
-    import pandas
+    import matplotlib  # noqa: F401
+    import pandas  # noqa: F401
 except ImportError:
     pandas = None
 import os
