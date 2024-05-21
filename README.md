@@ -17,7 +17,7 @@ original pyRMSD - which is no longer maintained - to fix bugs and add
 Python 3 support.)
 
 In the Sali lab, pyRMSD is already built, so can be used with
-`module load python2/pyrmsd` or `module load python3/pyrmsd`.
+`module load python3/pyrmsd`.
 
 # imp_sampcon: sampling exhaustiveness test {#imp_sampcon}
 
