@@ -1,7 +1,6 @@
 """@namespace IMP.sampcon.rmsd_calculation
    Utilities to help with RMSD calculation."""
 
-from __future__ import print_function
 import pyRMSD.RMSDCalculator
 from pyRMSD.condensedMatrix import CondensedMatrix
 
@@ -460,7 +459,7 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
             # additionally set number of cores for parallel calculator
             calculator.setNumberOfOpenMPThreads(cores)
         rmsd = calculator.pairwiseRMSDMatrix()
-    elif sys.version_info[0] == 3:  # python 3 with symm groups
+    else:
         if mode == "cpu_omp":
             # additionally set number of cores for parallel calculator
             calculator.setNumberOfOpenMPThreads(1)
@@ -471,13 +470,6 @@ def get_rmsds_matrix(conforms,  mode,  sup,  cores, symm_groups=None):
             rmsd += list(i)
         p.close()
         p.terminate()
-    else:  # python 2 with symm groups
-        if mode == "cpu_omp":
-            # additionally set number of cores for parallel calculator
-            calculator.setNumberOfOpenMPThreads(cores)
-        rmsd = []
-        for i in range(len(conforms) - 1):
-            rmsd += list(calculator.oneVsFollowing(i))
     rmsd_matrix = CondensedMatrix(rmsd)
     inner_data = rmsd_matrix.get_data()
     np.save("Distances_Matrix.data", inner_data)

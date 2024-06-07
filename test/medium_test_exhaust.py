@@ -9,10 +9,6 @@ import sys
 import json
 from IMP.sampcon import exhaust, select_good
 
-# Skip gnuplot tests on Python 2.7; on our CI systems we get conflicts between
-# system gnuplot and conda's ancient Python 2 packages
-TEST_GNUPLOT = sys.version_info[0] >= 3
-
 
 def make_pdbs_from_rmfs(tmpdir):
     for sample in ('sample_A', 'sample_B'):
@@ -70,7 +66,7 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            gnuplot = ['-gp'] if TEST_GNUPLOT else []
+            gnuplot = ['-gp']
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
@@ -118,11 +114,9 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc',
-                'test.output.json']
-            if TEST_GNUPLOT:
-                expected.extend([
-                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'test.output.json',
+                'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -139,7 +133,7 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir, make_rmf=True)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            gnuplot = ['-gp'] if TEST_GNUPLOT else []
+            gnuplot = ['-gp']
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
@@ -159,11 +153,9 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
-                'cluster.0/Sample_B/LPD_TestAll.mrc']
-            if TEST_GNUPLOT:
-                expected.extend([
-                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'cluster.0/Sample_B/LPD_TestAll.mrc',
+                'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -181,7 +173,7 @@ class Tests(IMP.test.TestCase):
         with IMP.test.temporary_working_directory() as tmpdir:
             self.make_models(tmpdir, make_rmf=True)
             gsm_dir = os.path.join(tmpdir, 'modeling', 'good_scoring_models')
-            gnuplot = ['-gp'] if TEST_GNUPLOT else []
+            gnuplot = ['-gp']
             self.run_python_module(
                 exhaust,
                 ['-n', 'test', '-p', gsm_dir,
@@ -202,11 +194,9 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/cluster_center_model.rmf3',
                 'cluster.0/LPD_TestAll.mrc',
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
-                'cluster.0/Sample_B/LPD_TestAll.mrc']
-            if TEST_GNUPLOT:
-                expected.extend([
-                    'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                    'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'cluster.0/Sample_B/LPD_TestAll.mrc',
+                'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))

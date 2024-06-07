@@ -1,7 +1,6 @@
 """@namespace IMP.sampcon.good_scoring_model_selector
    Select good-scoring models based on scores and/or data satisfaction."""
 
-from __future__ import print_function, division
 import RMF
 import subprocess
 import os
@@ -56,7 +55,7 @@ else:
                         stdout=FNULL, stderr=subprocess.STDOUT)
 
 
-class GoodScoringModelSelector(object):
+class GoodScoringModelSelector:
     # Authors: Shruthi Viswanath
 
     ''' Select good-scoring models based on scores and/or data satisfaction.

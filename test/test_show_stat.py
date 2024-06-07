@@ -1,8 +1,5 @@
 import sys
-if sys.version_info[0] >= 3:
-    from io import StringIO as StdoutIO
-else:
-    from io import BytesIO as StdoutIO
+from io import StringIO as StdoutIO
 import os
 import IMP.test
 from IMP.sampcon import show_stat

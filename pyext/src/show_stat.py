@@ -1,4 +1,3 @@
-from __future__ import print_function
 from IMP import ArgumentParser
 
 __doc__ = "Show fields in a PMI stat file."

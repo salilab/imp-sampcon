@@ -1,7 +1,6 @@
 """@namespace IMP.sampcon.precision_rmsd
    Calculation of precision and RMSD."""
 
-from __future__ import print_function
 import os
 import numpy
 import IMP
@@ -81,7 +80,7 @@ def get_particles_from_superposed(
     return rmsd, ps, trans
 
 
-class GetModelDensity(object):
+class GetModelDensity:
     """Compute mean density maps from structures.
     Keeps a dictionary of density maps,
     keys are in the custom ranges. When you call add_subunits_density, it adds
