@@ -13,7 +13,6 @@ import IMP.atom
 import IMP.rmf
 import RMF
 import multiprocessing as mp
-import sys
 from itertools import combinations
 
 
