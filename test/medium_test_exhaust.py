@@ -5,7 +5,6 @@ import IMP.atom
 import IMP.rmf
 import RMF
 import IMP.test
-import sys
 import json
 from IMP.sampcon import exhaust, select_good
 
@@ -116,7 +115,7 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/Sample_B/LPD_TestAll.mrc',
                 'test.output.json',
                 'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf']
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -155,7 +154,7 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc',
                 'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf']
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
@@ -196,7 +195,7 @@ class Tests(IMP.test.TestCase):
                 'cluster.0/Sample_A/LPD_TestAll.mrc',
                 'cluster.0/Sample_B/LPD_TestAll.mrc',
                 'test.ChiSquare.pdf', 'test.Cluster_Population.pdf',
-                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf'])
+                'test.Score_Dist.pdf', 'test.Top_Score_Conv.pdf']
 
             for e in expected:
                 os.unlink(os.path.join(tmpdir, e))
