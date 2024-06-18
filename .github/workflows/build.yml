@@ -28,8 +28,7 @@ jobs:
         eval "$(conda shell.bash hook)"
         conda activate python${{ matrix.python-version }}
         mkdir build && cd build
-        if test "${{ matrix.python-version }}" = "2.7" ; then PY2=on; else PY2=off; fi
-        cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP -DUSE_PYTHON2=${PY2}
+        cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP
         make
         ./setup_environment.sh pytest --cov=.. --cov-branch --cov-report=xml -v ../test/test_*.py ../test/medium_test_*.py test/*/*.py
         flake8 ../pyext/src/ ../test/
