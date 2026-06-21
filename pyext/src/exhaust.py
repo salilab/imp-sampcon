@@ -241,16 +241,20 @@ def main():
 
     print("Size of conformation matrix", conforms.shape)
 
-    if not args.skip_sampling_precision:
-        # get_rmsds_matrix modifies conforms, so save it to a file and restore
-        # afterwards (so that we retain the original IMP orientation)
-        numpy.save("conforms", conforms)
+    # get_rmsds_matrix modifies conforms, so save it to a file and restore
+    # afterwards (so that we retain the original IMP orientation)
+    numpy.save("conforms", conforms)
+
+    if not os.path.isfile("Distances_Matrix.data.npy"):
+        print("Computing RMSD matrix...")
         inner_data = rmsd_calculation.get_rmsds_matrix(
-                conforms, args.mode, args.align, args.cores, symm_groups)
+            conforms, args.mode, args.align, args.cores, symm_groups)
         print("Size of RMSD matrix (flattened):", inner_data.shape)
         del conforms
         conforms = numpy.load("conforms.npy")
         os.unlink('conforms.npy')
+    else:
+        print("Loading saved RMSD matrix")
 
     from pyRMSD.matrixHandler import MatrixHandler
     mHandler = MatrixHandler()
