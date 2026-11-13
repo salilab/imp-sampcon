@@ -15,20 +15,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.14"]
+        python-version: ["3.15"]
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v7
       with:
         submodules: true
-    - name: Setup conda and dependencies
+    - name: Setup conda
+      uses: conda-incubator/setup-miniconda@v4
+      with:
+        miniforge-version: latest
+        channels: conda-forge, salilab
+        conda-remove-defaults: "true"
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
       run: |
-        tools/setup_ci.sh ${{ matrix.python-version }}
+        tools/setup_ci.sh
     - name: Test
       run: |
         eval "$(conda shell.bash hook)"
-        conda activate python${{ matrix.python-version }}
+        conda activate test
         mkdir build && cd build
         cmake .. -DIMP_DIR=${CONDA_PREFIX}/lib/cmake/IMP
         make
